@@ -1,0 +1,10 @@
+requests
+redis
+Flask
+mongoengine
+boto3
+ipython
+Flask-Cors
+docopt
+paramiko
+unidecode

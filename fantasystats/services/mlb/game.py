@@ -1,0 +1,656 @@
+import json
+from fantasystats import context
+from fantasystats.managers.mlb import (
+    game, team, venue, player, gameplayer
+)
+
+
+def get_games_by_date(game_date):
+
+    all_games = game.get_by_game_date(game_date)
+
+    return [
+        get_game_by_key(g.game_key, game_info=g, include_players=False)
+        for g in all_games
+    ]
+
+
+def get_game_by_key(game_key, game_info=None, include_players=True):
+
+    if not game_info:
+        game_info = game.get_game_by_key(game_key)
+
+    if game_info is None:
+        return {}
+
+    home_team_name = game_info.home_team
+    away_team_name = game_info.away_team
+
+    game_info.home_team = get_team(game_info.home_team)
+    game_info.away_team = get_team(game_info.away_team)
+    game_info.home_pitcher = get_player_bio(game_info.home_pitcher)
+    game_info.away_pitcher = get_player_bio(game_info.away_pitcher)
+    game_info.venue = get_venue(game_info.venue)
+    game_info.id = None
+
+    game_info = game_info.to_mongo()
+    if include_players:
+        game_info['players'] = get_game_players(
+            game_key,
+            home_team_name,
+            away_team_name,
+        )
+
+    return game_info
+
+
+def get_team(team_name):
+
+    team_info = team.get_team_by_name(team_name)
+
+    return {
+        'full_name': team_info.full_name,
+        'location_name': team_info.location_name,
+        'league': team_info.league,
+        'division': team_info.division,
+        'venue': get_venue(team_info.venue),
+        'abbr': team_info.abbr,
+        'team_id': team_info.name_search,
+        'color1': team_info.color1,
+        'color2': team_info.color2,
+        'color3': team_info.color3,
+        'logo': 'https://fantasydataobj.s3.us-east-2.amazonaws.com/mlb/teams/%s.png' % (
+            team_info.name_search
+        )
+    }
+
+
+def get_versus(season, away_team, home_team):
+
+    return {
+        'home': get_team_details(season, home_team),
+        'away': get_team_details(season, away_team)
+    }
+
+
+def get_venue(venue_name):
+
+    venue_info = venue.get_venue_by_name(venue_name)
+
+    return {
+        'venue_name': venue_info['name']
+    }
+
+
+def get_player_bio(player_name):
+
+    player_info = player.get_player_by_name(player_name)
+
+    if not player_info:
+        return {}
+
+    return {
+        'name': player_info.box_score_name,
+        'primary_number': player_info.primary_number,
+        'position': player_info.position,
+        'birth_date': player_info.birth_date,
+        'birth_country': player_info.birth_country,
+        'bat_side': player_info.bat_side,
+        'pitch_side:': player_info.pitch_side,
+        'draft_year': player_info.draft_year,
+        'player_id': player_info.name_search,
+        'player_img': 'https://fantasydataobj.s3.us-east-2.amazonaws.com/mlb/players/%s' % player_info.player_img
+    }
+
+
+def get_game_players(game_key, home_team, away_team):
+
+    gameplayers = gameplayer.get_gameplayers_by_game_key(game_key)
+
+    all_players = {
+        'home': {
+            'batters': [],
+            'pitchers': [],
+            'fielders': []
+        },
+        'away': {
+            'batters': [],
+            'pitchers': [],
+            'fielders': []
+        },
+    }
+
+    for p in gameplayers:
+
+        player_info = get_player_bio(p.player_name)
+        if not player_info:
+            continue
+        batting = None
+        fielding = None
+        pitching = None
+
+        if p.is_batter:
+            batting = p.stats['batting']
+            batting['player_name'] = player_info['name']
+            batting['player_id'] = p['player_name']
+            if p.team_name == home_team:
+                all_players['home']['batters'].append(batting)
+            else:
+                all_players['away']['batters'].append(batting)
+        if p.is_pitcher:
+            pitching = p.stats['pitching']
+            pitching['player_name'] = player_info['name']
+            pitching['player_id'] = p['player_name']
+            if p.team_name == home_team:
+                all_players['home']['pitchers'].append(pitching)
+            else:
+                all_players['away']['pitchers'].append(pitching)
+        if p.is_fielder:
+            fielding = p.stats['fielding']
+            fielding['player_name'] = player_info['name']
+            fielding['player_id'] = p['player_name']
+            if p.team_name == home_team:
+                all_players['home']['fielders'].append(fielding)
+            else:
+                all_players['away']['fielders'].append(fielding)
+
+    return all_players
+
+
+def get_standings(season, team_name=None, by='mlb'):
+
+    if by not in ['league', 'mlb', 'division']:
+        raise ValueError
+
+    all_games = game.get_games_by_season(season, team_name=team_name)
+
+    games = {}
+
+    for g in all_games:
+        if g.game_type != 'R':
+            continue
+        home = get_team(g.home_team)
+        away = get_team(g.away_team)
+
+        if home['division'] == 'n/a':
+            continue
+        if g.home_team not in games:
+            games[g.home_team] = {
+                'team': home,
+                'games': 0,
+                'wins': 0,
+                'losses': 0,
+                'win_per': 0.00,
+                'runs_for': 0,
+                'runs_against': 0,
+                'runs_diff': 0,
+                'home': {
+                    'games': 0,
+                    'wins': 0,
+                    'losses': 0,
+                    'win_per': 0.00
+                },
+                'away': {
+                    'games': 0,
+                    'wins': 0,
+                    'losses': 0,
+                    'win_per': 0.00
+                },
+            }
+        if g.away_team not in games:
+            games[g.away_team] = {
+                'team': away,
+                'games': 0,
+                'wins': 0,
+                'losses': 0,
+                'win_per': 0.00,
+                'runs_for': 0,
+                'runs_against': 0,
+                'runs_diff': 0,
+                'home': {
+                    'games': 0,
+                    'wins': 0,
+                    'losses': 0,
+                    'win_per': 0.00
+                },
+                'away': {
+                    'games': 0,
+                    'wins': 0,
+                    'losses': 0,
+                    'win_per': 0.00
+                },
+            }
+
+        if g.game_status not in ['F', 'FR']:
+            continue
+
+        games[g.home_team]['games'] += 1
+        games[g.home_team]['home']['games'] += 1
+        games[g.away_team]['games'] += 1
+        games[g.away_team]['away']['games'] += 1
+
+        games[g.home_team]['runs_for'] += g.team_scoring['home']['runs']
+        games[g.home_team]['runs_against'] += g.team_scoring['away']['runs']
+
+        games[g.away_team]['runs_for'] += g.team_scoring['away']['runs']
+        games[g.away_team]['runs_against'] += g.team_scoring['home']['runs']
+
+        games[g.home_team]['runs_diff'] = games[g.home_team]['runs_for'] - \
+            games[g.home_team]['runs_against']
+        games[g.away_team]['runs_diff'] = games[g.away_team]['runs_for'] - \
+            games[g.away_team]['runs_against']
+
+        if g.winner_side == 'home':
+            games[g.home_team]['wins'] += 1
+            games[g.away_team]['losses'] += 1
+
+            games[g.home_team]['home']['wins'] += 1
+            games[g.away_team]['away']['losses'] += 1
+        else:
+            games[g.home_team]['losses'] += 1
+            games[g.away_team]['wins'] += 1
+
+            games[g.home_team]['home']['losses'] += 1
+            games[g.away_team]['away']['wins'] += 1
+
+        games[g.home_team]['win_per'] = (
+            games[g.home_team]['wins'] / games[g.home_team]['games']
+        )
+        games[g.away_team]['win_per'] = (
+            games[g.away_team]['wins'] / games[g.away_team]['games']
+        )
+
+        if games[g.home_team]['home']['games'] > 0:
+            games[g.home_team]['home']['win_per'] = (
+                games[g.home_team]['home']['wins'] /
+                games[g.home_team]['home']['games']
+            )
+        if games[g.home_team]['away']['games'] > 0:
+            games[g.home_team]['away']['win_per'] = (
+                games[g.home_team]['away']['wins'] /
+                games[g.home_team]['away']['games']
+            )
+
+        if games[g.away_team]['home']['games'] > 0:
+            games[g.away_team]['home']['win_per'] = (
+                games[g.away_team]['home']['wins'] /
+                games[g.away_team]['home']['games']
+            )
+        if games[g.away_team]['away']['games'] > 0:
+            games[g.away_team]['away']['win_per'] = (
+                games[g.away_team]['away']['wins'] /
+                games[g.away_team]['away']['games']
+            )
+
+    games = games.values()
+    games = sorted(games, key=lambda x: -x['win_per'])
+
+    if team_name:
+        for g in games:
+            if g['team']['team_id'] == team_name:
+                return g
+    if by == 'mlb':
+        return games
+    elif by == 'league':
+        leagues = {}
+        for g in games:
+            if g['team']['league'] not in leagues:
+                leagues[g['team']['league']] = []
+            leagues[g['team']['league']].append(g)
+
+        return leagues
+    elif by == 'division':
+        divisions = {}
+        for g in games:
+            if g['team']['division'] not in divisions:
+                divisions[g['team']['division']] = []
+            divisions[g['team']['division']].append(g)
+
+        return divisions
+
+
+def get_team_details(season, team_name):
+
+    team_info = get_team(team_name)
+    standings = get_standings(season, team_name=team_name)
+
+    gameplayers = gameplayer.get_gameplayers_by_team(season, team_name)
+
+    all_players = {}
+    stats = _init_player_stats()
+    for p in gameplayers:
+        if p.game_type != 'R':
+            continue
+        if p.player_name not in all_players:
+            all_players[p.player_name] = {
+                'bio': get_player_bio(p.player_name),
+                'stats': _init_player_stats()
+            }
+
+        all_players[p.player_name]['stats'] = _increment_stats(
+            all_players[p.player_name]['stats'],
+            p
+        )
+
+        stats = _increment_stats(
+            stats, p
+        )
+
+    positions = {}
+    for _, v in all_players.items():
+        pos = v['bio']['position']
+        if pos not in positions:
+            positions[pos] = []
+        positions[pos].append(v)
+
+    for p in positions['Infielder']:
+        p['stats'].pop('pitching')
+    for p in positions['Outfielder']:
+        p['stats'].pop('pitching')
+    for p in positions['Catcher']:
+        p['stats'].pop('pitching')
+
+    num_games = standings['games']
+    if num_games == 0:
+        num_games = 1
+    stats['fielding']['errors_per_game'] = round(
+        stats['fielding']['errors'] / num_games,
+        2
+    )
+    stats['pitching']['avg_against'] = round(
+        stats['pitching']['hits'] / stats['pitching']['at_bats'],
+        3
+    )
+    stats['pitching']['obp_agains'] = round(
+        (stats['pitching']['hits'] + stats['pitching']['base_on_balls'] + stats['pitching']['hit_batsmen']) / (
+            stats['pitching']['hits'] + stats['pitching']['base_on_balls'] +
+            stats['pitching']['hit_batsmen'] + stats['pitching']['sac_flies']
+        ),
+        3
+    )
+
+    stats['batting']['stolen_bases_per_game'] = round(
+        stats['batting']['stolen_bases'] / num_games,
+        2
+    )
+    stats['batting']['home_runs_per_game'] = round(
+        stats['batting']['home_runs'] / num_games,
+        2
+    )
+    stats['batting']['runs_per_game'] = round(
+        stats['batting']['runs'] / num_games,
+        2
+    )
+
+    stats['batting'].pop('games_played')
+    stats['pitching'].pop('games_played')
+    stats['pitching'].pop('games_pitched')
+    stats['pitching'].pop('games_finished')
+    standings.pop('team')
+
+    return {
+        'details': team_info,
+        'standings': standings,
+        'players': positions,
+        'team_stats': stats
+    }
+
+
+def get_player(player_name):
+
+    player_info = {
+        'bio': get_player_bio(player_name),
+        'seasons': {},
+        'stats': _init_player_stats()
+    }
+
+    all_games = gameplayer.get_gameplayer_by_name(player_name)
+
+    for g in all_games:
+        if g.season not in player_info['seasons']:
+            player_info['seasons'][g.season] = _init_player_stats()
+
+        player_info['seasons'][g.season] = _increment_stats(
+            player_info['seasons'][g.season],
+            g
+        )
+
+        player_info['stats'] = _increment_stats(
+            player_info['stats'],
+            g
+        )
+
+    if player_info['bio']['position'] != 'Pitcher':
+        player_info['stats'].pop('pitching')
+
+        for _, v in player_info['seasons'].items():
+            v.pop('pitching')
+
+    return player_info
+
+
+def get_all_teams(season):
+
+    all_teams = game.get_team_names(season)
+    all_teams = sorted(all_teams)
+
+    teams = []
+
+    for t in all_teams:
+        t = get_team(t)
+        if t['league'] not in [
+            'American League',
+            'National League'
+        ]:
+            continue
+        if t['division'] == 'n/a':
+            continue
+        teams.append(t)
+
+    return teams
+
+
+def _increment_stats(stats, gameplayer_info):
+
+    for k, v in stats['batting'].items():
+        gpv = gameplayer_info['stats']['batting'].get(k, 0)
+        v += gpv
+
+        stats['batting'][k] = v
+
+    for k, v in stats['pitching'].items():
+        gpv = gameplayer_info['stats']['pitching'].get(k, 0)
+        v += gpv
+
+        stats['pitching'][k] = v
+
+    for k, v in stats['fielding'].items():
+        gpv = gameplayer_info['stats']['fielding'].get(k, 0)
+        v += gpv
+
+        stats['fielding'][k] = v
+
+    if stats['batting']['at_bats'] > 0:
+        hits = stats['batting']['hits']
+        at_bats = stats['batting']['at_bats']
+        doubles = stats['batting']['doubles']
+        triples = stats['batting']['triples']
+        homeruns = stats['batting']['home_runs']
+        walks = stats['batting']['base_on_balls']
+        hit_by_pitch = stats['batting']['hit_by_pitch']
+        sac_flies = stats['batting']['sac_flies']
+        singles = hits - doubles - triples - homeruns
+
+        stats['batting']['singles'] = singles
+        stats['batting']['avg'] = round(hits / at_bats, 3)
+        stats['batting']['slug'] = round(
+            ((singles) + (doubles * 2) + (triples * 3) + (homeruns * 4)) / at_bats,
+            3
+        )
+        stats['batting']['obp'] = round(
+            (hits + walks + hit_by_pitch) / (
+                at_bats + walks + hit_by_pitch + sac_flies
+            ),
+            3
+        )
+        stats['batting']['obp'] = stats['batting']['slug'] + \
+            stats['batting']['obp']
+
+    if stats['pitching']['innings_pitched'] > 0:
+        at_bats = stats['pitching']['at_bats']
+        hits = stats['pitching']['hits']
+        at_bats = stats['pitching']['at_bats']
+        doubles = stats['pitching']['doubles']
+        triples = stats['pitching']['triples']
+        homeruns = stats['pitching']['home_runs']
+        walks = stats['pitching']['base_on_balls']
+        hit_by_pitch = stats['pitching']['hit_by_pitch']
+        strike_outs = stats['pitching']['strike_outs']
+        sac_flies = stats['pitching']['sac_flies']
+        pitches_thrown = stats['pitching']['pitches_thrown']
+        strikes = stats['pitching']['strikes']
+        balls = stats['pitching']['balls']
+
+        singles = hits - doubles - triples - homeruns
+
+        innings = stats['pitching']['innings_pitched']
+        stats['pitching']['era'] = round(
+            (9 * stats['pitching']['earned_runs']) /
+            innings,
+            3
+        )
+        stats['pitching']['avg'] = round(hits / at_bats, 3)
+
+        stats['pitching']['slug'] = round(
+            ((singles) + (doubles * 2) + (triples * 3) + (homeruns * 4)) / at_bats,
+            3
+        )
+        stats['pitching']['obp'] = round(
+            (hits + walks + hit_by_pitch) / (
+                at_bats + walks + hit_by_pitch + sac_flies
+            ),
+            3
+        )
+        stats['pitching']['obp'] = stats['pitching']['slug'] + \
+            stats['pitching']['obp']
+        stats['pitching']['strike_out_per'] = round(
+            strike_outs / at_bats,
+            3
+        )
+        stats['pitching']['strike_per'] = round(
+            strikes / pitches_thrown,
+            3
+        )
+        stats['pitching']['ball_per'] = round(
+            balls / pitches_thrown,
+            3
+        )
+
+    if stats['fielding']['put_outs'] > 0:
+        put_outs = stats['fielding']['put_outs']
+        assists = stats['fielding']['assists']
+        errors = stats['fielding']['errors']
+
+        stats['fielding']['fielding_per'] = round(
+            (put_outs + assists) / (
+                put_outs + assists + errors
+            ),
+            3
+        )
+    return stats
+
+
+def _init_player_stats():
+
+    pitching_stats = {
+        'games_played': 0,
+        'games_started': 0,
+        'fly_outs': 0,
+        'ground_outs': 0,
+        'air_outs': 0,
+        'runs': 0,
+        'doubles': 0,
+        'triples': 0,
+        'home_runs': 0,
+        'strike_outs': 0,
+        'base_on_balls': 0,
+        'intentional_walks': 0,
+        'hits': 0,
+        'hit_by_pitch': 0,
+        'at_bats': 0,
+        'caught_stealing': 0,
+        'stolen_bases': 0,
+        'number_of_pitches': 0,
+        'innings_pitched': 0,
+        'wins': 0,
+        'losses': 0,
+        'saves': 0,
+        'save_opportunities': 0,
+        'holds': 0,
+        'blown_saves': 0,
+        'earned_runs': 0,
+        'batters_faced': 0,
+        'outs': 0,
+        'games_pitched': 0,
+        'complete_games': 0,
+        'shutouts': 0,
+        'pitches_thrown': 0,
+        'balls': 0,
+        'strikes': 0,
+        'hit_batsmen': 0,
+        'balks': 0,
+        'wild_pitches': 0,
+        'pickoffs': 0,
+        'rbi': 0,
+        'games_finished': 0,
+        'inherited_runners': 0,
+        'inherited_runners_scored': 0,
+        'catchers_interference': 0,
+        'sac_bunts': 0,
+        'sac_flies': 0
+    }
+
+    fielding_stats = {
+        'assists': 0,
+        'put_outs': 0,
+        'errors': 0,
+        'chances': 0,
+        'caught_stealing': 0,
+        'passed_ball': 0,
+        'stolen_bases': 0,
+        'pickoffs': 0
+    }
+
+    batting_stats = {
+        'games_played': 0,
+        'fly_outs': 0,
+        'ground_outs': 0,
+        'runs': 0,
+        'doubles': 0,
+        'triples': 0,
+        'home_runs': 0,
+        'strike_outs': 0,
+        'base_on_balls': 0,
+        'intentional_walks': 0,
+        'hits': 0,
+        'hit_by_pitch': 0,
+        'at_bats': 0,
+        'caught_stealing': 0,
+        'stolen_bases': 0,
+        'ground_into_double_play': 0,
+        'ground_into_triple_play': 0,
+        'plate_appearances': 0,
+        'total_bases': 0,
+        'rbi': 0,
+        'left_on_base': 0,
+        'sac_bunts': 0,
+        'sac_flies': 0,
+        'catchers_interference': 0,
+        'pickoffs': 0,
+    }
+
+    return {
+        'batting': batting_stats,
+        'fielding': fielding_stats,
+        'pitching': pitching_stats
+    }

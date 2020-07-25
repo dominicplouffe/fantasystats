@@ -1,3 +1,4 @@
+import os
 import redis
 import logging
 from fantasystats.tools import Database
@@ -10,6 +11,4 @@ db = db_modules.get_database()
 
 REDIS = redis.Redis()
 
-API_URL = 'http://localhost:9500/'
-
-MLB_GAME_API = 'https://statsapi.mlb.com/api/v1.1/game/%s/feed/live'
+API_URL = os.environ.get('API_URL', 'http://localhost:9500/')

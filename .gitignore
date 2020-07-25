@@ -1,5 +1,7 @@
-mlb
 .venv
 .vscode
 __pycache__
 *.pyc
+*.tgz
+*.zip
+*.csv

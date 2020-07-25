@@ -31,7 +31,7 @@ def memorize(func):
 
 class GetGameById(BaseView):
 
-    cache_time = 60 * 5
+    cache_time = 60
 
     @memorize
     def dispatch_request(self, game_id):
