@@ -359,7 +359,7 @@ def get_team_details(season, team_name):
 
     positions = {}
     for _, v in all_players.items():
-        pos = v['bio']['position']
+        pos = v['bio'].get('position', "Unknown")
         if pos not in positions:
             positions[pos] = []
         positions[pos].append(v)

@@ -46,7 +46,7 @@ class GetGameById(BaseView):
 
 class GetGamesByDate(BaseView):
 
-    cache_time = 60 * 60
+    cache_time = 60 * 5
 
     @memorize
     def dispatch_request(self, date):
