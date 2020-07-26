@@ -116,11 +116,11 @@ def get_games_by_season(season, team_name=None):
         team_name = search.get_search_value(team_name)
         return game.mlb_game.objects.filter(
             Q(season=season) & (Q(home_team=team_name) | Q(away_team=team_name))
-        )
+        ).order_by('game_date')
 
     return game.mlb_game.objects.filter(
         season=season
-    )
+    ).order_by('game_date')
 
 
 def get_team_names(season):

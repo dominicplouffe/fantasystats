@@ -12,7 +12,10 @@ def memorize(func):
     def wrapper(*args, **kwargs):
 
         view = args[0]
-        key = request.url
+        key = request.url.lower()
+        key = key.replace('force_query=true', '')
+        if key.endswith('?') or key.endswith('/'):
+            key = key[0:-1]
         data = REDIS.get(key)
         if data is None or request.args.get('force_query', 'false').lower() == 'true':
             logger.info('data not found or force query,%s' % key)

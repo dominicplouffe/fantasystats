@@ -10,12 +10,13 @@ def get_games_by_date(game_date):
     all_games = game.get_by_game_date(game_date)
 
     return [
-        get_game_by_key(g.game_key, game_info=g, include_players=False)
+        get_game_by_key(g.game_key, game_info=g,
+                        include_players=False, to_date=game_date)
         for g in all_games
     ]
 
 
-def get_game_by_key(game_key, game_info=None, include_players=True):
+def get_game_by_key(game_key, game_info=None, include_players=True, to_date=None):
 
     if not game_info:
         game_info = game.get_game_by_key(game_key)
@@ -26,8 +27,10 @@ def get_game_by_key(game_key, game_info=None, include_players=True):
     home_team_name = game_info.home_team
     away_team_name = game_info.away_team
 
-    game_info.home_team = get_team(game_info.home_team)
-    game_info.away_team = get_team(game_info.away_team)
+    game_info.home_team = get_team(
+        game_info.home_team, standings=True, season=game_info.season, to_date=to_date)
+    game_info.away_team = get_team(
+        game_info.away_team, standings=True, season=game_info.season, to_date=to_date)
     game_info.home_pitcher = get_player_bio(game_info.home_pitcher)
     game_info.away_pitcher = get_player_bio(game_info.away_pitcher)
     game_info.venue = get_venue(game_info.venue)
@@ -44,12 +47,27 @@ def get_game_by_key(game_key, game_info=None, include_players=True):
     return game_info
 
 
-def get_team(team_name):
+def get_team(team_name, standings=False, season=None, to_date=None):
 
+    if standings and not season:
+        raise ValueError(
+            'season must be added as an argument is standings is passed')
+
+    if season and not standings:
+        raise ValueError(
+            'standings must be added as an argument is season is passed')
+
+    standings_res = None
     team_info = team.get_team_by_name(team_name)
+
+    if standings:
+        standings_res = get_standings(
+            season, team_name=team_info.name_search, to_date=to_date)
+        standings_res.pop('team')
 
     return {
         'full_name': team_info.full_name,
+        'name': team_info.name,
         'location_name': team_info.location_name,
         'league': team_info.league,
         'division': team_info.division,
@@ -61,7 +79,8 @@ def get_team(team_name):
         'color3': team_info.color3,
         'logo': 'https://fantasydataobj.s3.us-east-2.amazonaws.com/mlb/teams/%s.png' % (
             team_info.name_search
-        )
+        ),
+        'standings': standings_res
     }
 
 
@@ -157,7 +176,7 @@ def get_game_players(game_key, home_team, away_team):
     return all_players
 
 
-def get_standings(season, team_name=None, by='mlb'):
+def get_standings(season, team_name=None, by='mlb', to_date=None):
 
     if by not in ['league', 'mlb', 'division']:
         raise ValueError
@@ -167,6 +186,7 @@ def get_standings(season, team_name=None, by='mlb'):
     games = {}
 
     for g in all_games:
+
         if g.game_type != 'R':
             continue
         home = get_team(g.home_team)
@@ -220,7 +240,8 @@ def get_standings(season, team_name=None, by='mlb'):
                     'win_per': 0.00
                 },
             }
-
+        if to_date and to_date <= g.game_date:
+            break
         if g.game_status not in ['F', 'FR']:
             continue
 
