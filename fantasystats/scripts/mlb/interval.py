@@ -18,6 +18,7 @@ if __name__ == '__main__':
         d.strftime('%Y-%m-%d')
     )
 
+    print(url)
     res = requests.get(url).json()
 
     for game_info in res['data']:
@@ -28,7 +29,7 @@ if __name__ == '__main__':
             crawl_game = True
         else:
             start_time = datetime.strptime(
-                game_info['start_time'], '%Y-%m-%d %H:%M')
+                game_info['start_time'], '%Y-%m-%d %H:%M') - timedelta(hours=10)
 
             if datetime.utcnow() >= start_time:
                 crawl_game = True

@@ -118,7 +118,7 @@ def get_player_bio(player_name):
         'pitch_side:': player_info.pitch_side,
         'draft_year': player_info.draft_year,
         'player_id': player_info.name_search,
-        'player_img': 'https://fantasydataobj.s3.us-east-2.amazonaws.com/mlb/players/%s' % player_info.player_img
+        'headshot': 'https://fantasydataobj.s3.us-east-2.amazonaws.com/mlb/players/%s' % player_info.player_img
     }
 
 
@@ -359,7 +359,7 @@ def get_team_details(season, team_name):
 
     positions = {}
     for _, v in all_players.items():
-        pos = v['bio'].get('position', "Unknown")
+        pos = v['bio'].get('position', "Unknown").lower()
         if pos not in positions:
             positions[pos] = []
         positions[pos].append(v)
@@ -382,7 +382,7 @@ def get_team_details(season, team_name):
         stats['pitching']['hits'] / stats['pitching']['at_bats'],
         3
     )
-    stats['pitching']['obp_agains'] = round(
+    stats['pitching']['obp_against'] = round(
         (stats['pitching']['hits'] + stats['pitching']['base_on_balls'] + stats['pitching']['hit_batsmen']) / (
             stats['pitching']['hits'] + stats['pitching']['base_on_balls'] +
             stats['pitching']['hit_batsmen'] + stats['pitching']['sac_flies']
@@ -400,6 +400,11 @@ def get_team_details(season, team_name):
     )
     stats['batting']['runs_per_game'] = round(
         stats['batting']['runs'] / num_games,
+        2
+    )
+
+    stats['batting']['obps'] = round(
+        stats['batting']['obp'] + stats['batting']['slug'],
         2
     )
 
