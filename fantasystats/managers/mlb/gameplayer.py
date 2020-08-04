@@ -88,4 +88,12 @@ def get_gameplayers_by_team(season, team_name, to_date=None):
 
 
 def get_gameplayer_by_name(player_name):
-    return gameplayer.mlb_gameplayer.objects.filter(player_name=search.get_search_value(player_name))
+    return gameplayer.mlb_gameplayer.objects.filter(
+        player_name=search.get_search_value(player_name)
+    )
+
+
+def get_gameplayer_by_date(game_date):
+    return gameplayer.mlb_gameplayer.objects.filter(
+        game_date=game_date
+    )

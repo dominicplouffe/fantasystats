@@ -25,8 +25,11 @@ def get_player_thumbnail(player_name):
         f.write(content)
         f.close()
 
-        s3.upload_to_s3('/tmp/%s.png' %
-                        filename, 'mlb/players/%s.png' % filename, extra={'ACL': 'public-read', 'ContentType': "image/pgn"})
+        s3.upload_to_s3(
+            '/tmp/%s.png' % filename,
+            'mlb/players/%s.png' % filename,
+            extra={'ACL': 'public-read', 'ContentType': "image/pgn"}
+        )
 
         return '%s.png' % filename
 
@@ -35,7 +38,7 @@ def get_player_thumbnail(player_name):
 
 def get_schedule():
 
-    start_date = datetime.utcnow() - timedelta(days=10)
+    start_date = datetime.utcnow() - timedelta(days=1)
     end_date = datetime.utcnow() + timedelta(days=1)
     year = start_date.year
     start_date = start_date.strftime('%Y-%m-%d')
