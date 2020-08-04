@@ -10,13 +10,23 @@ def get_games_by_date(game_date):
     all_games = game.get_by_game_date(game_date)
 
     return [
-        get_game_by_key(g.game_key, game_info=g,
-                        include_players=False, to_date=game_date)
+        get_game_by_key(
+            g.game_key,
+            game_info=g,
+            include_players=False,
+            to_date=game_date
+        )
         for g in all_games
     ]
 
 
-def get_game_by_key(game_key, game_info=None, include_players=True, to_date=None):
+def get_game_by_key(
+    game_key,
+    game_info=None,
+    include_players=True,
+    include_odds=False,
+    to_date=None
+):
 
     if not game_info:
         game_info = game.get_game_by_key(game_key)
@@ -28,9 +38,17 @@ def get_game_by_key(game_key, game_info=None, include_players=True, to_date=None
     away_team_name = game_info.away_team
 
     game_info.home_team = get_team(
-        game_info.home_team, standings=True, season=game_info.season, to_date=to_date)
+        game_info.home_team,
+        standings=True,
+        season=game_info.season,
+        to_date=to_date
+    )
     game_info.away_team = get_team(
-        game_info.away_team, standings=True, season=game_info.season, to_date=to_date)
+        game_info.away_team,
+        standings=True,
+        season=game_info.season,
+        to_date=to_date
+    )
     game_info.home_pitcher = get_player_bio(game_info.home_pitcher)
     game_info.away_pitcher = get_player_bio(game_info.away_pitcher)
     game_info.venue = get_venue(game_info.venue)
@@ -43,6 +61,16 @@ def get_game_by_key(game_key, game_info=None, include_players=True, to_date=None
             home_team_name,
             away_team_name,
         )
+
+    if include_odds:
+        odds = context.db.mlb_odds.find_one({
+            '_id': game_key
+        })
+
+        if odds:
+            odds.pop('_id')
+            odds.pop('game_key')
+            game_info['odds'] = odds
 
     return game_info
 
@@ -77,7 +105,8 @@ def get_team(team_name, standings=False, season=None, to_date=None):
         'color1': team_info.color1,
         'color2': team_info.color2,
         'color3': team_info.color3,
-        'logo': 'https://fantasydataobj.s3.us-east-2.amazonaws.com/mlb/teams/%s.png' % (
+        'logo': 'https://fantasydataobj.s3.us-east-2.amazonaws.com'
+                '/mlb/teams/%s.png' % (
             team_info.name_search
         ),
         'standings': standings_res
@@ -118,7 +147,8 @@ def get_player_bio(player_name):
         'pitch_side:': player_info.pitch_side,
         'draft_year': player_info.draft_year,
         'player_id': player_info.name_search,
-        'headshot': 'https://fantasydataobj.s3.us-east-2.amazonaws.com/mlb/players/%s' % player_info.player_img
+        'headshot': 'https://fantasydataobj.s3.us-east-2.amazonaws.com'
+                    '/mlb/players/%s' % player_info.player_img
     }
 
 
@@ -330,12 +360,13 @@ def get_standings(season, team_name=None, by='mlb', to_date=None):
         return divisions
 
 
-def get_team_details(season, team_name):
+def get_team_details(season, team_name, to_date=None):
 
     team_info = get_team(team_name)
-    standings = get_standings(season, team_name=team_name)
+    standings = get_standings(season, team_name=team_name, to_date=to_date)
 
-    gameplayers = gameplayer.get_gameplayers_by_team(season, team_name)
+    gameplayers = gameplayer.get_gameplayers_by_team(
+        season, team_name, to_date=to_date)
 
     all_players = {}
     stats = _init_player_stats()
@@ -364,11 +395,13 @@ def get_team_details(season, team_name):
             positions[pos] = []
         positions[pos].append(v)
 
-    for p in positions['Infielder']:
+    if 'infielder' not in positions:
+        return None
+    for p in positions['infielder']:
         p['stats'].pop('pitching')
-    for p in positions['Outfielder']:
+    for p in positions['outfielder']:
         p['stats'].pop('pitching')
-    for p in positions['Catcher']:
+    for p in positions['catcher']:
         p['stats'].pop('pitching')
 
     num_games = standings['games']
@@ -545,6 +578,11 @@ def _increment_stats(stats, gameplayer_info):
             innings,
             3
         )
+        if at_bats == 0:
+            at_bats = 1
+            pitches_thrown = 1
+            put_outs = 1
+
         stats['pitching']['avg'] = round(hits / at_bats, 3)
 
         stats['pitching']['slug'] = round(

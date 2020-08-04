@@ -39,7 +39,7 @@ if __name__ == '__main__':
                         (game_info['game_key'], game_info['mlb_id']))
 
             mlb_res = mlb.get_game(
-                game_info['mlb_id'], game_info['season'])
+                game_info['mlb_id'], game_info['season'], new_only=True)
             parser.process_data(mlb_res, update=True)
 
     logger.info('Sleeping for 5 mins')

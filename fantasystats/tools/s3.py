@@ -18,3 +18,13 @@ def list_objects(key):
 def get_object(key):
 
     return s3.get_object(Bucket='fantasydataobj', Key=key)
+
+
+def iter_key(key):
+
+    res = boto3.resource('s3')
+    bucket = res.Bucket('fantasydataobj')
+
+    for elem in bucket.objects.all():
+        if elem.key.startswith(key):
+            yield {'key': elem.key, 'obj': get_object(elem.key)}

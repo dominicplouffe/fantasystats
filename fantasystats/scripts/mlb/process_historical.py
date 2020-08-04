@@ -1,19 +1,23 @@
 import os
 import json
+from fantasystats.context import logger
+from fantasystats.tools import s3
 from fantasystats.services.mlb import parser
 
-FILE_LOC = '/Users/dplouffe/projects/fantasystats/mlb/games/2019/'
+year = '2017'
 
 
-def process_file(file_name):
+def process_file(s3obj):
 
-    f = open('%s%s' % (FILE_LOC, file_name), 'r')
-    content = f.read().encode('utf-8')
-    f.close()
+    logger.info('process_historical,%s' % s3obj['key'])
+    content = s3obj['obj']['Body'].read()
+    if len(content) == 0:
+        return
 
     try:
         data = json.loads(content)
-    except json.decoder.JSONDecodeError:
+    except json.decoder.JSONDecodeError as e:
+        print(e)
         return
 
     parser.process_data(data)
@@ -21,7 +25,7 @@ def process_file(file_name):
 
 if __name__ == '__main__':
 
-    files = os.listdir(FILE_LOC)
+    files = s3.iter_key('mlb/files/%s' % year)
 
     for f in files:
         process_file(f)

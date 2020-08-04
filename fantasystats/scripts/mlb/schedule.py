@@ -1,6 +1,5 @@
 from fantasystats.context import logger
 from fantasystats.services.crawlers import mlb
-from fantasystats.managers.mlb import game
 from fantasystats.services.mlb import parser
 
 
@@ -15,8 +14,7 @@ def get_schedule():
 
             logger.info('game_id,%s' % g['gamePk'])
 
-            if not game.get_game_by_mlb_id(g['gamePk']):
-                parser.process_game(game_data)
+            parser.process_data(game_data, update=True)
 
 
 if __name__ == '__main__':

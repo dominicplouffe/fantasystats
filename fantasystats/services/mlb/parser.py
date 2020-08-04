@@ -1,39 +1,51 @@
 import re
 from datetime import datetime
 from fantasystats import context
-from fantasystats.services import search
 from fantasystats.managers.mlb import (
     season, team, venue, player, game, gameplayer
 )
 
 
 def process_data(data, update=False):
-    game_data = data['gameData']
-    game_season = game_data['game']['season']
-    teams = game_data['teams']
+    try:
+        game_data = data['gameData']
+        game_season = game_data['game']['season']
+        teams = game_data['teams']
 
-    season.insert_season(game_season)
+        season.insert_season(game_season)
 
-    home_team = process_team(teams['home'])
-    away_team = process_team(teams['away'])
+        home_team = process_team(teams['home'])
+        away_team = process_team(teams['away'])
 
-    game_venue = process_venue(game_data['venue'])
+        game_venue = process_venue(game_data['venue'])
 
-    for key, game_player in game_data['players'].items():
-        process_player(game_player)
+        for key, game_player in game_data['players'].items():
+            process_player(game_player)
 
-    line_score = data['liveData']['linescore']
-    game_info = process_game(game_data, line_score,
-                             away_team, home_team, game_venue, update=update)
+        line_score = data['liveData']['linescore']
+        game_info = process_game(
+            game_data,
+            line_score,
+            away_team,
+            home_team,
+            game_venue,
+            update=update
+        )
 
-    for key, box_player in data['liveData']['boxscore']['teams']['away']['players'].items():
-        process_gameplayer(game_info, box_player, False, update=update)
+        for key, box_player in data[
+                'liveData']['boxscore']['teams']['away']['players'].items():
+            process_gameplayer(game_info, box_player, False, update=update)
 
-    for key, box_player in data['liveData']['boxscore']['teams']['home']['players'].items():
-        process_gameplayer(game_info, box_player, True, update=update)
+        for key, box_player in data[
+                'liveData']['boxscore']['teams']['home']['players'].items():
+            process_gameplayer(game_info, box_player, True, update=update)
+    except KeyError as e:
+        context.logger.info('Key Error: %s' % e)
 
 
-def process_game(game_data, line_score, away_team, home_team, game_venue, update=False):
+def process_game(
+        game_data, line_score, away_team, home_team, game_venue, update=False
+):
 
     game_date = datetime.strptime(
         game_data['datetime']['originalDate'], '%Y-%m-%d'

@@ -74,7 +74,13 @@ def get_gameplayers_by_game_key(game_key):
     return gameplayer.mlb_gameplayer.objects.filter(game_key=game_key)
 
 
-def get_gameplayers_by_team(season, team_name):
+def get_gameplayers_by_team(season, team_name, to_date=None):
+
+    if to_date:
+        return gameplayer.mlb_gameplayer.objects.filter(
+            Q(season=season) & Q(team_name=search.get_search_value(
+                team_name)) & Q(game_date__lte=to_date)
+        )
 
     return gameplayer.mlb_gameplayer.objects.filter(
         Q(season=season) & Q(team_name=search.get_search_value(team_name))

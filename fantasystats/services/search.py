@@ -51,3 +51,10 @@ def create_gameplayer_key(
         get_search_value(team_name),
         get_search_value(player_name)
     )
+
+
+def create_feature_key(team_name, feature_date):
+    return '%s-%s' % (
+        feature_date.strftime('%Y-%m-%d'),
+        get_search_value(team_name),
+    )

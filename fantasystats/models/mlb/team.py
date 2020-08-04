@@ -20,3 +20,4 @@ class mlb_team(Document):
 def create_indexes():
     mlb_team.create_index([('team_code', 1)])
     mlb_team.create_index([('abbr', 1)])
+    mlb_team.create_index([('name_search', 1)])

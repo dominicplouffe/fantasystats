@@ -25,6 +25,11 @@ BUILD_DIRS = [
     'fantasystats/tools',
     'fantasystats/database',
     'fantasystats/context.py',
+    'A_model.dat',
+    'B_model.dat',
+    'C_model.dat',
+    'D_model.dat',
+    'E_model.dat',
     'fantasystats/__init__.py',
     'requirements.txt',
 

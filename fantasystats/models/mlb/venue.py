@@ -15,3 +15,4 @@ class mlb_venue(Document):
 
 def create_indexes():
     mlb_venue.create_index([('name', 1)])
+    mlb_venue.create_index([('name_search', 1)])

@@ -26,3 +26,6 @@ def create_indexes():
     mlb_gameplayer.create_index([('game_key', 1)])
     mlb_gameplayer.create_index([('gameplayer_key', 1)])
     mlb_gameplayer.create_index([('player_name', 1)])
+    mlb_gameplayer.create_index([('game_date', 1)])
+    mlb_gameplayer.create_index(
+        [('game_date', 1), ('season', 1), ('team_name', 1)])

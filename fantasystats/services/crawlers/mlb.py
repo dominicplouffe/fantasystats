@@ -6,7 +6,8 @@ from fantasystats.services import search
 from datetime import datetime, timedelta
 
 PLAYER_SEARCH_URL = 'https://typeahead.mlb.com/api/v1/typeahead/suggestions/%s'
-SCHEDULE_URL = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1&startDate=%s&endDate=%s&leagueId=103&&leagueId=104'
+SCHEDULE_URL = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1&startDate=' \
+               '%s&endDate=%s&leagueId=103&&leagueId=104'
 MLB_GAME_URL = 'https://statsapi.mlb.com/api/v1.1/game/%s/feed/live'
 
 
@@ -34,8 +35,8 @@ def get_player_thumbnail(player_name):
 
 def get_schedule():
 
-    start_date = datetime.utcnow() - timedelta(days=1)
-    end_date = datetime(start_date.year, 12, 31)
+    start_date = datetime.utcnow() - timedelta(days=10)
+    end_date = datetime.utcnow() + timedelta(days=1)
     year = start_date.year
     start_date = start_date.strftime('%Y-%m-%d')
     end_date = end_date.strftime('%Y-%m-%d')
@@ -44,6 +45,8 @@ def get_schedule():
         start_date,
         end_date
     )
+
+    print(mlb_url)
 
     res = requests.get(mlb_url).json()
     filename = 'schedule.json'
@@ -61,7 +64,7 @@ def get_schedule():
 
 def get_game(mlb_id, season, new_only=False):
 
-    if new_only:
+    if not new_only:
         obj = s3.list_objects('mlb/files/%s/%s.json' % (
             season,
             mlb_id,

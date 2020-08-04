@@ -1,5 +1,5 @@
 from fantasystats.models.mlb import team
-from mongoengine import DoesNotExist
+from mongoengine import DoesNotExist, Q
 from fantasystats.services import search
 
 
@@ -50,5 +50,23 @@ def get_team_by_name(team_name):
         t = team.mlb_team.objects.get(name_search=name_search)
 
         return t
+    except DoesNotExist:
+        return None
+
+
+def get_teams():
+
+    return team.mlb_team.objects.all()
+
+
+def get_team_by_abbr(abbr):
+    try:
+        t = team.mlb_team.objects.filter(abbr=abbr)
+
+        for mlb_team in t:
+            if mlb_team.league in ['National League', 'American League']:
+                return mlb_team
+
+        return None
     except DoesNotExist:
         return None
