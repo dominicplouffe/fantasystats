@@ -91,3 +91,9 @@ def get_gameplayer_by_date(game_date):
     return gameplayer.nhl_gameplayer.objects.filter(
         game_date=game_date
     )
+
+
+def get_distince_gameplayer_by_team(season, team_name):
+    return gameplayer.nhl_gameplayer.objects.filter(
+        Q(season=season) & Q(team_name=team_name)
+    ).distinct('player_name')

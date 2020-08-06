@@ -14,7 +14,9 @@ MAPPING = {
     'nhl': {
         'NAS': 'NSH',
         'TB': 'TBL',
-        'MON': 'MTL'
+        'MON': 'MTL',
+        'WAS': 'WSH',
+        'VEG': 'VGK'
     }
 }
 
@@ -167,6 +169,7 @@ def _get_games(doc, date, league):
             MAPPING[league].get(away, away)
         )
 
+        print(home ,away)
         for g in games:
             if (g.home_team == home_team.name_search) and (
                     g.away_team == away_team.name_search
@@ -179,5 +182,5 @@ def _get_games(doc, date, league):
 
 if __name__ == '__main__':
 
-    get_odds('mlb')
+    # get_odds('mlb')
     get_odds('nhl')
