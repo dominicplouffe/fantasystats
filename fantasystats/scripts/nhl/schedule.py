@@ -1,6 +1,6 @@
 from fantasystats.context import logger
 from fantasystats.services.crawlers import nhl
-from fantasystats.services.mlb import parser
+from fantasystats.services.nhl import parser
 
 
 def get_schedule():

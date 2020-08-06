@@ -8,7 +8,7 @@ FANTASY_URL = 'https://www.numberfire.com/%s/players/daily-fantasy/%s'
 
 def get_fantasy_price(league, player_name):
 
-    if league not in ['mlb']:
+    if league not in ['mlb', 'nhl']:
         raise ValueError('Invalid league')
 
     player_name = search.get_search_value(player_name)

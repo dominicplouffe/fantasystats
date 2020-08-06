@@ -4,16 +4,37 @@ from lxml import html
 from datetime import datetime, timedelta
 from fantasystats.managers.mlb import team as mlb_team
 from fantasystats.managers.mlb import game as mlb_game
-
+from fantasystats.managers.nhl import team as nhl_team
+from fantasystats.managers.nhl import game as nhl_game
 
 MAPPING = {
-    'CHW': 'CWS'
+    'mlb': {
+        'CHW': 'CWS'
+    },
+    'nhl': {
+        'NAS': 'NSH',
+        'TB': 'TBL',
+        'MON': 'MTL'
+    }
+}
+
+DB_MAP = {
+    'nhl': {
+        'odds': 'nhl_odds',
+        'game': nhl_game,
+        'team': nhl_team
+    },
+    'mlb': {
+        'odds': 'mlb_odds',
+        'game': mlb_game,
+        'team': mlb_team
+    },
 }
 
 
 def get_odds(league):
 
-    if league not in ['mlb']:
+    if league not in ['mlb', 'nhl']:
         raise ValueError('Invalid league')
 
     date = datetime.utcnow() - timedelta(hours=5)
@@ -28,8 +49,8 @@ def get_odds(league):
 
     doc = html.fromstring(r.content)
 
-    found_games = _get_games(doc, date)
-    sportsbooks = _get_odds(doc)
+    found_games = _get_games(doc, date, league)
+    sportsbooks = _get_odds(doc, league)
 
     book_names = sportsbooks.keys()
 
@@ -46,13 +67,15 @@ def get_odds(league):
             games[i][book] = odds
 
     for g in games:
-        context.db.mlb_odds.replace_one({'_id': g['_id']}, g, upsert=True)
+        context.db[DB_MAP[league]['odds']].replace_one(
+            {'_id': g['_id']}, g, upsert=True
+        )
 
 
-def _get_odds(doc):
+def _get_odds(doc, league):
     content_rows = doc.xpath(
-        '//div[@data-sport="mlb"]/div[@class="scroll-wrapper"]'
-        '/div[@class="sportsbook-content"]'
+        '//div[@data-sport="%s"]/div[@class="scroll-wrapper"]'
+        '/div[@class="sportsbook-content"]' % league
     )
 
     sportsbooks = {}
@@ -124,21 +147,25 @@ def _get_odds(doc):
     return sportsbooks
 
 
-def _get_games(doc, date):
-    games = mlb_game.get_by_game_date(date)
+def _get_games(doc, date, league):
+    games = DB_MAP[league]['game'].get_by_game_date(date)
     found_games = []
 
     team_rows = doc.xpath(
-        '//div[@data-sport="mlb"]/div[@class="static-content"]'
-        '/div[@class="tbl-body"]/div[contains(@class, "row")]'
+        '//div[@data-sport="%s"]/div[@class="static-content"]'
+        '/div[@class="tbl-body"]/div[contains(@class, "row")]' % league
     )
 
     for row in team_rows:
         home = row.xpath('./@data-team-home')[0]
         away = row.xpath('./@data-team-away')[0]
 
-        home_team = mlb_team.get_team_by_abbr(MAPPING.get(home, home))
-        away_team = mlb_team.get_team_by_abbr(MAPPING.get(away, away))
+        home_team = DB_MAP[league]['team'].get_team_by_abbr(
+            MAPPING[league].get(home, home)
+        )
+        away_team = DB_MAP[league]['team'].get_team_by_abbr(
+            MAPPING[league].get(away, away)
+        )
 
         for g in games:
             if (g.home_team == home_team.name_search) and (
@@ -153,3 +180,4 @@ def _get_games(doc, date):
 if __name__ == '__main__':
 
     get_odds('mlb')
+    get_odds('nhl')

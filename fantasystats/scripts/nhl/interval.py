@@ -15,21 +15,28 @@ if __name__ == '__main__':
         d.strftime('%Y-%m-%d')
     )
 
-    print(url)
+    logger.info(url)
     res = requests.get(url).json()
 
     for game_info in res['data']:
         crawl_game = False
-        if game_info['game_status'] in ['F', 'FR']:
+        if game_info['game_status'] in ['Final']:
+            logger.info('game final, do not crawl')
             continue
         if game_info['game_status'] == 'I':
+            logger.info('in_progress')
             crawl_game = True
         else:
-            start_time = datetime.strptime(
-                game_info['start_time'], '%Y-%m-%d %H:%M'
-            ) - timedelta(hours=10)
+            logger.info('start_time,%s' % game_info['start_time'])
+            try:
+                start_time = datetime.strptime(
+                    game_info['start_time'], '%Y-%m-%d %H:%M'
+                ) - timedelta(hours=10)
 
-            if datetime.utcnow() >= start_time:
+                if datetime.utcnow() >= start_time:
+                    crawl_game = True
+            except ValueError:
+                logger.inf('unknown starttime,crawly anyways')
                 crawl_game = True
 
         if crawl_game:
@@ -41,7 +48,7 @@ if __name__ == '__main__':
             )
 
             nhl_res = nhl.get_game(
-                game_info['mlb_id'],
+                game_info['nhl_id'],
                 game_info['season'],
                 new_only=True
             )

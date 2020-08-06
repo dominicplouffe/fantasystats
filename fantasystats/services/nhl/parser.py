@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from fantasystats import context
 from fantasystats.managers.nhl import (
     season, venue, team, player, game, gameplayer
@@ -43,7 +43,7 @@ def process_data(data, update=False):
                 'liveData']['boxscore']['teams']['home']['players'].items():
             process_gameplayer(game_info, box_player, True, update=update)
 
-
+        context.logger.info(game_info.game_key)
     except KeyError as e:
         context.logger.info('Key Error: %s' % e)
 
@@ -101,6 +101,7 @@ def process_game(
         game_data['datetime']['dateTime'],
         '%Y-%m-%dT%H:%M:%SZ'
     )
+    start_time = start_time - timedelta(hours=5)
     game_date = datetime(start_time.year, start_time.month, start_time.day)
 
     home_goals = line_score['teams']['home'].get('goals', 0)
