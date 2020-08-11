@@ -73,7 +73,8 @@ def get_gameplayers_by_team(season, team_name, to_date=None):
     if to_date:
         return gameplayer.nhl_gameplayer.objects.filter(
             Q(season=season) & Q(team_name=search.get_search_value(
-                team_name)) & Q(game_date__lte=to_date)
+                team_name)) & Q(game_date__lt=to_date) & Q(game_type='R') &
+            (Q(game_type='R') or Q(game_type='FR'))
         )
 
     return gameplayer.nhl_gameplayer.objects.filter(

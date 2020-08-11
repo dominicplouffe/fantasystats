@@ -1,21 +1,30 @@
-import json
+from datetime import datetime
 from fantasystats import context
 from fantasystats.managers.nhl import (
-    game, team, venue, player, gameplayer
+    game, team, venue, player, gameplayer, fantasy
 )
 
 
 def get_games_by_date(game_date):
 
-    print(game_date)
-    all_games = game.get_by_game_date(game_date)
+    now_date = datetime.utcnow()
+    now_date = datetime(now_date.year, now_date.month, now_date.day)
+
+    if game_date > now_date:
+        all_games = game.get_by_game_date(game_date)
+    else:
+        all_games = [
+            g for g in game.get_by_game_date(game_date)
+            if g.game_status != "Preview"
+        ]
 
     return [
         get_game_by_key(
             g.game_key,
             game_info=g,
             include_players=False,
-            to_date=game_date
+            to_date=game_date,
+            include_odds=True
         )
         for g in all_games
     ]
@@ -143,7 +152,7 @@ def get_player_bio(player_name):
 
     return {
         'name': player_info.full_name,
-        'primary_number': player_info.primary_number,
+        'pri    mary_number': player_info.primary_number,
         'position': player_info.position,
         'birth_date': player_info.birth_date,
         'birth_country': player_info.birth_country,
@@ -175,8 +184,17 @@ def get_game_players(game_key, home_team, away_team):
         if not player_info:
             continue
 
+        fantasy_info = fantasy.get_fantasy_by_gameplayer_key(
+            p.gameplayer_key
+        )
+        fantasy_data = {'FanDuel': {'price': 0}}
+        if fantasy_info:
+            fantasy_data['FanDuel'] = {'price': fantasy_info.price}
+        player_info['fantasy'] = fantasy_data
+
         if p.is_skater:
             skater = p.stats['skater']
+            skater['bio'] = player_info
             skater['player_name'] = player_info['name']
             skater['player_id'] = p['player_name']
             if p.team_name == home_team:
@@ -185,12 +203,30 @@ def get_game_players(game_key, home_team, away_team):
                 all_players['away']['skaters'].append(skater)
         if p.is_goalie:
             goalie = p.stats['goalie']
+            goalie['bio'] = player_info
             goalie['player_name'] = player_info['name']
             goalie['player_id'] = p['player_name']
             if p.team_name == home_team:
                 all_players['home']['goalies'].append(goalie)
             else:
                 all_players['away']['goalies'].append(goalie)
+
+    all_players['home']['skaters'] = sorted(
+        all_players['home']['skaters'],
+        key=lambda x: -x['bio']['fantasy']['FanDuel']['price']
+    )
+    all_players['home']['goalies'] = sorted(
+        all_players['home']['goalies'],
+        key=lambda x: -x['bio']['fantasy']['FanDuel']['price']
+    )
+    all_players['away']['skaters'] = sorted(
+        all_players['away']['skaters'],
+        key=lambda x: -x['bio']['fantasy']['FanDuel']['price']
+    )
+    all_players['away']['goalies'] = sorted(
+        all_players['away']['goalies'],
+        key=lambda x: -x['bio']['fantasy']['FanDuel']['price']
+    )
 
     return all_players
 
@@ -219,6 +255,7 @@ def get_standings(season, team_name=None, by='nhl', to_date=None):
                 'games': 0,
                 'wins': 0,
                 'losses': 0,
+                'otl': 0,
                 'win_per': 0.00,
                 'goals_for': 0,
                 'goals_against': 0,
@@ -227,12 +264,14 @@ def get_standings(season, team_name=None, by='nhl', to_date=None):
                     'games': 0,
                     'wins': 0,
                     'losses': 0,
+                    'otl': 0,
                     'win_per': 0.00
                 },
                 'away': {
                     'games': 0,
                     'wins': 0,
                     'losses': 0,
+                    'otl': 0,
                     'win_per': 0.00
                 },
             }
@@ -242,6 +281,7 @@ def get_standings(season, team_name=None, by='nhl', to_date=None):
                 'games': 0,
                 'wins': 0,
                 'losses': 0,
+                'otl': 0,
                 'win_per': 0.00,
                 'goals_for': 0,
                 'goals_against': 0,
@@ -250,19 +290,20 @@ def get_standings(season, team_name=None, by='nhl', to_date=None):
                     'games': 0,
                     'wins': 0,
                     'losses': 0,
+                    'otl': 0,
                     'win_per': 0.00
                 },
                 'away': {
                     'games': 0,
                     'wins': 0,
                     'losses': 0,
+                    'otl': 0,
                     'win_per': 0.00
                 },
             }
         if to_date and to_date <= g.game_date:
             break
         if g.game_status not in ['Final']:
-            print(g.game_status)
             continue
 
         games[g.home_team]['games'] += 1
@@ -283,16 +324,25 @@ def get_standings(season, team_name=None, by='nhl', to_date=None):
 
         if g.winner_side == 'home':
             games[g.home_team]['wins'] += 1
-            games[g.away_team]['losses'] += 1
-
             games[g.home_team]['home']['wins'] += 1
-            games[g.away_team]['away']['losses'] += 1
-        else:
-            games[g.home_team]['losses'] += 1
-            games[g.away_team]['wins'] += 1
 
-            games[g.home_team]['home']['losses'] += 1
+            if len(g.periods) > 3:
+                games[g.away_team]['otl'] += 1
+                games[g.away_team]['away']['otl'] += 1
+            else:
+                games[g.away_team]['losses'] += 1
+                games[g.away_team]['away']['losses'] += 1
+
+        else:
+            games[g.away_team]['wins'] += 1
             games[g.away_team]['away']['wins'] += 1
+
+            if len(g.periods) > 3:
+                games[g.home_team]['otl'] += 1
+                games[g.home_team]['home']['otl'] += 1
+            else:
+                games[g.home_team]['losses'] += 1
+                games[g.home_team]['home']['losses'] += 1
 
         games[g.home_team]['win_per'] = (
             games[g.home_team]['wins'] / games[g.home_team]['games']
@@ -385,12 +435,11 @@ def get_team_details(season, team_name, to_date=None):
             positions[pos] = []
         positions[pos].append(v)
 
-    print(positions.keys())
     if 'lw' not in positions:
         return None
-    for p in positions['lw']:
+    for p in positions.get('lw', []):
         p['stats'].pop('goalie')
-    for p in positions['rw']:
+    for p in positions.get('rw', []):
         p['stats'].pop('goalie')
     for p in positions['c']:
         p['stats'].pop('goalie')
@@ -650,87 +699,6 @@ def _increment_stats(stats, gameplayer_info):
                 3
             )
 
-    # if stats['batting']['at_bats'] > 0:
-    #     hits = stats['batting']['hits']
-    #     at_bats = stats['batting']['at_bats']
-    #     doubles = stats['batting']['doubles']
-    #     triples = stats['batting']['triples']
-    #     homeruns = stats['batting']['home_runs']
-    #     walks = stats['batting']['base_on_balls']
-    #     hit_by_pitch = stats['batting']['hit_by_pitch']
-    #     sac_flies = stats['batting']['sac_flies']
-    #     singles = hits - doubles - triples - homeruns
-    #
-    #     stats['batting']['singles'] = singles
-    #     stats['batting']['avg'] = round(hits / at_bats, 3)
-    #     stats['batting']['slug'] = round(
-    #         ((singles) + (doubles * 2) + (triples * 3) + (homeruns * 4)) / at_bats,
-    #         3
-    #     )
-    #     stats['batting']['obp'] = round(
-    #         (hits + walks + hit_by_pitch) / (
-    #             at_bats + walks + hit_by_pitch + sac_flies
-    #         ),
-    #         3
-    #     )
-    #     stats['batting']['obp'] = stats['batting']['slug'] + \
-    #         stats['batting']['obp']
-    #
-    # if stats['pitching']['innings_pitched'] > 0:
-    #     at_bats = stats['pitching']['at_bats']
-    #     hits = stats['pitching']['hits']
-    #     at_bats = stats['pitching']['at_bats']
-    #     doubles = stats['pitching']['doubles']
-    #     triples = stats['pitching']['triples']
-    #     homeruns = stats['pitching']['home_runs']
-    #     walks = stats['pitching']['base_on_balls']
-    #     hit_by_pitch = stats['pitching']['hit_by_pitch']
-    #     strike_outs = stats['pitching']['strike_outs']
-    #     sac_flies = stats['pitching']['sac_flies']
-    #     pitches_thrown = stats['pitching']['pitches_thrown']
-    #     strikes = stats['pitching']['strikes']
-    #     balls = stats['pitching']['balls']
-    #
-    #     singles = hits - doubles - triples - homeruns
-    #
-    #     innings = stats['pitching']['innings_pitched']
-    #     stats['pitching']['era'] = round(
-    #         (9 * stats['pitching']['earned_runs']) /
-    #         innings,
-    #         3
-    #     )
-    #     if at_bats == 0:
-    #         at_bats = 1
-    #         pitches_thrown = 1
-    #         put_outs = 1
-    #
-    #     stats['pitching']['avg'] = round(hits / at_bats, 3)
-    #
-    #     stats['pitching']['slug'] = round(
-    #         ((singles) + (doubles * 2) + (triples * 3) + (homeruns * 4)) / at_bats,
-    #         3
-    #     )
-    #     stats['pitching']['obp'] = round(
-    #         (hits + walks + hit_by_pitch) / (
-    #             at_bats + walks + hit_by_pitch + sac_flies
-    #         ),
-    #         3
-    #     )
-    #     stats['pitching']['obp'] = stats['pitching']['slug'] + \
-    #         stats['pitching']['obp']
-    #     stats['pitching']['strike_out_per'] = round(
-    #         strike_outs / at_bats,
-    #         3
-    #     )
-    #     stats['pitching']['strike_per'] = round(
-    #         strikes / pitches_thrown,
-    #         3
-    #     )
-    #     stats['pitching']['ball_per'] = round(
-    #         balls / pitches_thrown,
-    #         3
-    #     )
-
     return stats
 
 
@@ -738,7 +706,6 @@ def _init_player_stats():
 
     skater_stats = {
         'games_played': 0,
-        'time_on_ice': 0,
         'assists': 0,
         'goals': 0,
         'shots': 0,
@@ -754,9 +721,20 @@ def _init_player_stats():
         'short_handed_assists': 0,
         'blocked': 0,
         'plus_minus': 0,
+        'shot_percentage': 0,
+        'faceoff_win_percentage': 0,
+        'hits_per_game': 0,
+        'goals_per_game': 0,
+        'assists_per_game': 0,
+        'penalty_minutes_per_game': 0,
+        'takeaways_per_game': 0,
+        'giveaways_per_game': 0,
+        'blocked_per_game': 0,
+
         'even_time_on_ice': 0,
         'power_play_time_on_ice': 0,
-        'short_handed_time_on_ice': 0
+        'short_handed_time_on_ice': 0,
+        'time_on_ice': 0,
     }
 
     goalie_stats = {
@@ -775,7 +753,11 @@ def _init_player_stats():
         'power_play_shots_against': 0,
         'save_percentage': 0,
         'power_play_save_percentage': 0,
-        'even_strength_save_percentage': 0
+        'even_strength_save_percentage': 0,
+        'goals_against_avg': 0,
+        'short_handed_goals_against': 0,
+        'even_strength_goals_against': 0,
+        'power_play_goals_against': 0
     }
 
     return {

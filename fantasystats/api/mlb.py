@@ -17,7 +17,9 @@ def memorize(func):
         if key.endswith('?') or key.endswith('/'):
             key = key[0:-1]
         data = REDIS.get(key)
-        if data is None or request.args.get('force_query', 'true').lower() == 'true':
+        if data is None or request.args.get(
+            'force_query', 'false'
+        ).lower() == 'true':
             logger.info('data not found or force query,%s' % key)
             res = func(*args, **kwargs)
             REDIS.set(key, res.get_data(), view.cache_time)

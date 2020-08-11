@@ -80,7 +80,11 @@ class GetTeam(BaseView):
     @memorize
     def dispatch_request(self, season, team_id):
 
-        team = game.get_team_details(season, team_id)
+        date = request.args.get('date', None)
+        if date:
+            date = datetime.strptime(date, "%Y-%m-%d")
+
+        team = game.get_team_details(season, team_id, to_date=date)
 
         return self.write_json(team)
 

@@ -39,9 +39,8 @@ def get_player_thumbnail(player_id, player_name):
 
 
 def get_schedule():
-
-    start_date = datetime.utcnow() - timedelta(days=1)
-    end_date = datetime.utcnow() + timedelta(days=1)
+    start_date = datetime.utcnow() - timedelta(days=10)
+    end_date = datetime.utcnow() + timedelta(days=10)
     year = start_date.year
     start_date = start_date.strftime('%Y-%m-%d')
     end_date = end_date.strftime('%Y-%m-%d')

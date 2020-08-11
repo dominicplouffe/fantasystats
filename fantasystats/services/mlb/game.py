@@ -1,7 +1,6 @@
-import json
 from fantasystats import context
 from fantasystats.managers.mlb import (
-    game, team, venue, player, gameplayer
+    game, team, venue, player, gameplayer, fantasy
 )
 
 
@@ -14,7 +13,8 @@ def get_games_by_date(game_date):
             g.game_key,
             game_info=g,
             include_players=False,
-            to_date=game_date
+            to_date=game_date,
+            include_odds=True
         )
         for g in all_games
     ]
@@ -178,8 +178,17 @@ def get_game_players(game_key, home_team, away_team):
         fielding = None
         pitching = None
 
+        fantasy_info = fantasy.get_fantasy_by_gameplayer_key(
+            p.gameplayer_key
+        )
+        fantasy_data = {'FanDuel': {'price': 0}}
+        if fantasy_info:
+            fantasy_data['FanDuel'] = {'price': fantasy_info.price}
+        player_info['fantasy'] = fantasy_data
+
         if p.is_batter:
             batting = p.stats['batting']
+            batting['bio'] = player_info
             batting['player_name'] = player_info['name']
             batting['player_id'] = p['player_name']
             if p.team_name == home_team:
@@ -188,6 +197,7 @@ def get_game_players(game_key, home_team, away_team):
                 all_players['away']['batters'].append(batting)
         if p.is_pitcher:
             pitching = p.stats['pitching']
+            pitching['bio'] = player_info
             pitching['player_name'] = player_info['name']
             pitching['player_id'] = p['player_name']
             if p.team_name == home_team:
@@ -196,6 +206,7 @@ def get_game_players(game_key, home_team, away_team):
                 all_players['away']['pitchers'].append(pitching)
         if p.is_fielder:
             fielding = p.stats['fielding']
+            fielding['bio'] = player_info
             fielding['player_name'] = player_info['name']
             fielding['player_id'] = p['player_name']
             if p.team_name == home_team:
@@ -203,6 +214,31 @@ def get_game_players(game_key, home_team, away_team):
             else:
                 all_players['away']['fielders'].append(fielding)
 
+    all_players['home']['batters'] = sorted(
+        all_players['home']['batters'],
+        key=lambda x: -x['bio']['fantasy']['FanDuel']['price']
+    )
+    all_players['home']['pitchers'] = sorted(
+        all_players['home']['pitchers'],
+        key=lambda x: -x['bio']['fantasy']['FanDuel']['price']
+    )
+    all_players['home']['fielders'] = sorted(
+        all_players['home']['fielders'],
+        key=lambda x: -x['bio']['fantasy']['FanDuel']['price']
+    )
+
+    all_players['away']['batters'] = sorted(
+        all_players['away']['batters'],
+        key=lambda x: -x['bio']['fantasy']['FanDuel']['price']
+    )
+    all_players['away']['pitchers'] = sorted(
+        all_players['away']['pitchers'],
+        key=lambda x: -x['bio']['fantasy']['FanDuel']['price']
+    )
+    all_players['away']['fielders'] = sorted(
+        all_players['away']['fielders'],
+        key=lambda x: -x['bio']['fantasy']['FanDuel']['price']
+    )
     return all_players
 
 
