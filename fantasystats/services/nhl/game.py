@@ -10,7 +10,7 @@ def get_games_by_date(game_date):
     now_date = datetime.utcnow()
     now_date = datetime(now_date.year, now_date.month, now_date.day)
 
-    if game_date > now_date:
+    if game_date >= now_date:
         all_games = game.get_by_game_date(game_date)
     else:
         all_games = [

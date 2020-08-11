@@ -44,3 +44,11 @@ def get_fantasy_by_gameplayer_key(gameplayer_key):
         return t
     except DoesNotExist:
         return None
+
+
+def get_fantansy_by_player_name(player_name):
+    player_name = search.get_search_value(player_name)
+
+    return fantasy.nhl_fantasy.objects.filter(
+        player_name=player_name
+    ).order_by('-game_date')

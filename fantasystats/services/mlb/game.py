@@ -410,8 +410,18 @@ def get_team_details(season, team_name, to_date=None):
         if p.game_type != 'R':
             continue
         if p.player_name not in all_players:
+
+            player_info = get_player_bio(p.player_name)
+            fantasy_info = fantasy.get_fantansy_by_player_name(
+                p.player_name
+            )
+            fantasy_data = {'FanDuel': {'price': 0}}
+            if len(fantasy_info) > 0:
+                fantasy_data['FanDuel'] = {'price': fantasy_info[0].price}
+            player_info['fantasy'] = fantasy_data
+
             all_players[p.player_name] = {
-                'bio': get_player_bio(p.player_name),
+                'bio': player_info,
                 'stats': _init_player_stats()
             }
 
