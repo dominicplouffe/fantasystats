@@ -48,9 +48,6 @@ def get_schedule():
         start_date,
         end_date
     )
-
-    print(mlb_url)
-
     res = requests.get(mlb_url).json()
     filename = 'schedule.json'
     f = open('/tmp/%s.png' % filename, 'w')
