@@ -1,7 +1,7 @@
 from fantasystats.models.nba import player
 from mongoengine import DoesNotExist
 from fantasystats.services import search
-from fantasystats.services.crawlers import mlb
+from fantasystats.services.crawlers import nba
 from datetime import datetime, timedelta
 
 
@@ -51,12 +51,17 @@ def insert_player(
         p.save()
 
     # TODO Get Player Image
-    # if p.player_img_on is None or (datetime.utcnow() - p.player_img_on).days >= 7:
-    #     img_url = mlb.get_player_thumbnail(p.box_score_name)
-    #     if img_url is not None:
-    #         p.player_img = img_url
-    #     p.player_img_on = datetime.utcnow()
-    #     p.save()
+    if p.player_img_on is None or (
+        datetime.utcnow() - p.player_img_on
+    ).days >= 7:
+        img_url = nba.get_player_thumbnail(
+            nba_id,
+            full_name
+        )
+        if img_url is not None:
+            p.player_img = img_url
+        p.player_img_on = datetime.utcnow()
+        p.save()
 
     return p
 

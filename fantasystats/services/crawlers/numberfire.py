@@ -9,7 +9,7 @@ SEARCH_URL = 'https://www.numberfire.com/search?term=%s'
 
 def get_fantasy_price(league, player_name, do_search=False):
 
-    if league not in ['mlb', 'nhl']:
+    if league not in ['mlb', 'nhl', 'nba']:
         raise ValueError('Invalid league')
 
     if do_search:
@@ -50,4 +50,4 @@ def get_fantasy_price(league, player_name, do_search=False):
 
 if __name__ == '__main__':
 
-    print(get_fantasy_price('mlb', 'Delino DeShields'))
+    print(get_fantasy_price('nba', 'Jerami Grant'))
