@@ -3,7 +3,7 @@ redis
 Flask
 mongoengine
 boto3
-ipython
+ipython==7.16.1
 Flask-Cors
 docopt
 paramiko

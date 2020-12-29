@@ -7,8 +7,8 @@ SCHEDULE_URL = 'https://ca.global.nba.com/stats2/season/schedule.json?' \
 NBA_GAME_URL = 'https://ca.global.nba.com/stats2/game/snapshot.json?' \
     'countryCode=CA&gameId=%s&locale=en&tz=0'
 
-def get_schedule():
 
+def get_schedule():
 
     # start_date = datetime.utcnow() - timedelta(days=10)
     # end_date = datetime.utcnow() + timedelta(days=10)
@@ -40,6 +40,7 @@ def get_schedule():
 
     return all_res
 
+
 def get_game(nba_id, season, new_only=False):
 
     if not new_only:
@@ -48,6 +49,7 @@ def get_game(nba_id, season, new_only=False):
         pass
 
     game_url = NBA_GAME_URL % nba_id
+    print(game_url)
     res = requests.get(game_url).json()
 
     # TODO Write to S3
