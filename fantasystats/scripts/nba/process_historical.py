@@ -8,9 +8,9 @@ from fantasystats.managers.nba.season import get_season_from_game_date
 
 SEASONS = [
     {'start': datetime(2017, 10, 1), 'end': datetime(2018, 6, 30)},
-    # {'start': datetime(2018, 10, 1), 'end': datetime(2019, 6, 30)},
-    # {'start': datetime(2019, 10, 1), 'end': datetime(2020, 10, 31)},
-    # {'start': datetime(2020, 12, 1), 'end': datetime(2021, 3, 31)},
+    {'start': datetime(2018, 10, 1), 'end': datetime(2019, 6, 30)},
+    {'start': datetime(2019, 10, 1), 'end': datetime(2020, 10, 31)},
+    {'start': datetime(2020, 12, 1), 'end': datetime(2021, 3, 31)},
 ]
 
 
