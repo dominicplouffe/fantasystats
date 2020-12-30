@@ -25,11 +25,11 @@ BUILD_DIRS = [
     'fantasystats/tools',
     'fantasystats/database',
     'fantasystats/context.py',
-    'A_model.dat',
-    'B_model.dat',
-    'C_model.dat',
-    'D_model.dat',
-    'E_model.dat',
+    # 'A_model.dat',
+    # 'B_model.dat',
+    # 'C_model.dat',
+    # 'D_model.dat',
+    # 'E_model.dat',
     'fantasystats/__init__.py',
     'requirements.txt',
 
@@ -53,7 +53,7 @@ def create_ssh_connection(public_ip):
     ssh.connect(
         public_ip,
         username='ubuntu',
-        key_filename='/Users/dplouffe/.ssh/admin-kp.pem'
+        key_filename='/home/dplouffe/.ssh/admin-kp.pem'
     )
 
     return ssh
@@ -84,7 +84,7 @@ def put_file(ssh):
 def deploy(deploy_type):
     create_zip()
 
-    ec2 = boto3.client('ec2')
+    ec2 = boto3.client('ec2', region_name='us-east-2')
     response = ec2.describe_instances()
     for r in response['Reservations']:
         for i in r['Instances']:

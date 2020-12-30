@@ -96,7 +96,10 @@ def process_player(game_player):
     if weight is None:
         weight = 0
     else:
-        weight = int(weight.replace(' lbs', ''))
+        try:
+            weight = int(weight.replace(' lbs', ''))
+        except ValueError:
+            weight = 0
     height = game_player['height']
     position = game_player['position']
     draft_year = game_player['draftYear']

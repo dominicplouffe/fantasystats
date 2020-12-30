@@ -6,6 +6,8 @@ from fantasystats.managers.mlb import team as mlb_team
 from fantasystats.managers.mlb import game as mlb_game
 from fantasystats.managers.nhl import team as nhl_team
 from fantasystats.managers.nhl import game as nhl_game
+from fantasystats.managers.nba import team as nba_team
+from fantasystats.managers.nba import game as nba_game
 
 MAPPING = {
     'mlb': {
@@ -17,6 +19,9 @@ MAPPING = {
         'MON': 'MTL',
         'WAS': 'WSH',
         'VEG': 'VGK'
+    },
+    'nba': {
+        'SA': 'SAS'
     }
 }
 
@@ -31,12 +36,17 @@ DB_MAP = {
         'game': mlb_game,
         'team': mlb_team
     },
+    'nba': {
+        'odds': 'nba_odds',
+        'game': nba_game,
+        'team': nba_team
+    },
 }
 
 
 def get_odds(league):
 
-    if league not in ['mlb', 'nhl']:
+    if league not in ['mlb', 'nhl', 'nba']:
         raise ValueError('Invalid league')
 
     date = datetime.utcnow() - timedelta(hours=5)
@@ -162,19 +172,20 @@ def _get_games(doc, date, league):
         home = row.xpath('./@data-team-home')[0]
         away = row.xpath('./@data-team-away')[0]
 
+        print(home, away)
         home_team = DB_MAP[league]['team'].get_team_by_abbr(
             MAPPING[league].get(home, home)
-        )
+        )[0]
         away_team = DB_MAP[league]['team'].get_team_by_abbr(
             MAPPING[league].get(away, away)
-        )
+        )[0]
 
         if not home_team or not away_team:
             context.logger.info(
                 'cannot find a team,home:%s,away:%s' % (home, away)
             )
             continue
-        print(home, away)
+
         for g in games:
             if (g.home_team == home_team.name_search) and (
                     g.away_team == away_team.name_search
@@ -189,3 +200,4 @@ if __name__ == '__main__':
 
     get_odds('mlb')
     get_odds('nhl')
+    get_odds('nba')
