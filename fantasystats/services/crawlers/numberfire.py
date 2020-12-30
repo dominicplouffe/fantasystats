@@ -13,7 +13,7 @@ def get_fantasy_price(league, player_name, do_search=False):
         raise ValueError('Invalid league')
 
     if do_search:
-        player_name = player_name.replace('_',  ' ')
+        player_name = player_name.replace('_', ' ')
         url = SEARCH_URL % player_name
 
         search_r = requests.get(url).json()

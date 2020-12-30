@@ -462,7 +462,11 @@ def get_team_details(season, team_name, to_date=None):
         3
     )
     stats['pitching']['obp_against'] = round(
-        (stats['pitching']['hits'] + stats['pitching']['base_on_balls'] + stats['pitching']['hit_batsmen']) / (
+        (
+            stats['pitching']['hits'] + stats['pitching'][
+                'base_on_balls'
+            ] + stats['pitching']['hit_batsmen']
+        ) / (
             stats['pitching']['hits'] + stats['pitching']['base_on_balls'] +
             stats['pitching']['hit_batsmen'] + stats['pitching']['sac_flies']
         ),
@@ -589,7 +593,9 @@ def _increment_stats(stats, gameplayer_info):
         stats['batting']['singles'] = singles
         stats['batting']['avg'] = round(hits / at_bats, 3)
         stats['batting']['slug'] = round(
-            ((singles) + (doubles * 2) + (triples * 3) + (homeruns * 4)) / at_bats,
+            ((singles) + (doubles * 2) + (triples * 3) + (
+                homeruns * 4
+            )) / at_bats,
             3
         )
         stats['batting']['obp'] = round(
@@ -632,7 +638,9 @@ def _increment_stats(stats, gameplayer_info):
         stats['pitching']['avg'] = round(hits / at_bats, 3)
 
         stats['pitching']['slug'] = round(
-            ((singles) + (doubles * 2) + (triples * 3) + (homeruns * 4)) / at_bats,
+            ((singles) + (doubles * 2) + (triples * 3) + (
+                homeruns * 4
+            )) / at_bats,
             3
         )
         stats['pitching']['obp'] = round(

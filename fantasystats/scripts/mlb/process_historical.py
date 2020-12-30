@@ -1,4 +1,3 @@
-import os
 import json
 from fantasystats.context import logger
 from fantasystats.tools import s3

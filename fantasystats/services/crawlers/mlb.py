@@ -6,8 +6,8 @@ from fantasystats.services import search
 from datetime import datetime, timedelta
 
 PLAYER_SEARCH_URL = 'https://typeahead.mlb.com/api/v1/typeahead/suggestions/%s'
-SCHEDULE_URL = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1&startDate=' \
-               '%s&endDate=%s&leagueId=103&&leagueId=104'
+SCHEDULE_URL = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1' \
+               '&startDate=%s&endDate=%s&leagueId=103&&leagueId=104'
 MLB_GAME_URL = 'https://statsapi.mlb.com/api/v1.1/game/%s/feed/live'
 
 
@@ -16,7 +16,7 @@ def get_player_thumbnail(player_name):
 
     res = requests.get(PLAYER_SEARCH_URL % player_name).json()
 
-    if len(res.get('players',  [])) > 0:
+    if len(res.get('players', [])) > 0:
         content = requests.get(
             res['players'][0]['headshots'][0]['url']).content
 

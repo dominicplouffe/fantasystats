@@ -1,8 +1,5 @@
-import time
-import json
 import requests
 from datetime import datetime, timedelta
-from fantasystats.tools import s3
 from fantasystats.services.mlb import parser
 from fantasystats.context import API_URL, logger
 from fantasystats.services.crawlers import mlb
@@ -29,7 +26,8 @@ if __name__ == '__main__':
             crawl_game = True
         else:
             start_time = datetime.strptime(
-                game_info['start_time'], '%Y-%m-%d %H:%M') - timedelta(hours=10)
+                game_info['start_time'], '%Y-%m-%d %H:%M'
+            ) - timedelta(hours=10)
 
             if datetime.utcnow() >= start_time:
                 crawl_game = True

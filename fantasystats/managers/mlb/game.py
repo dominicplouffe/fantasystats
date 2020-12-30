@@ -115,7 +115,9 @@ def get_games_by_season(season, team_name=None):
     if team_name:
         team_name = search.get_search_value(team_name)
         return game.mlb_game.objects.filter(
-            Q(season=season) & (Q(home_team=team_name) | Q(away_team=team_name))
+            Q(season=season) & (
+                Q(home_team=team_name) | Q(away_team=team_name)
+            )
         ).order_by('game_date')
 
     return game.mlb_game.objects.filter(

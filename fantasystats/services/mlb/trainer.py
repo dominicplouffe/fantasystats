@@ -3,7 +3,6 @@ from fantasystats.managers.mlb import game
 from fantasystats.services.mlb import models, predictor, features
 from datetime import datetime, timedelta
 from sklearn.svm import SVR
-import pickle
 
 
 def train():
@@ -22,7 +21,10 @@ def train():
 
         for game_info in games:
             feature_details = features.get_game_features(
-                game_info.away_team, game_info.home_team, game_date, game_info=game_info
+                game_info.away_team,
+                game_info.home_team,
+                game_date,
+                game_info=game_info
             )
             if not feature_details:
                 continue

@@ -1,5 +1,5 @@
 from fantasystats.models.nba import team
-from mongoengine import DoesNotExist, Q
+from mongoengine import DoesNotExist
 from fantasystats.services import search
 
 

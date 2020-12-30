@@ -18,12 +18,12 @@ def process_data(data, update=False):
         process_venue(teams['home']['venue'])
         process_venue(teams['away']['venue'])
 
-        game_venue = venue.get_venue_by_name(
+        venue.get_venue_by_name(
             game_data['venue']['name']
         )
 
-        home_team = process_team(teams['home'])
-        away_team = process_team(teams['away'])
+        process_team(teams['home'])
+        process_team(teams['away'])
 
         for key, game_player in game_data['players'].items():
             process_player(game_player)

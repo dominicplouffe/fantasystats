@@ -14,3 +14,8 @@ def insert_season(season_name):
         s.save()
 
     return s
+
+
+def get_seasons():
+
+    return season.nhl_season.objects.all()

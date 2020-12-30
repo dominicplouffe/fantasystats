@@ -1,6 +1,5 @@
 import numpy as np
-from collections import defaultdict
-from fantasystats.context import db
+from fantasystats.context import db  # noqa
 from fantasystats.services import search
 from fantasystats.services.mlb import features, models, predictor
 

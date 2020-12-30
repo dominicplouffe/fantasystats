@@ -1,8 +1,13 @@
 from datetime import datetime
 from fantasystats import context
 from fantasystats.managers.nhl import (
-    game, team, venue, player, gameplayer, fantasy
+    game, team, venue, player, gameplayer, fantasy, season
 )
+
+
+def get_seasons():
+
+    return [s.season_name for s in season.get_seasons()]
 
 
 def get_games_by_date(game_date):
@@ -152,7 +157,7 @@ def get_player_bio(player_name):
 
     return {
         'name': player_info.full_name,
-        'pri    mary_number': player_info.primary_number,
+        'primary_number': player_info.primary_number,
         'position': player_info.position,
         'birth_date': player_info.birth_date,
         'birth_country': player_info.birth_country,
@@ -244,6 +249,10 @@ def get_standings(season, team_name=None, by='nhl', to_date=None):
 
         if g.game_type != 'R':
             continue
+
+        if season == '20192020' and g.game_date > datetime(2020, 3, 10):
+            continue
+
         home = get_team(g.home_team)
         away = get_team(g.away_team)
 
@@ -303,7 +312,7 @@ def get_standings(season, team_name=None, by='nhl', to_date=None):
             }
         if to_date and to_date <= g.game_date:
             break
-        if g.game_status not in ['Final']:
+        if g.game_status not in ['Final', 'Preview']:
             continue
 
         games[g.home_team]['games'] += 1
@@ -484,16 +493,16 @@ def get_team_details(season, team_name, to_date=None):
         stats['goalie']['shots'] - stats['goalie']['saves']
     )
     stats['goalie']['power_play_goals_against'] = (
-            stats['goalie']['power_play_shots_against'] - stats[
-                'goalie']['power_play_saves']
+        stats['goalie']['power_play_shots_against'] - stats[
+            'goalie']['power_play_saves']
     )
     stats['goalie']['even_strength_goals_against'] = (
-            stats['goalie']['even_shots_against'] - stats[
-                'goalie']['even_saves']
+        stats['goalie']['even_shots_against'] - stats[
+            'goalie']['even_saves']
     )
     stats['goalie']['short_handed_goals_against'] = (
-            stats['goalie']['short_handed_shots_against'] - stats[
-                'goalie']['short_handed_saves']
+        stats['goalie']['short_handed_shots_against'] - stats[
+            'goalie']['short_handed_saves']
     )
 
     stats['goalie']['goals_against_per_game'] = round(
@@ -508,7 +517,8 @@ def get_team_details(season, team_name, to_date=None):
             3
         )
         stats['goalie']['goals_against_avg'] = round(
-            stats['goalie']['goals_against'] / (stats['goalie']['time_on_ice'] / 60 / 60),
+            stats['goalie']['goals_against'] /
+            (stats['goalie']['time_on_ice'] / 60 / 60),
             2
         )
 
@@ -656,19 +666,19 @@ def _increment_stats(stats, gameplayer_info):
         stats['goalie']['games_played'] += 1
 
         stats['goalie']['goals_against'] = (
-                stats['goalie']['shots'] - stats['goalie']['saves']
+            stats['goalie']['shots'] - stats['goalie']['saves']
         )
         stats['goalie']['power_play_goals_against'] = (
-                stats['goalie']['power_play_shots_against'] - stats[
-                    'goalie']['power_play_saves']
+            stats['goalie']['power_play_shots_against'] - stats[
+                'goalie']['power_play_saves']
         )
         stats['goalie']['even_strength_goals_against'] = (
-                stats['goalie']['even_shots_against'] - stats[
-                    'goalie']['even_saves']
+            stats['goalie']['even_shots_against'] - stats[
+                'goalie']['even_saves']
         )
         stats['goalie']['short_handed_goals_against'] = (
-                stats['goalie']['short_handed_shots_against'] - stats[
-                    'goalie']['short_handed_saves']
+            stats['goalie']['short_handed_shots_against'] - stats[
+                'goalie']['short_handed_saves']
         )
 
         stats['goalie']['save_percentage'] = 0.00
@@ -679,7 +689,7 @@ def _increment_stats(stats, gameplayer_info):
             )
             stats['goalie']['goals_against_avg'] = round(
                 stats['goalie']['goals_against'] / (
-                            stats['goalie']['time_on_ice'] / 60 / 60),
+                    stats['goalie']['time_on_ice'] / 60 / 60),
                 2
             )
 

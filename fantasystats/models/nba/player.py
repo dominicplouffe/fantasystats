@@ -23,5 +23,5 @@ class nba_player(Document):
 
 
 def create_indexes():
-    mlb_player.create_index([('nba_id', 1)])
-    mlb_player.create_index([('name_search', 1)])
+    nba_player.create_index([('nba_id', 1)])
+    nba_player.create_index([('name_search', 1)])

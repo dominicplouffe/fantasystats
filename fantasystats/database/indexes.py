@@ -1,4 +1,4 @@
-from fantasystats import context
+from fantasystats import context  # noqa
 from fantasystats.models import mlb, nhl
 
 

@@ -43,7 +43,6 @@ def get_schedule():
 
     start_date = datetime.utcnow() - timedelta(days=2)
     end_date = datetime.utcnow() + timedelta(days=2)
-    year = start_date.year
 
     current_date = start_date
     all_res = None

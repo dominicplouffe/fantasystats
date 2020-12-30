@@ -8,8 +8,8 @@ PLAYER_IMAGE_URL = 'https://nhl.bamcontent.com/images/headshots/' \
                    'current/168x168/%s.jpg'
 
 SCHEDULE_URL = 'https://statsapi.web.nhl.com/api/v1/schedule?' \
-               'startDate=%s&endDate=%s&hydrate=team,linescore,broadcasts(all)' \
-               ',tickets,game(content(media(epg)),seriesSummary),' \
+               'startDate=%s&endDate=%s&hydrate=team,linescore,broadcasts' \
+               '(all),tickets,game(content(media(epg)),seriesSummary),' \
                'radioBroadcasts,metadata,seriesSummary(series)' \
                '&site=en_nhlCA&teamId=&gameType=&timecode='
 

@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, FloatField, DictField
+from mongoengine import Document, StringField, DictField
 
 
 class nhl_venue(Document):

@@ -1,35 +1,10 @@
-import json
-from flask import Blueprint, request, Response
+from flask import Blueprint, request
 from datetime import datetime
 from fantasystats.api.base_view import BaseView
 from fantasystats.services.nhl import game
-from fantasystats.context import REDIS, logger
+from fantasystats.tools.cache import memorize
 
 nhl = Blueprint('nhl', __name__)
-
-
-def memorize(func):
-    def wrapper(*args, **kwargs):
-
-        view = args[0]
-        key = request.url.lower()
-        key = key.replace('force_query=true', '')
-        if key.endswith('?') or key.endswith('/'):
-            key = key[0:-1]
-        data = REDIS.get(key)
-        if data is None or request.args.get('force_query', 'true').lower() == 'true':
-            logger.info('data not found or force query,%s' % key)
-            res = func(*args, **kwargs)
-            REDIS.set(key, res.get_data(), view.cache_time)
-            return res
-
-        return Response(
-            data,
-            mimetype="text/json",
-            headers={'Access-Control-Allow-Origin': '*'},
-            status=200
-        )
-    return wrapper
 
 
 class GetGameById(BaseView):
@@ -125,6 +100,18 @@ class GetTeamVS(BaseView):
         )
 
 
+class GetSeasons(BaseView):
+
+    cache_time = 86400
+
+    @memorize
+    def dispatch_request(self):
+
+        return self.write_json(
+            game.get_seasons()
+        )
+
+
 nhl.add_url_rule(
     '/nhl/game/id/<string:game_id>',
     view_func=GetGameById.as_view('/nhl/game/id/<string:game_id>'),
@@ -165,5 +152,11 @@ nhl.add_url_rule(
     '/nhl/teams/<string:season>/<string:away_team>/<string:home_team>',
     view_func=GetTeamVS.as_view(
         '/nhl/teams/<string:season>/<string:away_team>/<string:home_team>'),
+    methods=['GET']
+)
+
+nhl.add_url_rule(
+    '/nhl/seasons',
+    view_func=GetSeasons.as_view('/nhl/seasons'),
     methods=['GET']
 )

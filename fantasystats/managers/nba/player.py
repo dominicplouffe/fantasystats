@@ -2,7 +2,7 @@ from fantasystats.models.nba import player
 from mongoengine import DoesNotExist
 from fantasystats.services import search
 from fantasystats.services.crawlers import nba
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 def insert_player(

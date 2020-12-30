@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from fantasystats.managers.mlb import team
 from fantasystats.services.mlb import game
 from fantasystats.context import logger
@@ -173,7 +173,9 @@ def generate_game_date_features(season, game_date):
                     details['index'][p][k] = 0.00
                 else:
                     details['index'][p][k] = (
-                        v - min_features[p][k]) / (max_features[p][k] - min_features[p][k])
+                        v - min_features[p][k]) / (
+                            max_features[p][k] - min_features[p][k]
+                    )
 
         db.mlb_features.replace_one(
             {'_id': details['_id']}, details, upsert=True)
@@ -237,14 +239,20 @@ def get_game_features(away_team, home_team, game_date, game_info=None):
         away_lob = game_info.team_scoring['away'].get('left_on_base', 0)
 
         result_home['A'] = (
-            (home_runs * 10) + (home_hits * 10) - (home_errors * 5) - (home_lob * 5))
+            (home_runs * 10) + (home_hits * 10) - (home_errors * 5) - (
+                home_lob * 5
+            )
+        )
         result_home['B'] = (home_runs * 10) + (home_hits * 10)
         result_home['C'] = (home_runs * 100) + (home_hits * 100)
         result_home['D'] = home_hits
         result_home['E'] = home_runs
 
         result_away['A'] = (
-            (away_runs * 10) + (away_hits * 10) - (away_errors * 5) - (away_lob * 5))
+            (away_runs * 10) + (away_hits * 10) - (away_errors * 5) - (
+                away_lob * 5
+            )
+        )
         result_away['B'] = (away_runs * 10) + (away_hits * 10)
         result_away['C'] = (away_runs * 100) + (away_hits * 100)
         result_away['D'] = away_hits

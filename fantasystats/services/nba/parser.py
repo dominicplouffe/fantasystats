@@ -12,22 +12,22 @@ def process_data(data, update=False):
 
     season.insert_season(game_season['yearDisplay'])
 
-    home_team = process_team(game_data['homeTeam'])
-    away_team = process_team(game_data['awayTeam'])
+    process_team(game_data['homeTeam'])
+    process_team(game_data['awayTeam'])
 
-    game_venue = process_venue(game_data['gameProfile'])
+    process_venue(game_data['gameProfile'])
 
     game_info = process_game(game_data)
 
-    for player in game_data['homeTeam']['gamePlayers']:
-        profile = player['profile']
+    for ply in game_data['homeTeam']['gamePlayers']:
+        profile = ply['profile']
         process_player(profile)
-        process_gameplayer(game_info, player, True, update=update)
+        process_gameplayer(game_info, ply, True, update=update)
 
-    for player in game_data['awayTeam']['gamePlayers']:
-        profile = player['profile']
+    for ply in game_data['awayTeam']['gamePlayers']:
+        profile = ply['profile']
         process_player(profile)
-        process_gameplayer(game_info, player, False, update=update)
+        process_gameplayer(game_info, ply, False, update=update)
 
 
 def process_team(game_team, update=False):
@@ -136,8 +136,6 @@ def process_game(game_data, update=False):
     else:
         winner_side = 'home'
         winner_name = game_data['homeTeam']['profile']['name']
-
-    currentPeriod = game_data['boxscore'].get('period', 0)
 
     periods = []
     for i in range(1, 5):
