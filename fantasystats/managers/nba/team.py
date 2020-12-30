@@ -18,7 +18,7 @@ def insert_team(
     color3=None
 ):
 
-    name_search = search.get_search_value(full_name)
+    name_search = search.get_search_value(short_name)
 
     try:
         t = team.nba_team.objects.get(name_search=name_search)

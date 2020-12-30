@@ -15,9 +15,9 @@ def process_data(data, update=False):
     process_team(game_data['homeTeam'])
     process_team(game_data['awayTeam'])
 
-    process_venue(game_data['gameProfile'])
+    venue = process_venue(game_data['gameProfile'])
 
-    game_info = process_game(game_data)
+    game_info = process_game(game_data, venue.name)
 
     for ply in game_data['homeTeam']['gamePlayers']:
         profile = ply['profile']
@@ -66,6 +66,9 @@ def process_venue(game_venue):
     name = game_venue['arenaName']
     location = game_venue['arenaLocation']
 
+    if name is None:
+        name = 'Arena in %s' % location
+
     v = venue.insert_venue(
         name,
         location
@@ -83,13 +86,24 @@ def process_player(game_player):
     primary_number = game_player['jerseyNo']
     birth_date = None
     birth_country = game_player['countryEn']
-    weight = int(game_player['weight'].replace(' lbs', ''))
+    weight = game_player['weight']
+    if weight is None:
+        weight = 0
+    else:
+        weight = int(weight.replace(' lbs', ''))
     height = game_player['height']
     position = game_player['position']
-    draft_year = int(game_player['draftYear'])
+    draft_year = game_player['draftYear']
+    if draft_year is None:
+        draft_year = 0
+    else:
+        draft_year = int(draft_year)
     affiliation = game_player['displayAffiliation']
     schoolType = game_player['schoolType']
     nba_id = int(game_player['playerId'])
+
+    if position is None:
+        position = '?'
 
     if 'birthDate' in game_player:
         birth_date = datetime.fromtimestamp(
@@ -119,7 +133,7 @@ def process_player(game_player):
     return p
 
 
-def process_game(game_data, update=False):
+def process_game(game_data, venue, update=False):
     start_time = datetime.strptime(
         game_data['gameProfile']['dateTimeEt'],
         '%Y-%m-%dT%H:%M'
@@ -172,7 +186,7 @@ def process_game(game_data, update=False):
 
     game_info = game.insert_game(
         game_data['gameProfile']['gameId'],
-        game_data['gameProfile']['arenaName'],
+        venue,
         game_date,
         start_time,
         game_data['gameProfile']['seasonType'],
