@@ -6,9 +6,6 @@ import spreadCell from "./components/odds/spreadCell.html";
 import totalCell from "./components/odds/totalCell.html";
 import moneylineCell from "./components/odds/moneylineCell.html";
 
-const LEAGUE = "nba";
-const API_URL = `http://localhost:5000/${LEAGUE}/`;
-
 const getGameOdds = () => {
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function () {
