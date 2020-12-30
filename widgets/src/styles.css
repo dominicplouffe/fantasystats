@@ -1,0 +1,75 @@
+.hide {
+    display: none;
+}
+
+.odds-selection {
+    color: #333333;
+    font-size: 15px;
+    font-size: 0.9375rem;
+    font-family: 'Oxygen', Tahoma, Arial;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #ecf0f2;
+    border-radius: 3px;
+}
+
+.odds-choice {
+    font-family: 'Oxygen', Tahoma, Arial;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.odds-table {
+    color: #333333;
+    font-size: 15px;
+    font-size: 0.9375rem;
+    font-family: 'Oxygen', Tahoma, Arial;
+    /* line-height: 1.75; */
+    width: 100%;
+    border-spacing: 0;
+}
+
+.odds-table td {
+    border-top: 1px solid #ecf0f2 ;
+    padding: 15px 5px 15px 5px;
+}
+
+.odds-table .team-box {
+    padding: 20px 10px 20px 10px
+}
+
+.odds-table .team-box .time-box {
+    float: left;
+    padding-right: 10px;
+    padding-top: 8px;
+}
+
+.vs-box {
+    float: left;
+}
+
+.vs-box .team-logo {
+    padding-bottom: 10px;
+}
+
+.vs-box .logo {
+    max-width: 30px;
+    vertical-align: middle;
+}
+
+.odds-table .odds-box {
+    border: 1px solid #d4d8d9;
+    background-color: #ecf0f2;
+    width: 100%;
+    line-height: 1.75;
+    text-align: center;
+    font-size: 0.75rem;
+    margin-bottom: 5px;
+    border-radius: 3px;
+}
+
+.odds-table .best {
+    background-color: #bae4f7;
+    border: 2px solid #1685b5;
+
+}
