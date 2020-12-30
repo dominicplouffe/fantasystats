@@ -8,9 +8,15 @@ from fantasystats.managers.nba import (
 def process_data(data, update=False):
 
     game_data = data['payload']
-    game_season = game_data['season']
 
-    season.insert_season(game_season['yearDisplay'])
+    game_season = season.get_season_from_game_date(
+        datetime.strptime(
+            game_data['gameProfile']['dateTimeEt'],
+            '%Y-%m-%dT%H:%M'
+        )
+    )
+
+    season.insert_season(game_season)
 
     process_team(game_data['homeTeam'])
     process_team(game_data['awayTeam'])
@@ -192,7 +198,7 @@ def process_game(game_data, venue, update=False):
         game_data['gameProfile']['seasonType'],
         game_data['homeTeam']['profile']['name'],
         game_data['awayTeam']['profile']['name'],
-        game_data['season']['yearDisplay'],
+        season.get_season_from_game_date(game_date),
         game_status,
         winner_side=winner_side,
         winner_name=winner_name,

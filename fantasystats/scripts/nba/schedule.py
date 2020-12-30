@@ -1,6 +1,7 @@
 from fantasystats.context import logger
 from fantasystats.services.crawlers import nba
 from fantasystats.services.nba import parser
+from fantasystats.managers.nba.season import get_season_from_game_date
 
 
 def get_schedule():
@@ -9,16 +10,24 @@ def get_schedule():
 
     for d in schedule['payload']['dates']:
         for g in d['games']:
+
+            season = get_season_from_game_date(
+                datetime.strptime(
+                    g['profile']['dateTimeEt'],
+                    '%Y-%m-%dT%H:%M'
+                )
+
+            )
             logger.info(
                 'Game Id: %s - Season: %s' % (
                     g['profile']['gameId'],
-                    schedule['payload']['season']['yearDisplay']
+                    season
                 )
             )
 
             game_data = nba.get_game(
                 g['profile']['gameId'],
-                schedule['payload']['season']['yearDisplay'],
+                season,
                 new_only=True
             )
 
