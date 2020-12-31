@@ -17,7 +17,7 @@ class nba_player(Document):
     draft_year = IntField(required=False)
     affiliation = StringField(required=False)
     schoolType = StringField(required=False)
-    nba_id = IntField(required=True)
+    nba_id = StringField(required=True)
     player_img = StringField(required=False)
     player_img_on = DateTimeField(required=False)
 

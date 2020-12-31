@@ -6,26 +6,41 @@ import spreadCell from "./components/odds/spreadCell.html";
 import totalCell from "./components/odds/totalCell.html";
 import moneylineCell from "./components/odds/moneylineCell.html";
 
-const getGameOdds = () => {
+const config = {
+  GAME_KEY: null,
+  LEAGUE: "nba",
+  API_URL: "http://localhost:5000/",
+};
+
+const getGameOdds = (container, gameKey) => {
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function () {
     if (xhr.readyState == XMLHttpRequest.DONE) {
-      renderOdds(JSON.parse(xhr.responseText).data);
+      let gk = gameKey;
+
+      if (!gk) {
+        gk = config.GAME_KEY;
+      }
+      renderOdds(JSON.parse(xhr.responseText).data, container, gk);
     }
   };
 
   const dt = new Date();
   const dtStr = `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`;
-  const url = `${API_URL}/games/date/${dtStr}`;
+  const url = `${config.API_URL}/${config.LEAGUE}/games/date/${dtStr}`;
 
   xhr.open("GET", url, true);
   xhr.send(null);
 };
 
-const renderOdds = (games) => {
+const renderOdds = (games, container, gameKey) => {
   let rows = [];
   for (let i = 0; i < games.length; i++) {
     const game = games[i];
+
+    if (gameKey && game.game_key !== gameKey) {
+      continue;
+    }
 
     const startTime = new Date(game.start_time);
     let startHour = startTime.getUTCHours();
@@ -62,7 +77,6 @@ const renderOdds = (games) => {
     rows.push(newRow);
   }
 
-  const container = document.getElementById("container");
   container.innerHTML = oddsHtml.replace("[ODDS_ROWS]", rows.join(""));
 
   const dd = document.getElementById("odds-choice");
@@ -146,6 +160,20 @@ const renderMoneyLine = (odds, bookMaker, newRow) => {
   return newRow;
 };
 
+const scanGameOdds = () => {
+  const oddsEl = document.getElementById("fs-game-odds");
+
+  if (!oddsEl) {
+    return;
+  }
+
+  getGameOdds(oddsEl, oddsEl.getAttribute("key"));
+};
+
 (function (window) {
-  getGameOdds();
+  window.fs = {
+    config: config,
+    getGameOdds: getGameOdds,
+    scanGameOdds: scanGameOdds,
+  };
 })(window);

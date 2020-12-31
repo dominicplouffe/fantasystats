@@ -21,7 +21,10 @@ MAPPING = {
         'VEG': 'VGK'
     },
     'nba': {
-        'SA': 'SAS'
+        'SA': 'SAS',
+        'NY': 'NYK',
+        'NO': 'NOP',
+        'PHO': 'PHX'
     }
 }
 
@@ -176,9 +179,11 @@ def _get_games(doc, date, league):
         home_team = DB_MAP[league]['team'].get_team_by_abbr(
             MAPPING[league].get(home, home)
         )[0]
+        print('found home')
         away_team = DB_MAP[league]['team'].get_team_by_abbr(
             MAPPING[league].get(away, away)
         )[0]
+        print('found away')
 
         if not home_team or not away_team:
             context.logger.info(
@@ -198,6 +203,6 @@ def _get_games(doc, date, league):
 
 if __name__ == '__main__':
 
-    get_odds('mlb')
-    get_odds('nhl')
+    # get_odds('mlb')
+    # get_odds('nhl')
     get_odds('nba')

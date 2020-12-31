@@ -7,16 +7,20 @@
   </head>
   <body style="background-color: #fff;">
     <div
-      id="container"
+      id="all-games"
       style="
        padding: 10px;
       "
     ></div>
 
-    <script>
-      const LEAGUE = "nba";
-      const API_URL = `http://localhost:5000/${LEAGUE}/`;
-    </script>
+    <div id="fs-game-odds" key="2020-12-30-grizzlies-celtics-N-1"></div>
+
     <script src="main.js"></script>
+    <script>
+      window.fs.config.LEAGUE = 'nba';
+      window.fs.config.API_URL = 'https://api.bettingnews.com';
+      window.fs.getGameOdds(document.getElementById('all-games'));
+      window.fs.scanGameOdds();
+    </script>
   </body>
 </html>

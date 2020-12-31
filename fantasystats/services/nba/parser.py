@@ -23,7 +23,7 @@ def process_data(data, update=False):
 
     venue = process_venue(game_data['gameProfile'])
 
-    game_info = process_game(game_data, venue.name)
+    game_info = process_game(game_data, venue.name, update=update)
 
     for ply in game_data['homeTeam']['gamePlayers']:
         profile = ply['profile']
@@ -109,7 +109,7 @@ def process_player(game_player):
         draft_year = int(draft_year)
     affiliation = game_player['displayAffiliation']
     schoolType = game_player['schoolType']
-    nba_id = int(game_player['playerId'])
+    nba_id = game_player['playerId']
 
     if position is None:
         position = '?'
@@ -193,14 +193,24 @@ def process_game(game_data, venue, update=False):
     if game_status is None:
         game_status = 'Not Started'
 
+    home_name = '%s %s' % (
+        game_data['homeTeam']['profile']['cityEn'],
+        game_data['homeTeam']['profile']['nameEn']
+    )
+
+    away_name = '%s %s' % (
+        game_data['awayTeam']['profile']['cityEn'],
+        game_data['awayTeam']['profile']['nameEn']
+    )
+
     game_info = game.insert_game(
         game_data['gameProfile']['gameId'],
         venue,
         game_date,
         start_time,
         game_data['gameProfile']['seasonType'],
-        game_data['homeTeam']['profile']['name'],
-        game_data['awayTeam']['profile']['name'],
+        home_name,
+        away_name,
         season.get_season_from_game_date(game_date),
         game_status,
         winner_side=winner_side,

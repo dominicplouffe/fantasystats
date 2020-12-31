@@ -6,7 +6,7 @@ from mongoengine import (
 
 class nba_game(Document):
     game_key = StringField(required=True)
-    nba_id = IntField(required=True)
+    nba_id = StringField(required=True)
     venue = StringField(required=True)
     game_date = DateTimeField(required=True)
     start_time = DateTimeField(required=True)

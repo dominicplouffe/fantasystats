@@ -11,4 +11,4 @@ db = db_modules.get_database()
 
 REDIS = redis.Redis()
 
-API_URL = os.environ.get('API_URL', 'http://localhost:9500/')
+API_URL = os.environ.get('API_URL', 'http://localhost:5000/')
