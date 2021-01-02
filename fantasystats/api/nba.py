@@ -76,7 +76,7 @@ class GetPlayer(BaseView):
     @memorize
     def dispatch_request(self, player_id):
 
-        return self.write_json(game.get_player(player_id))
+        return self.write_json(game.get_player(player_id, team=True))
 
 
 class GetTeamVS(BaseView):

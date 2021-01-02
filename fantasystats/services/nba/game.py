@@ -61,7 +61,7 @@ def get_team(team_name, standings=False, season=None, to_date=None):
     }
 
 
-def get_player(player_name):
+def get_player(player_name, team=False):
 
     player_info = {
         'bio': get_player_bio(player_name),
@@ -85,6 +85,9 @@ def get_player(player_name):
             g
         )
 
+    if team and len(all_games) > 0:
+        player_info['team'] = get_team(all_games[0].team_name)
+
     return player_info
 
 
@@ -95,7 +98,7 @@ def get_player_bio(player_name):
     if not player_info:
         return {}
 
-    return {
+    bio = {
         'name': player_info.full_name,
         'primary_number': player_info.primary_number,
         'position': player_info.position,
@@ -108,8 +111,10 @@ def get_player_bio(player_name):
         'weight': player_info.weight,
         'height': player_info.height,
         'headshot': 'https://fantasydataobj.s3.us-east-2.amazonaws.com'
-                    '/nba/players/%s' % player_info.player_img
+                    '/mba/players/%s' % player_info.player_img
     }
+
+    return bio
 
 
 def get_team_details(season, team_name, to_date=None):

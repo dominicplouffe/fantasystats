@@ -1,0 +1,73 @@
+.fs-player-box {
+    width: 500px;
+    border: 1px solid #ecf0f2;
+    border-radius: 3px;
+    padding: 5px;
+    background-color: #ecf0f2;
+    margin: auto;
+}
+.player-table {
+    color: #333333;
+    font-size: 15px;
+    font-size: 0.9375rem;
+    font-family: 'Oxygen', Tahoma, Arial;
+    /* line-height: 1.75; */
+    width: 100%;
+    border-spacing: 0;
+}
+
+.player-table td {
+    border: 0;
+    padding: 15px 5px 15px 5px;
+}
+
+.player-table .left {
+    width: 100px;
+}
+.player-table .right {
+    width: 100px;
+    text-align: right;
+}
+
+.player-img  {
+    width: 100px;
+    border-radius: 20px;
+    border: 1px solid #d4d8d9;
+    padding: 5px;
+    background-color: #fff;
+}
+
+.player-name {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.player-number {
+    font-size: 15px;
+    background-color: #333333;
+    color: #fff;
+    padding: 0px 3px 0px 3px;
+    border: 1px solid #fff;
+    border-radius: 5px;
+}
+
+.player-stats-table {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.player-stats-table th {
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.player-stats-table td {
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    text-align: center;
+}

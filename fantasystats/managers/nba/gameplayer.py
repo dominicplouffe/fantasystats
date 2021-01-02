@@ -82,7 +82,7 @@ def get_gameplayers_by_team(season, team_name, to_date=None):
 def get_gameplayer_by_name(player_name):
     return gameplayer.nba_gameplayer.objects.filter(
         player_name=search.get_search_value(player_name)
-    )
+    ).order_by('-game_date')
 
 
 def get_gameplayer_by_date(game_date):

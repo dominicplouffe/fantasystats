@@ -24,7 +24,8 @@ MAPPING = {
         'SA': 'SAS',
         'NY': 'NYK',
         'NO': 'NOP',
-        'PHO': 'PHX'
+        'PHO': 'PHX',
+        'GS': 'GSW'
     }
 }
 
