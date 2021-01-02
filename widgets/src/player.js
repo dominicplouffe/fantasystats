@@ -15,7 +15,6 @@ const getPlayer = (container, playerKey, league) => {
       let data = null;
 
       data = JSON.parse(xhr.responseText).data;
-      console.log(data);
       renderPlayer(data, container);
     }
   };
@@ -23,8 +22,6 @@ const getPlayer = (container, playerKey, league) => {
   const dt = new Date();
   const dtStr = `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`;
   let url = `${config.API_URL}/${league}/player/${playerKey}`;
-  console.log(url);
-
   xhr.open("GET", url, true);
   xhr.send(null);
 };
@@ -35,7 +32,7 @@ const renderPlayer = (data, container) => {
   html = html.replace("[PLAYER_IMG]", data.bio.headshot);
   html = html.replace("[PLAYER_NAME]", data.bio.name);
   html = html.replace("[PLAYER_NUMER]", data.bio.primary_number);
-  html = html.replace("[PLAYER_POS]", data.bio.primary_number);
+  html = html.replace("[PLAYER_POS]", data.bio.position);
   if (data.bio.weight) {
     html = html.replace("[PLAYER_WEIGHT]", `${data.bio.weight}lbs`);
   } else {
@@ -53,7 +50,6 @@ const renderPlayer = (data, container) => {
   for (let season in data.seasons) {
     let sr = statsRow;
     const s = data.seasons[season];
-    console.log(s);
     sr = sr.replace("[YEAR]", season);
     sr = sr.replace("[GP]", s.games_played);
     sr = sr.replace("[FGP]", (s.fgpct * 100).toFixed(0));

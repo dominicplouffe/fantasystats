@@ -1,0 +1,25 @@
+.fs-matchup-box {
+    width: 100%;
+    max-width: 1200px;
+    border: 1px solid #ecf0f2;
+    border-radius: 3px;
+    padding: 10px;
+    background-color: #ecf0f2;
+    margin: auto;
+}
+
+.matchup-table {
+    width: 100%;
+}
+
+.matchup-table td {
+    border: 0;
+    text-align: center;
+    padding-top: 8px;
+}
+
+
+
+.team-stats {
+    float: left;
+}
