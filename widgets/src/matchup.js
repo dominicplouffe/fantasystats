@@ -15,7 +15,6 @@ const getMatchup = (container, league, season, team1, team2) => {
   };
 
   let url = `${config.API_URL}/${league}/teams/${season}/${team1}/${team2}`;
-  console.log(url);
 
   xhr.open("GET", url, true);
   xhr.send(null);

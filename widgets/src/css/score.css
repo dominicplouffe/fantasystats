@@ -1,0 +1,41 @@
+.fs-scores-box {
+    margin: auto;
+    width: 520px;
+    padding: 10px;
+}
+
+.fs-scores-inner-box {
+    width: 100%;
+    border: 1px solid #ecf0f2;
+    border-radius: 3px;
+    padding: 5px;
+    background-color: #ecf0f2;
+    
+}
+
+.scores-table {
+    width: 100%;
+}
+
+.scores-table td {
+    border: 0;
+    text-align: center;
+    
+    vertical-align: middle;
+}
+
+.scores-table-left-col {
+    width: 50%
+}
+
+.scores-table-right-col {
+    width: 20%;
+}
+
+.team-img-small {
+    margin-right: 8px;
+}
+
+.scores-name {
+    text-align: left;
+}
