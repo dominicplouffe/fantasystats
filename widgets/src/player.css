@@ -1,10 +1,16 @@
 .fs-player-box {
-    width: 500px;
+    margin: auto;
+    width: 520px;
+    padding: 10px;
+}
+
+.fs-player-inner-box {
+    width: 100%;
     border: 1px solid #ecf0f2;
     border-radius: 3px;
     padding: 5px;
     background-color: #ecf0f2;
-    margin: auto;
+    
 }
 .player-table {
     color: #333333;

@@ -1,4 +1,4 @@
-import { config } from "./config";
+import { config, layoutAttributeScan } from "./config";
 import playerHtml from "./pages/player.html";
 import statsRow from "./components/player/nba/statsRow.html";
 
@@ -80,6 +80,8 @@ export const scanPlayer = () => {
     const el = playerEls[i];
     const key = el.getAttribute("key");
     const league = el.getAttribute("league");
+
+    layoutAttributeScan(el);
 
     getPlayer(el, key, league);
   }

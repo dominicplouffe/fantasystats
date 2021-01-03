@@ -4,6 +4,7 @@ import { scanPlayer } from "./player";
 import { scanMatchup } from "./matchup";
 
 import "./styles.css";
+import "./odds.css";
 import "./player.css";
 import "./matchup.css";
 

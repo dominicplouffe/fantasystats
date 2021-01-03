@@ -1,4 +1,4 @@
-import { config } from "./config";
+import { config, layoutAttributeScan } from "./config";
 import matchupHtml from "./pages/matchup.html";
 import statsRow from "./components/matchup/nba/statsRow.html";
 
@@ -127,6 +127,8 @@ export const scanMatchup = () => {
     const team1 = el.getAttribute("team1");
     const team2 = el.getAttribute("team2");
     const season = el.getAttribute("season");
+
+    layoutAttributeScan(el);
 
     getMatchup(el, league, season, team1, team2);
   }

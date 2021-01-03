@@ -1,4 +1,4 @@
-import { config } from "./config";
+import { config, layoutAttributeScan } from "./config";
 import oddsHtml from "./pages/odds.html";
 import oddsRow from "./components/odds/oddsRow.html";
 import teamBox from "./components/odds/teamBox.html";
@@ -202,6 +202,8 @@ export const scanFullOdds = () => {
     const el = oddsEls[i];
     const key = el.getAttribute("key");
     const league = el.getAttribute("league");
+
+    layoutAttributeScan(el);
 
     getGameOdds(el, key, league);
   }

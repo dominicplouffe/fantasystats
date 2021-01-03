@@ -1,11 +1,14 @@
 .fs-matchup-box {
     width: 100%;
-    max-width: 1200px;
+    padding: 10px;
+    margin: auto;
+}
+
+.fs-matchup-inner-box {
     border: 1px solid #ecf0f2;
     border-radius: 3px;
-    padding: 10px;
     background-color: #ecf0f2;
-    margin: auto;
+    padding: 5px;
 }
 
 .matchup-table {
