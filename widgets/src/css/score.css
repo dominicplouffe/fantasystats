@@ -15,6 +15,7 @@
 
 .scores-table {
     width: 100%;
+    margin-bottom: 0;
 }
 
 .scores-table td {

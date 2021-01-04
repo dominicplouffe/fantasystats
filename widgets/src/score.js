@@ -37,7 +37,7 @@ const renderScores = (data, container) => {
   } else if (data.game_status === "Final") {
     period = "Final";
   } else {
-    period = `${data.current_period} period`;
+    period = `Quarter ${data.current_period}`;
   }
 
   html = html.replace("[PERIOD]", period);
