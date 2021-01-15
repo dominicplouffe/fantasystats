@@ -18,7 +18,10 @@ MAPPING = {
         'TB': 'TBL',
         'MON': 'MTL',
         'WAS': 'WSH',
-        'VEG': 'VGK'
+        'VEG': 'VGK',
+        'NJ': 'NJD',
+        'SJ': 'SJS',
+        'LA': 'LAK'
     },
     'nba': {
         'SA': 'SAS',
@@ -67,7 +70,6 @@ def get_odds(league):
 
     found_games = _get_games(doc, date, league)
     sportsbooks = _get_odds(doc, league)
-
     book_names = sportsbooks.keys()
 
     games = [
@@ -80,7 +82,8 @@ def get_odds(league):
 
     for book, values in sportsbooks.items():
         for i, odds in enumerate(values):
-            games[i][book] = odds
+            if i < len(games):
+                games[i][book] = odds
 
     for g in games:
         context.db[DB_MAP[league]['odds']].replace_one(
@@ -109,6 +112,7 @@ def _get_odds(doc, league):
         for row in team_rows:
             row_type = row.xpath('./@data-type')[0]
             values = [x.strip() for x in row.xpath('.//span/text()')]
+
             if row_type == 'moneyline':
                 team_row['money_line'] = {
                     'away': {'odds': values[0]},
@@ -156,8 +160,7 @@ def _get_odds(doc, league):
                     }
 
             if len(team_row) == 3:
-                if team_row['money_line']['away']['odds'] != 'n/a':
-                    sportsbooks[sportsbook].append(team_row)
+                sportsbooks[sportsbook].append(team_row)
                 team_row = {}
 
     return sportsbooks
@@ -199,11 +202,12 @@ def _get_games(doc, date, league):
                 found_games.append(g)
                 break
 
+    print(len(found_games))
     return found_games
 
 
 if __name__ == '__main__':
 
-    # get_odds('mlb')
-    # get_odds('nhl')
+    get_odds('mlb')
+    get_odds('nhl')
     get_odds('nba')

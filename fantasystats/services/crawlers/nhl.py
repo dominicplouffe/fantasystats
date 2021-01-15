@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from fantasystats.services import search
 from fantasystats.tools import s3
 
-PLAYER_IMAGE_URL = 'https://nhl.bamcontent.com/images/headshots/' \
+PLAYER_IMAGE_URL = 'https://cms.nhl.bamgrid.com/images/headshots/' \
                    'current/168x168/%s.jpg'
 
 SCHEDULE_URL = 'https://statsapi.web.nhl.com/api/v1/schedule?' \

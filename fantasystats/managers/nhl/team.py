@@ -61,7 +61,7 @@ def get_teams():
 
 def get_team_by_abbr(abbr):
     try:
-        t = team.nhl_team.objects.get(abbr=abbr)
+        t = team.nhl_team.objects.filter(abbr=abbr)
 
         return t
     except DoesNotExist:

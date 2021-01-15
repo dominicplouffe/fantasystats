@@ -312,7 +312,7 @@ def get_standings(season, team_name=None, by='nhl', to_date=None):
             }
         if to_date and to_date <= g.game_date:
             break
-        if g.game_status not in ['Final', 'Preview']:
+        if g.game_status not in ['Final']:
             continue
 
         games[g.home_team]['games'] += 1

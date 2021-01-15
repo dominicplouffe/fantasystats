@@ -2,6 +2,7 @@ from fantasystats.context import logger
 from fantasystats.services.crawlers import nba
 from fantasystats.services.nba import parser
 from fantasystats.managers.nba.season import get_season_from_game_date
+from datetime import date
 
 
 def get_schedule():
