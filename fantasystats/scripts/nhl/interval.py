@@ -7,6 +7,9 @@ from fantasystats.services.crawlers import nhl
 
 if __name__ == '__main__':
 
+    res = requests.get(
+        'https://api.connexion.me/api/pongme/start/905676-686495-175731-801681'
+    )
     d = datetime.utcnow() - timedelta(hours=7)
     d = datetime(d.year, d.month, d.day)
 
@@ -55,3 +58,6 @@ if __name__ == '__main__':
             parser.process_data(nhl_res, update=True)
 
     logger.info('Sleeping for 5 mins')
+    res = requests.get(
+        'https://api.connexion.me/api/pongme/end/905676-686495-175731-801681'
+    )

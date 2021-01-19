@@ -7,6 +7,9 @@ from fantasystats.services.crawlers import nba
 
 if __name__ == '__main__':
 
+    res = requests.get(
+        'https://api.connexion.me/api/pongme/start/805518-570744-627386-898448'
+    )
     d = datetime.utcnow() - timedelta(hours=7)
     d = datetime(d.year, d.month, d.day)
 
@@ -55,3 +58,6 @@ if __name__ == '__main__':
             parser.process_data(nba_res, update=True)
 
     logger.info('Sleeping for 5 mins')
+    res = requests.get(
+        'https://api.connexion.me/api/pongme/end/805518-570744-627386-898448'
+    )

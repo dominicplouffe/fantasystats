@@ -7,6 +7,9 @@ from fantasystats.services.crawlers import mlb
 
 if __name__ == '__main__':
 
+    res = requests.get(
+        'https://api.connexion.me/api/pongme/start/548150-306246-083517-633280'
+    )
     d = datetime.utcnow() - timedelta(hours=7)
     d = datetime(d.year, d.month, d.day)
 
@@ -41,3 +44,6 @@ if __name__ == '__main__':
             parser.process_data(mlb_res, update=True)
 
     logger.info('Sleeping for 5 mins')
+    res = requests.get(
+        'https://api.connexion.me/api/pongme/end/548150-306246-083517-633280'
+    )

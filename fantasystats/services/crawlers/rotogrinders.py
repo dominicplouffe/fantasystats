@@ -208,6 +208,13 @@ def _get_games(doc, date, league):
 
 if __name__ == '__main__':
 
+    res = requests.get(
+        'https://api.connexion.me/api/pongme/start/027467-324813-480532-013469'
+    )
     get_odds('mlb')
     get_odds('nhl')
     get_odds('nba')
+
+    res = requests.get(
+        'https://api.connexion.me/api/pongme/end/027467-324813-480532-013469'
+    )
