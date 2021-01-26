@@ -54,6 +54,15 @@ def get_team_by_name(team_name):
         return None
 
 
+def get_team_by_shortname(short_name):
+    try:
+        t = team.nba_team.objects.get(short_name=short_name)
+
+        return t
+    except DoesNotExist:
+        return None
+
+
 def get_teams():
 
     return team.nba_team.objects.all()

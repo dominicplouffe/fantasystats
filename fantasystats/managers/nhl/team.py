@@ -66,3 +66,12 @@ def get_team_by_abbr(abbr):
         return t
     except DoesNotExist:
         return None
+
+
+def get_team_by_shortname(short_name):
+    try:
+        t = team.nhl_team.objects.get(name=short_name)
+
+        return t
+    except DoesNotExist:
+        return None
