@@ -12,8 +12,12 @@ def save_prediction(
     game_url,
     payload
 ):
+
+    pred_key = '%s-%s' % (
+        game_key, provider
+    )
     try:
-        t = prediction.nhl_prediction.objects.get(game_key=game_key)
+        t = prediction.nhl_prediction.objects.get(prediction_key=pred_key)
         t.payload = payload
         t.winner = winner
         t.save()
@@ -27,6 +31,7 @@ def save_prediction(
             provider=provider,
             game_url=game_url,
             payload=payload,
+            pred_key=pred_key
         )
         t.save()
 
@@ -34,9 +39,4 @@ def save_prediction(
 
 
 def get_prediction_by_game_key(game_key):
-    try:
-        t = prediction.nhl_prediction.objects.get(game_key=game_key)
-
-        return t
-    except DoesNotExist:
-        return None
+    return prediction.nhl_prediction.objects.filter(game_key=game_key)

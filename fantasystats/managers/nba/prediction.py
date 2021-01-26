@@ -12,8 +12,13 @@ def save_prediction(
     game_url,
     payload
 ):
+
+    pred_key = '%s-%s' % (
+        game_key, provider
+    )
+
     try:
-        t = prediction.nba_prediction.objects.get(game_key=game_key)
+        t = prediction.nba_prediction.objects.get(prediction_key=pred_key)
         t.payload = payload
         t.winner = winner
         t.save()
@@ -34,9 +39,4 @@ def save_prediction(
 
 
 def get_prediction_by_game_key(game_key):
-    try:
-        t = prediction.nba_prediction.objects.get(game_key=game_key)
-
-        return t
-    except DoesNotExist:
-        return None
+    return prediction.nba_prediction.objects.filteret(game_key=game_key)

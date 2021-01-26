@@ -1,7 +1,7 @@
 from datetime import datetime
 from fantasystats import context
 from fantasystats.managers.nba import (
-    game, team, venue, player, gameplayer, fantasy, season
+    game, team, venue, player, gameplayer, fantasy, season, prediction
 )
 
 
@@ -356,6 +356,7 @@ def get_game_by_key(
     game_info=None,
     include_players=True,
     include_odds=False,
+    include_predictions=True,
     to_date=None
 ):
 
@@ -400,6 +401,11 @@ def get_game_by_key(
             odds.pop('_id')
             odds.pop('game_key')
             game_info['odds'] = odds
+
+    if include_predictions:
+        pred = prediction.get_prediction_by_game_key(game_key)
+
+        print(pred)
 
     return game_info
 
