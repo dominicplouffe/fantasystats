@@ -1,5 +1,5 @@
 from fantasystats import context  # noqa
-from fantasystats.models import mlb, nhl
+from fantasystats.models import mlb, nhl, nba
 
 
 def create_indexes():

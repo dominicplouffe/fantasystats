@@ -32,6 +32,7 @@ def save_prediction(
             provider=provider,
             game_url=game_url,
             payload=payload,
+            prediction_key=pred_key
         )
         t.save()
 
@@ -39,4 +40,4 @@ def save_prediction(
 
 
 def get_prediction_by_game_key(game_key):
-    return prediction.nba_prediction.objects.filteret(game_key=game_key)
+    return prediction.nba_prediction.objects.filter(game_key=game_key)

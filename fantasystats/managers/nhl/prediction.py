@@ -31,7 +31,7 @@ def save_prediction(
             provider=provider,
             game_url=game_url,
             payload=payload,
-            pred_key=pred_key
+            prediction_key=pred_key
         )
         t.save()
 

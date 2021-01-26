@@ -1,7 +1,8 @@
 from datetime import datetime
 from fantasystats import context
+from fantasystats.services import consensus
 from fantasystats.managers.nhl import (
-    game, team, venue, player, gameplayer, fantasy, season
+    game, team, venue, player, gameplayer, fantasy, season, prediction
 )
 
 
@@ -29,7 +30,8 @@ def get_games_by_date(game_date):
             game_info=g,
             include_players=False,
             to_date=game_date,
-            include_odds=True
+            include_odds=True,
+            include_predictions=True
         )
         for g in all_games
     ]
@@ -40,6 +42,7 @@ def get_game_by_key(
     game_info=None,
     include_players=True,
     include_odds=False,
+    include_predictions=False,
     to_date=None
 ):
 
@@ -83,7 +86,26 @@ def get_game_by_key(
         if odds:
             odds.pop('_id')
             odds.pop('game_key')
-            game_info['odds'] = odds
+            game_info['odds'] = {
+                'sites': odds,
+                'consensus': consensus.get_odds_consensus(odds)
+            }
+
+    if include_predictions:
+        preds = prediction.get_prediction_by_game_key(game_key)
+
+        pred_sites = []
+        for p in preds:
+            pred_sites.append({
+                'winner': p.winner,
+                'game_url': p.game_url,
+                'predictions': p.payload
+            })
+
+        game_info['predictions'] = {
+            'sites': pred_sites,
+            'consensus': consensus.get_prediction_consensus(preds)
+        }
 
     return game_info
 
