@@ -9,27 +9,14 @@ from fantasystats.managers.nhl import game as nhl_game
 from fantasystats.managers.nba import team as nba_team
 from fantasystats.managers.nba import game as nba_game
 
+from fantasystats.services.crawlers.mappings import NBA_MAPPING, NHL_MAPPING
+
 MAPPING = {
     'mlb': {
         'CHW': 'CWS'
     },
-    'nhl': {
-        'NAS': 'NSH',
-        'TB': 'TBL',
-        'MON': 'MTL',
-        'WAS': 'WSH',
-        'VEG': 'VGK',
-        'NJ': 'NJD',
-        'SJ': 'SJS',
-        'LA': 'LAK'
-    },
-    'nba': {
-        'SA': 'SAS',
-        'NY': 'NYK',
-        'NO': 'NOP',
-        'PHO': 'PHX',
-        'GS': 'GSW'
-    }
+    'nhl': NHL_MAPPING,
+    'nba': NBA_MAPPING
 }
 
 DB_MAP = {

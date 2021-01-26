@@ -1,21 +1,31 @@
 import pytz
 import requests
 from lxml import html
+from datetime import datetime
 from fantasystats import context
-from fantasystats.services import search
 from fantasystats.managers.nba import team as nba_team
 from fantasystats.managers.nhl import team as nhl_team
-from datetime import datetime
+from fantasystats.services.crawlers.mappings import create_game_key
+from fantasystats.managers.nba import prediction as nba_prediction
+from fantasystats.managers.nhl import prediction as nhl_prediction
 
 
-URL = 'https://www.scoresandstats.com/previews/basketball/%s/'
+URLS = {
+    'nba': 'https://www.scoresandstats.com/previews/basketball/nba/',
+    'nhl': 'https://www.scoresandstats.com/previews/hockey/nhl/'
+}
+
+PROVIDER = 'scoresandstats'
 
 
-def get_predictions(league, league_mgr):
+def get_predictions(league, league_mgr, pred_mgr):
+
+    game_date = datetime.now(pytz.UTC)
+    game_date = datetime(game_date.year, game_date.month, game_date.day)
 
     games = []
 
-    url = URL % league.upper()
+    url = URLS[league.lower()]
 
     content = requests.get(url).content.decode('utf-8')
     doc = html.fromstring(content)
@@ -30,48 +40,52 @@ def get_predictions(league, league_mgr):
         home_name = team_names.xpath('./h2/a/text()')[1]
 
         predictions = between[4]
-        away_pred = predictions.xpath('./div/b/text()')[0]
-        home_pred = predictions.xpath('./div/b/text()')[1]
-
-        print(away_name)
-        print(home_name)
-
+        away_score = predictions.xpath('./div/b/text()')[0]
+        home_score = predictions.xpath('./div/b/text()')[1]
         away_team = league_mgr.get_team_by_shortname(away_name)
         home_team = league_mgr.get_team_by_shortname(home_name)
 
+        winner = away_team.name_search
+        if home_score > away_score:
+            winner = home_team.name_search
+
+        game_url = box.xpath('.//a/@href')[0]
+        game_url = 'https://www.scoresandstats.com%s' % game_url
+
         games.append(
             {
-                'game_key': _create_game_key(away_team, home_team),
+                'game_key': create_game_key(away_team, home_team),
+                'winner': winner,
+                'game_url': game_url,
+                'away_team': away_team.name_search,
+                'home_team': home_team.name_search,
                 'predictions': {
                     'away': {
-                        'team': away_team.name_search,
-                        'score': away_pred
+                        'score': away_score
                     },
                     'home': {
-                        'team': home_team.name_search,
-                        'score': home_pred
+                        'score': home_score
                     }
                 }
             }
         )
 
+    for g in games:
+        pred_mgr.save_prediction(
+            g['game_key'],
+            game_date,
+            g['away_team'],
+            g['home_team'],
+            g['winner'],
+            PROVIDER,
+            g['game_url'],
+            g['predictions']
+        )
+
     return games
-
-
-def _create_game_key(away_team, home_team):
-
-    d = datetime.now(pytz.UTC)
-
-    return search.create_game_key(
-        d,
-        away_team,
-        home_team,
-        'N',
-        '1'
-    )
 
 
 if __name__ == '__main__':
 
-    nba_games = get_predictions('NBA', nba_team)
-    nhl_games = get_predictions('NHL', nhl_team)
+    nba_games = get_predictions('NBA', nba_team, nba_prediction)
+    nhl_games = get_predictions('NHL', nhl_team, nhl_prediction)

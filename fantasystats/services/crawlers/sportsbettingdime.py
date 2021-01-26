@@ -6,30 +6,21 @@ from fantasystats import context
 from fantasystats.services import search
 from fantasystats.managers.nba import team as nba_team
 from fantasystats.managers.nhl import team as nhl_team
+from fantasystats.managers.nba import prediction as nba_prediction
+from fantasystats.managers.nhl import prediction as nhl_prediction
+from fantasystats.services.crawlers.mappings import (
+    NBA_MAPPING, NHL_MAPPING, create_game_key
+)
 
 URLS = {
     'nba': 'https://www.sportsbettingdime.com/nba/odds/',
     'nhl': 'https://www.sportsbettingdime.com/nhl/odds/',
 }
-NBA_MAPPING = {
-    'NY': 'NYK'
-}
-NHL_MAPPING = {
-    'CLB': 'CBJ',
-    'NJ': 'NJD',
-    'WAS': 'WSH',
-    'LA': 'LAK',
-    'NAS': 'NSH',
-    'CAL': 'CGY',
-    'SJ': 'SJS',
-    'WIN': 'WPG',
-    'VEG': 'VGK',
-    'TB': 'TBL',
-    'MON': 'MTL'
-}
+
+PROVIDER = 'sportsbettingdime'
 
 
-def get_game_prediction(url, league, league_mgr, mappings):
+def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
 
     content = requests.get(url).content.decode('utf-8')
     doc = html.fromstring(content)
@@ -50,22 +41,31 @@ def get_game_prediction(url, league, league_mgr, mappings):
         mappings.get(home_abbr, home_abbr)
     )[0]
 
+    winner = away_team.name_search
+    if home_score > away_score:
+        winner = home_team.name_search
+
     return {
-        'game_key': _create_game_key(away_team, home_team),
+        'game_key': create_game_key(away_team, home_team),
+        'winner': winner,
+        'game_url': url,
+        'away_team': away_team.name_search,
+        'home_team': home_team.name_search,
         'predictions': {
             'away': {
-                'team': away_team.name_search,
                 'score': away_score,
             },
             'home': {
-                'team': home_team.name_search,
                 'score': home_score,
             }
         }
     }
 
 
-def get_predictions(league, league_mgr, mappings):
+def get_predictions(league, league_mgr, pred_mgr, mappings):
+
+    game_date = datetime.now(pytz.UTC)
+    game_date = datetime(game_date.year, game_date.month, game_date.day)
 
     games = []
     url = URLS[league]
@@ -79,33 +79,27 @@ def get_predictions(league, league_mgr, mappings):
                               'odds/")]/@href'
                               ):
         games.append(
-            get_game_prediction(game_url, league, league_mgr, mappings)
+            get_game_prediction(
+                game_url, league, league_mgr, pred_mgr, mappings
+            )
+        )
+
+    for g in games:
+        pred_mgr.save_prediction(
+            g['game_key'],
+            game_date,
+            g['away_team'],
+            g['home_team'],
+            g['winner'],
+            PROVIDER,
+            g['game_url'],
+            g['predictions']
         )
 
     return games
 
 
-def _create_game_key(away_team, home_team):
-
-    d = datetime.now(pytz.UTC)
-
-    return search.create_game_key(
-        d,
-        away_team,
-        home_team,
-        'N',
-        '1'
-    )
-
-
 if __name__ == '__main__':
 
-    # get_game_prediction(
-    #     'https://www.sportsbettingdime.com/nba/odds/2021012712-nba-lac-atl/',
-    #     'nba',
-    #     nba_team,
-    #     NBA_MAPPING
-    # )
-
-    print(get_predictions('nba', nba_team, NBA_MAPPING))
-    print(get_predictions('nhl', nhl_team, NHL_MAPPING))
+    get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
+    get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
