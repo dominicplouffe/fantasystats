@@ -1,3 +1,4 @@
+import pytz
 from datetime import datetime
 from fantasystats import context
 from fantasystats.services import consensus
@@ -21,7 +22,6 @@ def get_games_by_date(game_date):
     else:
         all_games = [
             g for g in game.get_by_game_date(game_date)
-            if g.game_status != "Preview"
         ]
 
     return [
@@ -34,6 +34,7 @@ def get_games_by_date(game_date):
             include_predictions=True
         )
         for g in all_games
+
     ]
 
 
@@ -716,7 +717,8 @@ def _increment_stats(stats, gameplayer_info):
             )
 
         stats['goalie']['power_play_save_percentage'] = 0.00
-        if stats['goalie']['power_play_saves'] > 0:
+        if stats['goalie']['power_play_saves'] > 0 and stats[
+                'goalie']['power_play_shots_against']:
             stats['goalie']['power_play_save_percentage'] = round(
                 stats['goalie']['power_play_saves'] / stats[
                     'goalie']['power_play_shots_against'],
@@ -724,7 +726,8 @@ def _increment_stats(stats, gameplayer_info):
             )
 
         stats['goalie']['even_strength_save_percentage'] = 0.00
-        if stats['goalie']['even_saves'] > 0:
+        if stats['goalie']['even_saves'] > 0 and stats[
+                'goalie']['even_shots_against']:
             stats['goalie']['even_strength_save_percentage'] = round(
                 stats['goalie']['even_saves'] / stats[
                     'goalie']['even_shots_against'],

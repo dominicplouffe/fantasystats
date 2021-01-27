@@ -19,6 +19,8 @@ def get_odds_consensus(odds):
     }
 
     for k, v in odds.items():
+        if 'money_line' not in v:
+            continue
         ml = v['money_line']
         sp = v['spread']
         ou = v['over_under']
