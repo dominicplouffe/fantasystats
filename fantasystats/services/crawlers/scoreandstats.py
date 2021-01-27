@@ -40,8 +40,13 @@ def get_predictions(league, league_mgr, pred_mgr):
         home_name = team_names.xpath('./h2/a/text()')[1]
 
         predictions = between[4]
-        away_score = predictions.xpath('./div/b/text()')[0]
-        home_score = predictions.xpath('./div/b/text()')[1]
+        try:
+            away_score = float(predictions.xpath('./div/b/text()')[0])
+            home_score = float(predictions.xpath('./div/b/text()')[1])
+        except ValueError:
+            away_score = 0.00
+            home_score = 0.00
+
         away_team = league_mgr.get_team_by_shortname(away_name)
         home_team = league_mgr.get_team_by_shortname(home_name)
 

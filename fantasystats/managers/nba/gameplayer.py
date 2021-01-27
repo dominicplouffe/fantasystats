@@ -1,6 +1,7 @@
 from fantasystats.models.nba import gameplayer
 from mongoengine import DoesNotExist, Q
 from fantasystats.services import search
+from datetime import datetime, timedelta
 
 
 def insert_gameplayer(
@@ -95,3 +96,22 @@ def get_distince_gameplayer_by_team(season, team_name):
     return gameplayer.nba_gameplayer.objects.filter(
         Q(season=season) & Q(team_name=team_name)
     ).distinct('player_name')
+
+
+def get_injured_players(team_name):
+
+    players = gameplayer.nba_gameplayer.objects.filter(
+        Q(game_date__gte=datetime.utcnow() - timedelta(days=30)) & Q(
+            team_name=search.get_search_value(team_name)
+        )
+    ).order_by('game_date')
+
+    injuries = {}
+    for p in players:
+        if p.dnp_reason != '':
+            injuries[p.player_name] = p.game_date
+        else:
+            if p.player_name in injuries:
+                injuries.pop(p.player_name)
+
+    return injuries

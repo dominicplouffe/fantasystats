@@ -10,7 +10,7 @@ from fantasystats.managers.nhl import team as nhl_team
 from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
 from fantasystats.services.crawlers.mappings import (
-    NBA_MAPPING, NHL_MAPPING, create_game_key
+    NBA_MAPPING, NHL_MAPPING, create_game_key, HEADERS
 )
 
 from pprint import pprint
@@ -31,7 +31,7 @@ NHL_START_SEASON = datetime(2021, 1, 14)
 
 def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
 
-    content = requests.get(url).content.decode('utf-8')
+    content = requests.get(url, headers=HEADERS).content.decode('utf-8')
     doc = html.fromstring(content)
 
     if league == 'nba':
@@ -39,16 +39,35 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
         away_abbr = match_info[4]
         home_abbr = match_info[3]
         week = match_info[2]
-    elif league == 'nhl':
-        matchup = doc.xpath(
-            '//button[@data-component="AnalyticsEvent"]/'
-            '@data-analytics-event-label'
+
+        away_team = league_mgr.get_team_by_abbr(
+            mappings.get(away_abbr, away_abbr)
+        )[0]
+        home_team = league_mgr.get_team_by_abbr(
+            mappings.get(home_abbr, home_abbr)
         )[0]
 
-        away_info = matchup.split('@')[0].strip()
-        home_info = matchup.split('@')[1].strip()
-        away_abbr = away_info.split(' ')[0].strip()
-        home_abbr = home_info.split(' ')[0].strip()
+    elif league == 'nhl':
+        # matchup = doc.xpath(
+        #     '//button[@data-component="AnalyticsEvent"]/'
+        #     '@data-analytics-event-label'
+        # )[0]
+
+        # away_info = matchup.split('@')[0].strip()
+        # home_info = matchup.split('@')[1].strip()
+        # away_abbr = away_info.split(' ')[0].strip()
+        # home_abbr = home_info.split(' ')[0].strip()
+
+        team_names = doc.xpath(
+            '//div[@class="FixtureTeams__team-name FixtureTeams__team-name'
+            '--desktop"]/text()'
+        )
+
+        away_team = league_mgr.get_team_by_name(team_names[0])
+        home_team = league_mgr.get_team_by_name(team_names[1])
+
+        away_abbr = away_team.abbr
+        home_abbr = home_team.abbr
 
         diff = datetime.utcnow() - NHL_START_SEASON
         week = diff.days
@@ -71,13 +90,6 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
 
             away_per = round(s['PreData']['PythagAway'], 2)
             home_per = round(1.0 - away_per, 2)
-
-    away_team = league_mgr.get_team_by_abbr(
-        mappings.get(away_abbr, away_abbr)
-    )[0]
-    home_team = league_mgr.get_team_by_abbr(
-        mappings.get(home_abbr, home_abbr)
-    )[0]
 
     winner = away_team.name_search
     if home_score > away_score:
@@ -157,5 +169,5 @@ def _get_stats(week, league):
 
 if __name__ == '__main__':
 
-    print(get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING))
+    get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)

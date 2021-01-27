@@ -347,7 +347,8 @@ def get_games_by_date(game_date):
             include_players=False,
             to_date=game_date,
             include_odds=True,
-            include_predictions=True
+            include_predictions=True,
+            include_injuries=True
         )
         for g in all_games
     ]
@@ -359,6 +360,7 @@ def get_game_by_key(
     include_players=True,
     include_odds=False,
     include_predictions=False,
+    include_injuries=False,
     to_date=None
 ):
 
@@ -393,6 +395,21 @@ def get_game_by_key(
             home_team_name,
             away_team_name,
         )
+
+    if include_injuries:
+        home_injuries = gameplayer.get_injured_players(home_team_name)
+        away_injuries = gameplayer.get_injured_players(away_team_name)
+
+        game_info['injuries'] = {
+            'home_team': [
+                {'bio': get_player_bio(k), 'since': v}
+                for k, v in home_injuries.items()
+            ],
+            'away_team': [
+                {'bio': get_player_bio(k), 'since': v}
+                for k, v in away_injuries.items()
+            ],
+        }
 
     if include_odds:
         odds = context.db.nba_odds.find_one({

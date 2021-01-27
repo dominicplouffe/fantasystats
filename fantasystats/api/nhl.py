@@ -15,8 +15,10 @@ class GetGameById(BaseView):
     def dispatch_request(self, game_id):
 
         game_info = game.get_game_by_key(
-            game_id, include_odds=True, include_predictions=True
-        )
+            game_id,
+            include_odds=True,
+            include_predictions=True,
+            include_injuries=True)
 
         return self.write_json(game_info, 200)
 
