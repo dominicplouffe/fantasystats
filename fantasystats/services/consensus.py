@@ -241,15 +241,80 @@ def get_odds_consensus(odds):
     }
 
 
-def get_prediction_consensus(predictions):
+def get_prediction_consensus(predictions, odd_consensus):
 
     pred_con = defaultdict(int)
+    picks = {}
 
     for p in predictions:
+        over_under = None
+        spread = None
+        money_line = None
 
         if p.payload['away']['score'] > p.payload['home']['score']:
             pred_con['away'] += 1
         else:
             pred_con['home'] += 1
 
-    return pred_con
+        if 'money_line' in odd_consensus:
+            total = float(p.payload['away']['score']) + float(
+                p.payload['home']['score']
+            )
+
+            try:
+                ou_points = float(
+                    odd_consensus['over_under']['over']['points'])
+                if total > ou_points:
+                    over_under = odd_consensus['over_under']['over']
+                    over_under['pick'] = 'over'
+                else:
+                    over_under = odd_consensus['over_under']['under']
+                    over_under['pick'] = 'under'
+            except ValueError:
+                over_under = None
+
+            home_spread = float(odd_consensus['spread']['home']['spread'])
+            away_spread = float(odd_consensus['spread']['away']['spread'])
+
+            if p.payload['away']['score'] > p.payload['home']['score']:
+                pred_con['away'] += 1
+                diff = float(p.payload['away']['score']) - float(
+                    p.payload['home']['score']
+                )
+
+                money_line = odd_consensus['money_line']['away']
+                money_line['pick'] = 'away'
+            else:
+                pred_con['home'] += 1
+                diff = float(p.payload['home']['score']) - float(
+                    p.payload['away']['score']
+                )
+
+                money_line = odd_consensus['money_line']['home']
+                money_line['pick'] = 'home'
+
+            if home_spread > away_spread:
+                if diff > home_spread:
+                    spread = odd_consensus['spread']['away']
+                    spread['pick'] = 'away'
+                else:
+                    spread = odd_consensus['spread']['home']
+                    spread['pick'] = 'home'
+            else:
+                if diff < home_spread:
+                    spread = odd_consensus['spread']['away']
+                    spread['pick'] = 'away'
+                else:
+                    spread = odd_consensus['spread']['home']
+                    spread['pick'] = 'home'
+
+            picks[p.provider] = {
+                'over_under': over_under,
+                'spread': spread,
+                'money_line': money_line
+            }
+
+    return {
+        'predictions': pred_con,
+        'picks': picks
+    }

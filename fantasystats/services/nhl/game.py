@@ -112,17 +112,24 @@ def get_game_by_key(
     if include_predictions:
         preds = prediction.get_prediction_by_game_key(game_key)
 
+        con_data = consensus.get_prediction_consensus(
+            preds,
+            game_info['odds']['consensus']
+        )
+
         pred_sites = []
         for p in preds:
+            con_data['picks'][p.provider]['winner'] = p.winner
             pred_sites.append({
-                'winner': p.winner,
+                'provider': p.provider,
                 'game_url': p.game_url,
-                'predictions': p.payload
+                'predictions': p.payload,
+                'picks': con_data['picks'][p.provider]
             })
 
         game_info['predictions'] = {
             'sites': pred_sites,
-            'consensus': consensus.get_prediction_consensus(preds)
+            'consensus': con_data['predictions']
         }
 
     game_info['attendance'] = 0
