@@ -20,6 +20,8 @@ class nba_game(Document):
     team_scoring = DictField(request=False)
     periods = ListField(required=False)
     current_period = IntField(required=True)
+    attendance = IntField(required=False)
+    broadcasters = ListField(required=False)
 
 
 def create_indexes():

@@ -151,11 +151,6 @@ def get_game_features(away_team, home_team, game_date, game_info=None):
         'feature_date': feature_date
     })
 
-    print({
-        'details.team_id': away_team,
-        'feature_date': feature_date
-    })
-
     if home_info is None or away_info is None:
         return None
 

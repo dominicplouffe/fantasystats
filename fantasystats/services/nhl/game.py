@@ -125,6 +125,9 @@ def get_game_by_key(
             'consensus': consensus.get_prediction_consensus(preds)
         }
 
+    game_info['attendance'] = 0
+    game_info['broadcasters'] = game_info.get('broadcasters', [])
+
     return game_info
 
 
@@ -180,11 +183,13 @@ def get_venue(venue_name):
 
     if venue_info is None:
         return {
-            'venue_name': 'n/a'
+            'venue_name': 'n/a',
+            'venue_location': 'n/a'
         }
 
     return {
-        'venue_name': venue_info['name']
+        'venue_name': venue_info['name'],
+        'venue_location': venue_info['city']
     }
 
 

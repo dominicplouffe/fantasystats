@@ -10,6 +10,7 @@ def process_data(data, update=False):
 
     try:
         game_data = data['gameData']
+        game_data['broadcasters'] = data['broadcasters']
         game_season = game_data['game']['season']
         teams = game_data['teams']
 
@@ -136,6 +137,9 @@ def process_game(
             scoring[key] = value
         team_scoring[team_side] = scoring
 
+    broadcasters = game_data.get('broadcasters', [])
+    attendance = 0
+
     game_info = game.insert_game(
         game_data['game']['pk'],
         game_data['venue']['name'],
@@ -151,6 +155,8 @@ def process_game(
         team_scoring=team_scoring,
         periods=periods,
         current_period=current_period,
+        broadcasters=broadcasters,
+        attendance=attendance,
         update=update
     )
 

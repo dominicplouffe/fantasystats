@@ -15,6 +15,8 @@ SCHEDULE_URL = 'https://statsapi.web.nhl.com/api/v1/schedule?' \
 
 NHL_GAME_URL = 'https://statsapi.web.nhl.com/api/v1/game/%s/feed/live'
 
+GAME_WEB_URL = 'https://www.nhl.com/gamecenter/%s/%s/%s/%s/%s'
+
 
 def get_player_thumbnail(player_id, player_name):
 
@@ -51,6 +53,7 @@ def get_schedule():
     )
 
     res = requests.get(nhl_url).json()
+
     filename = 'schedule.json'
     f = open('/tmp/%s.png' % filename, 'w')
     f.write(json.dumps(res))

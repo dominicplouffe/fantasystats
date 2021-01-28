@@ -19,6 +19,8 @@ def insert_game(
     team_scoring=0,
     periods=[],
     current_period=0,
+    attendance=0,
+    broadcasters=[],
     update=False
 ):
 
@@ -45,6 +47,8 @@ def insert_game(
             g.team_scoring = team_scoring
             g.periods = periods
             g.current_period = current_period
+            g.attendance = attendance
+            g.broadcasters = broadcasters
             g.save()
     except DoesNotExist:
 
@@ -63,7 +67,9 @@ def insert_game(
             winner_name=winner_name,
             team_scoring=team_scoring,
             periods=periods,
-            current_period=current_period
+            current_period=current_period,
+            broadcasters=broadcasters,
+            attendance=attendance
         )
         g.save()
 

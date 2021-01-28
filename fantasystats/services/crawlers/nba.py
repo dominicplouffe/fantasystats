@@ -1,5 +1,6 @@
 import json
 import requests
+from lxml import html
 from fantasystats.tools import s3
 from fantasystats.services import search
 from datetime import datetime, timedelta
@@ -12,6 +13,8 @@ NBA_GAME_URL = 'https://ca.global.nba.com/stats2/game/snapshot.json?' \
 
 PLAYER_IMAGE_URL = 'https://ak-static.cms.nba.com/wp-content/uploads/' \
     'headshots/nba/latest/260x190/%s.png'
+
+GAME_BROADCAST_URL = 'https://www.nba.com/game/game-%s'
 
 
 def get_player_thumbnail(player_id, player_name):
@@ -52,7 +55,6 @@ def get_schedule():
         dt = current_date.strftime('%Y-%m-%d')
 
         nba_url = SCHEDULE_URL % dt
-        print(nba_url)
         res = requests.get(nba_url).json()
 
         if all_res is None:
@@ -88,8 +90,18 @@ def get_game(nba_id, season, new_only=False):
             return nba_res
 
     game_url = NBA_GAME_URL % nba_id
-    print(game_url)
     res = requests.get(game_url).json()
+
+    if 'payload' in res:
+        if 'gameProfile' in res['payload']:
+            game_id = res['payload']['gameProfile']['gameId']
+            broadcasters = get_broadcasters(game_id)
+
+            res['payload']['broadcasters'] = [
+                {
+                    'name': n
+                } for n in broadcasters
+            ]
 
     f = open('/tmp/%s.json' % nba_id, 'w')
     f.write(json.dumps(res))
@@ -101,3 +113,23 @@ def get_game(nba_id, season, new_only=False):
     )
 
     return res
+
+
+def get_broadcasters(game_id):
+    game_url = GAME_BROADCAST_URL % game_id
+
+    content = requests.get(game_url).content.decode('utf-8')
+    doc = html.fromstring(content)
+
+    broadcasters = []
+    broadcasters.extend(
+        doc.xpath(
+            '//p[contains(text(), "LOCAL TV")]/..//span'
+            '[contains(@class, "Broadcasters_tv")]/text()'
+        )
+    )
+    broadcasters.extend(
+        doc.xpath('//p[contains(text(), "NATIONAL")]/..//img/@title')
+    )
+
+    return broadcasters

@@ -166,9 +166,6 @@ def generate_game_date_features(season, game_date):
     for details in team_features:
         for p in pos:
             for k, v in details['team_stats'][p].items():
-
-                # if p == 'batting' and k == 'at_bats':
-                #     print(v)
                 if max_features[p][k] - min_features[p][k] == 0:
                     details['index'][p][k] = 0.00
                 else:

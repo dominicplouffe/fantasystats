@@ -203,6 +203,12 @@ def process_game(game_data, venue, update=False):
         game_data['awayTeam']['profile']['nameEn']
     )
 
+    broadcasters = game_data.get('broadcasters', [])
+    try:
+        attendance = int(game_data.get('boxscore', {}).get('attendance', 0))
+    except ValueError:
+        attendance = 0
+
     game_info = game.insert_game(
         game_data['gameProfile']['gameId'],
         venue,
@@ -218,6 +224,8 @@ def process_game(game_data, venue, update=False):
         team_scoring=team_scoring,
         periods=periods,
         current_period=current_period,
+        broadcasters=broadcasters,
+        attendance=attendance,
         update=update
     )
 

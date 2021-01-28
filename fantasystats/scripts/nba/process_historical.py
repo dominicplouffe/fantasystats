@@ -24,7 +24,6 @@ for season in SEASONS:
 
         dt = current_date.strftime('%Y-%m-%d')
         nba_url = SCHEDULE_URL % dt
-        print(nba_url)
         schedule = requests.get(nba_url).json()
 
         for d in schedule['payload']['dates']:

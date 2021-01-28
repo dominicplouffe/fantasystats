@@ -340,16 +340,6 @@ def get_games_by_date(game_date):
             if g.game_status != "Preview"
         ]
 
-    return get_game_by_key(
-        all_games[0].game_key,
-        game_info=all_games[0],
-        include_players=False,
-        to_date=game_date,
-        include_odds=True,
-        include_predictions=True,
-        include_injuries=True
-    )
-
     return [
         get_game_by_key(
             g.game_key,
@@ -453,6 +443,8 @@ def get_game_by_key(
             'consensus': consensus.get_prediction_consensus(preds)
         }
 
+    if 'broadcasters' not in game_info:
+        game_info['broadcasters'] = []
     return game_info
 
 
@@ -462,11 +454,13 @@ def get_venue(venue_name):
 
     if venue_info is None:
         return {
-            'venue_name': 'n/a'
+            'venue_name': 'n/a',
+            'venue_location': 'n/a'
         }
 
     return {
-        'venue_name': venue_info['name']
+        'venue_name': venue_info['name'],
+        'venue_location': venue_info['location']
     }
 
 

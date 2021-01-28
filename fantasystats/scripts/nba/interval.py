@@ -22,7 +22,6 @@ if __name__ == '__main__':
     res = requests.get(url).json()
 
     for game_info in res['data']:
-        print(game_info['game_key'])
         crawl_game = False
         if game_info['game_status'] in ['Final']:
             logger.info('game final, do not crawl')

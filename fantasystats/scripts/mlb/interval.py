@@ -17,8 +17,6 @@ if __name__ == '__main__':
         API_URL,
         d.strftime('%Y-%m-%d')
     )
-
-    print(url)
     res = requests.get(url).json()
 
     for game_info in res['data']:

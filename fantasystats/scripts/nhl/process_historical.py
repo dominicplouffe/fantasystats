@@ -16,7 +16,7 @@ def process_file(s3obj):
     try:
         data = json.loads(content)
     except json.decoder.JSONDecodeError as e:
-        print(e)
+        e)
         return
 
     parser.process_data(data)
@@ -24,7 +24,7 @@ def process_file(s3obj):
 
 if __name__ == '__main__':
 
-    files = s3.iter_key('nhl/files/%s' % year)
+    files=s3.iter_key('nhl/files/%s' % year)
 
     for f in files:
         process_file(f)
