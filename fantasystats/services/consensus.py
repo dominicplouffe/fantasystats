@@ -1,6 +1,133 @@
 from collections import defaultdict
 
 
+def find_best_odds(odds):
+
+    best = {
+        'money_line': {
+            'away': {'odds': None},
+            'home': {'odds': None}
+        },
+        'spread': {
+            'away': {'spread': None, 'odds': None},
+            'home': {'spread': None, 'odds': None},
+        },
+        'over_under': {
+            'over': {'points': None, 'odds': None},
+            'under': {'points': None, 'odds': None},
+        }
+    }
+
+    for k, v in odds.items():
+        if 'money_line' not in v:
+            continue
+
+        # SPREAD
+        for side in ['home', 'away']:
+            try:
+                value = float(v['spread'][side]['spread'])
+                odds_value = float(v['spread'][side]['odds'])
+
+                if best['spread'][side]['spread'] is None:
+                    best['spread'][side]['spread'] = value
+                    best['spread'][side]['odds'] = odds_value
+
+                elif value > best['spread'][side]['spread']:
+                    best['spread'][side]['spread'] = value
+                    best['spread'][side]['odds'] = odds_value
+                elif value == best['spread'][side]['spread']:
+                    if odds_value > best['spread'][side]['odds']:
+                        best['spread'][side]['odds'] = odds_value
+            except ValueError:
+                pass
+
+        # MONEY LINE
+        for side in ['home', 'away']:
+            try:
+                value = float(v['money_line'][side]['odds'])
+                if best['money_line'][side]['odds'] is None:
+                    best['money_line'][side]['odds'] = value
+                elif value > best['money_line'][side]['odds']:
+                    best['money_line'][side]['odds'] = value
+            except ValueError:
+                pass
+
+        # OVER/UNDER
+        for side in ['over', 'under']:
+
+            try:
+                value = float(v['over_under'][side]['points'])
+                odds_value = float(v['over_under'][side]['odds'])
+                if value == 0:
+                    continue
+                if best['over_under'][side]['points'] is None:
+                    best['over_under'][side]['points'] = value
+                    best['over_under'][side]['odds'] = odds_value
+
+                elif side == 'over':
+                    if value < best['over_under'][side]['points']:
+                        best['over_under'][side]['points'] = value
+                        best['over_under'][side]['odds'] = odds_value
+                    elif value == best['over_under'][side]['points']:
+                        if odds_value > best['over_under'][side]['odds']:
+                            best['over_under'][side]['odds'] = odds_value
+                else:
+                    if value > best['over_under'][side]['points']:
+                        best['over_under'][side]['points'] = value
+                        best['over_under'][side]['odds'] = odds_value
+                    elif value == best['over_under'][side]['points']:
+                        if odds_value > best['over_under'][side]['odds']:
+                            best['over_under'][side]['odds'] = odds_value
+
+            except ValueError:
+                pass
+
+    # Now that we know the best, mark the odds that are the best with a flag
+    for k, v in odds.items():
+        if 'money_line' not in v:
+            continue
+
+        # SPREAD
+        for side in ['home', 'away']:
+            value = float(v['spread'][side]['spread'])
+            odds_value = float(v['spread'][side]['odds'])
+
+            if value == best['spread'][side]['spread']:
+                if odds_value == best['spread'][side]['odds']:
+                    v['spread'][side]['best'] = True
+                else:
+                    v['spread'][side]['best'] = False
+            else:
+                v['spread'][side]['best'] = False
+
+        # MONEY LINE
+        for side in ['home', 'away']:
+            try:
+                value = float(v['money_line'][side]['odds'])
+                if value == best['money_line'][side]['odds']:
+                    v['money_line'][side]['best'] = True
+                else:
+                    v['money_line'][side]['best'] = False
+
+            except ValueError:
+                pass
+
+        # OVER/UNDER
+        for side in ['over', 'under']:
+            value = float(v['over_under'][side]['points'])
+            odds_value = float(v['over_under'][side]['odds'])
+
+            if value == best['over_under'][side]['points']:
+                if odds_value == best['over_under'][side]['odds']:
+                    v['over_under'][side]['best'] = True
+                else:
+                    v['over_under'][side]['best'] = False
+            else:
+                v['over_under'][side]['best'] = False
+
+    return odds
+
+
 def get_odds_consensus(odds):
 
     odds_con_stats = {

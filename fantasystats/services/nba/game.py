@@ -340,6 +340,16 @@ def get_games_by_date(game_date):
             if g.game_status != "Preview"
         ]
 
+    return get_game_by_key(
+        all_games[0].game_key,
+        game_info=all_games[0],
+        include_players=False,
+        to_date=game_date,
+        include_odds=True,
+        include_predictions=True,
+        include_injuries=True
+    )
+
     return [
         get_game_by_key(
             g.game_key,
@@ -419,6 +429,9 @@ def get_game_by_key(
         if odds:
             odds.pop('_id')
             odds.pop('game_key')
+
+            odds = consensus.find_best_odds(odds)
+
             game_info['odds'] = {
                 'sites': odds,
                 'consensus': consensus.get_odds_consensus(odds)
