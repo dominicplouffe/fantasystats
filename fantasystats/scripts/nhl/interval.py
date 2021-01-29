@@ -13,7 +13,7 @@ if __name__ == '__main__':
     d = datetime.utcnow() - timedelta(hours=7)
     d = datetime(d.year, d.month, d.day)
 
-    url = '%s/nhl/games/date/%s' % (
+    url = '%snhl/games/date/%s' % (
         API_URL,
         d.strftime('%Y-%m-%d')
     )
@@ -55,6 +55,7 @@ if __name__ == '__main__':
                 game_info['season'],
                 new_only=True
             )
+
             parser.process_data(nhl_res, update=True)
 
     logger.info('Sleeping for 5 mins')

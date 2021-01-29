@@ -13,7 +13,7 @@ if __name__ == '__main__':
     d = datetime.utcnow() - timedelta(hours=7)
     d = datetime(d.year, d.month, d.day)
 
-    url = '%s/nba/games/date/%s' % (
+    url = '%snba/games/date/%s' % (
         API_URL,
         d.strftime('%Y-%m-%d')
     )

@@ -16,8 +16,9 @@ def get_schedule():
             game_data = nhl.get_game(
                 g['gamePk'], g['season'], new_only=True)
 
-            game_data['broadcasters'] = g['broadcasts']
+            game_data['broadcasters'] = g.get('broadcasts', [])
             logger.info('game_id,%s' % g['gamePk'])
+
             parser.process_data(game_data, update=True)
 
     res = requests.get(

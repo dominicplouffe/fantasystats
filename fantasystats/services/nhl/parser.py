@@ -10,7 +10,13 @@ def process_data(data, update=False):
 
     try:
         game_data = data['gameData']
-        game_data['broadcasters'] = data['broadcasters']
+        if 'broadcasters' in data:
+            game_data['broadcasters'] = data['broadcasters']
+        else:
+            g = game.get_game_by_nhl_id(game_data['game']['pk'])
+            if g:
+                game_data['broadcasters'] = g.broadcasters
+
         game_season = game_data['game']['season']
         teams = game_data['teams']
 
@@ -116,7 +122,6 @@ def process_game(
         winner_name = game_data['teams']['home']['name']
 
     current_period = line_score.get('currentPeriod', 0)
-
     periods = []
     for i in line_score.get('periods', []):
         inn = {}

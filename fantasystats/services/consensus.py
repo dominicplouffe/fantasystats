@@ -257,9 +257,9 @@ def get_prediction_consensus(predictions, odd_consensus):
             pred_con['home'] += 1
 
         if 'money_line' in odd_consensus:
-            total = float(p.payload['away']['score']) + float(
-                p.payload['home']['score']
-            )
+            home_payload = float(p.payload['home']['score'])
+            away_payload = float(p.payload['away']['score'])
+            total = home_payload + away_payload
 
             try:
                 ou_points = float(
@@ -276,32 +276,24 @@ def get_prediction_consensus(predictions, odd_consensus):
             home_spread = float(odd_consensus['spread']['home']['spread'])
             away_spread = float(odd_consensus['spread']['away']['spread'])
 
-            if p.payload['away']['score'] > p.payload['home']['score']:
-                pred_con['away'] += 1
-                diff = float(p.payload['away']['score']) - float(
-                    p.payload['home']['score']
-                )
-
+            if away_payload > home_payload:
                 money_line = odd_consensus['money_line']['away']
                 money_line['pick'] = 'away'
             else:
-                pred_con['home'] += 1
-                diff = float(p.payload['home']['score']) - float(
-                    p.payload['away']['score']
-                )
-
                 money_line = odd_consensus['money_line']['home']
                 money_line['pick'] = 'home'
 
-            if home_spread > away_spread:
-                if diff > home_spread:
-                    spread = odd_consensus['spread']['away']
-                    spread['pick'] = 'away'
-                else:
+            if home_spread > 0:
+                home_payload += home_spread
+                if home_payload >= away_payload:
                     spread = odd_consensus['spread']['home']
                     spread['pick'] = 'home'
+                else:
+                    spread = odd_consensus['spread']['away']
+                    spread['pick'] = 'away'
             else:
-                if diff < home_spread:
+                away_payload += away_spread
+                if away_payload >= home_payload:
                     spread = odd_consensus['spread']['away']
                     spread['pick'] = 'away'
                 else:

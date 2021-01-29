@@ -29,35 +29,37 @@ PROVIDER = 'pickwise'
 NHL_START_SEASON = datetime(2021, 1, 14)
 
 
+MAPPINGS = {
+    'Los Angeles Clippers': 'la_clippers'
+}
+
+
 def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
 
     content = requests.get(url, headers=HEADERS).content.decode('utf-8')
     doc = html.fromstring(content)
 
-    if league == 'nba':
-        match_info = re.findall('matchID: "([^"]+)"', content)[0].split('_')
-        away_abbr = match_info[4]
-        home_abbr = match_info[3]
-        week = match_info[2]
+    print(url)
 
-        away_team = league_mgr.get_team_by_abbr(
-            mappings.get(away_abbr, away_abbr)
-        )[0]
-        home_team = league_mgr.get_team_by_abbr(
-            mappings.get(home_abbr, home_abbr)
-        )[0]
+    if league == 'nba':
+        team_names = doc.xpath(
+            '//div[@class="FixtureTeams__team-name FixtureTeams__team-name'
+            '--desktop"]/text()'
+        )
+        away_team = league_mgr.get_team_by_name(
+            MAPPINGS.get(team_names[0], team_names[0])
+        )
+        home_team = league_mgr.get_team_by_name(
+            MAPPINGS.get(team_names[1], team_names[1])
+        )
+
+        away_abbr = away_team.abbr
+        home_abbr = home_team.abbr
+
+        diff = datetime.utcnow() - NHL_START_SEASON
+        week = diff.days
 
     elif league == 'nhl':
-        # matchup = doc.xpath(
-        #     '//button[@data-component="AnalyticsEvent"]/'
-        #     '@data-analytics-event-label'
-        # )[0]
-
-        # away_info = matchup.split('@')[0].strip()
-        # home_info = matchup.split('@')[1].strip()
-        # away_abbr = away_info.split(' ')[0].strip()
-        # home_abbr = home_info.split(' ')[0].strip()
-
         team_names = doc.xpath(
             '//div[@class="FixtureTeams__team-name FixtureTeams__team-name'
             '--desktop"]/text()'
