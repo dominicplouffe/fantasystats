@@ -1,5 +1,5 @@
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 from fantasystats import context
 from fantasystats.services import consensus
 from fantasystats.managers.nhl import (
@@ -134,6 +134,8 @@ def get_game_by_key(
 
     game_info['attendance'] = 0
     game_info['broadcasters'] = game_info.get('broadcasters', [])
+
+    game_info['start_time'] += timedelta(hours=5)
 
     return game_info
 

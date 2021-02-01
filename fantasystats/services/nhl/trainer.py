@@ -8,7 +8,7 @@ from sklearn.svm import SVR
 def train():
 
     start_date = datetime(2016, 10, 1)
-    end_date = datetime(2021, 1, 25)
+    end_date = datetime(2021, 1, 20)
 
     game_date = start_date
 

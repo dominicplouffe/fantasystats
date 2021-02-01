@@ -22,16 +22,19 @@ MAPPING = {
 DB_MAP = {
     'nhl': {
         'odds': 'nhl_odds',
+        'odds_history': 'nhl_odds_history',
         'game': nhl_game,
         'team': nhl_team
     },
     'mlb': {
         'odds': 'mlb_odds',
+        'odds_history': 'mlb_odds_history',
         'game': mlb_game,
         'team': mlb_team
     },
     'nba': {
         'odds': 'nba_odds',
+        'odds_history': 'nba_odds_history',
         'game': nba_game,
         'team': nba_team
     },
@@ -76,6 +79,10 @@ def get_odds(league):
         context.db[DB_MAP[league]['odds']].replace_one(
             {'_id': g['_id']}, g, upsert=True
         )
+
+        g['created_on'] = datetime.utcnow()
+        g.pop('_id')
+        context.db[DB_MAP[league]['odds_history']].insert_one(g)
 
 
 def _get_odds(doc, league):

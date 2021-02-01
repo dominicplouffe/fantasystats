@@ -154,10 +154,10 @@ def get_game_features(away_team, home_team, game_date, game_info=None):
     if home_info is None or away_info is None:
         return None
 
-    if home_info['standings']['games'] < 20:
+    if home_info['standings']['games'] < 20 and game_info:
         return None
 
-    if away_info['standings']['games'] < 20:
+    if away_info['standings']['games'] < 20 and game_info:
         return None
 
     cnt = 0
@@ -169,6 +169,12 @@ def get_game_features(away_team, home_team, game_date, game_info=None):
             if value_home == 0 and value_away == 0:
                 features_home.append(0.0)
                 features_away.append(0.0)
+                features_home.append(0.0)
+                features_away.append(0.0)
+                features_home.append(0.0)
+                features_away.append(0.0)
+                features_home.append(0.0)
+                features_away.append(0.0)
                 continue
 
             if value_home > value_away:
@@ -177,6 +183,36 @@ def get_game_features(away_team, home_team, game_date, game_info=None):
             else:
                 features_home.append(0.0)
                 features_away.append(1.0)
+
+            if value_home > value_away + (value_away * 0.25):
+                features_home.append(1.0)
+                features_away.append(0.0)
+            elif value_away > value_home + (value_home * 0.25):
+                features_home.append(0.0)
+                features_away.append(1.0)
+            else:
+                features_home.append(0.0)
+                features_away.append(0.0)
+
+            if value_home > value_away + (value_away * 0.5):
+                features_home.append(1.0)
+                features_away.append(0.0)
+            elif value_away > value_home + (value_home * 0.5):
+                features_home.append(0.0)
+                features_away.append(1.0)
+            else:
+                features_home.append(0.0)
+                features_away.append(0.0)
+
+            if value_home > value_away + (value_away * 0.75):
+                features_home.append(1.0)
+                features_away.append(0.0)
+            elif value_away > value_home + (value_home * 0.75):
+                features_home.append(0.0)
+                features_away.append(1.0)
+            else:
+                features_home.append(0.0)
+                features_away.append(0.0)
 
     if game_info:
         result_home = game_info.team_scoring['home'].get('goals', 0)
