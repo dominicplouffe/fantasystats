@@ -58,3 +58,10 @@ def create_feature_key(team_name, feature_date):
         feature_date.strftime('%Y-%m-%d'),
         get_search_value(team_name),
     )
+
+
+def create_odds_rollup_key(team_name, date):
+    return '%s-%s' % (
+        get_search_value(team_name),
+        date.strftime('%Y-%m-%d')
+    )

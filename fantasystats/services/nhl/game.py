@@ -46,7 +46,8 @@ def get_game_by_key(
     include_odds=False,
     include_predictions=False,
     include_injuries=False,
-    to_date=None
+    to_date=None,
+    standings=True
 ):
 
     if not game_info:
@@ -60,14 +61,14 @@ def get_game_by_key(
 
     game_info.home_team = get_team(
         game_info.home_team,
-        standings=True,
-        season=game_info.season,
+        standings=standings,
+        season=game_info.season if standings else None,
         to_date=to_date
     )
     game_info.away_team = get_team(
         game_info.away_team,
-        standings=True,
-        season=game_info.season,
+        standings=standings,
+        season=game_info.season if standings else None,
         to_date=to_date
     )
     game_info.venue = get_venue(game_info.venue)
@@ -657,6 +658,24 @@ def get_all_teams(season):
         teams.append(t)
 
     return teams
+
+
+def get_game_by_team(season, team_name):
+
+    all_games = game.get_games_by_season(season, team_name=team_name)
+
+    return [
+        get_game_by_key(
+            g.game_key,
+            game_info=g,
+            include_players=False,
+            standings=False,
+            include_odds=True,
+            include_predictions=True,
+            include_injuries=False
+        )
+        for g in all_games
+    ]
 
 
 def _increment_stats(stats, gameplayer_info):
