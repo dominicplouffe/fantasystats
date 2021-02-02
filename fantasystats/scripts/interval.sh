@@ -7,3 +7,5 @@ PYTHONPATH=/opt/fantasystats python3 /opt/fantasystats/fantasystats/services/cra
 PYTHONPATH=/opt/fantasystats python3 /opt/fantasystats/fantasystats/services/crawlers/scoreandstats.py
 PYTHONPATH=/opt/fantasystats python3 /opt/fantasystats/fantasystats/services/crawlers/sportsbettingdime.py
 PYTHONPATH=/opt/fantasystats python3 /opt/fantasystats/fantasystats/services/crawlers/pickwise.py
+
+PYTHONPATH=/opt/fantasystats python3 /opt/fantasystats/fantasystats/scripts/cache.py

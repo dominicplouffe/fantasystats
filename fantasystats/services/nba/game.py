@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from fantasystats.services import consensus
 from fantasystats import context
 from fantasystats.managers.nba import (
@@ -452,6 +452,9 @@ def get_game_by_key(
 
     if 'broadcasters' not in game_info:
         game_info['broadcasters'] = []
+
+    game_info['start_time'] += timedelta(hours=5)
+
     return game_info
 
 

@@ -39,7 +39,7 @@ if __name__ == '__main__':
                 if datetime.utcnow() >= start_time:
                     crawl_game = True
             except ValueError:
-                logger.inf('unknown starttime,crawly anyways')
+                logger.info('unknown starttime,crawly anyways')
                 crawl_game = True
 
         if crawl_game:

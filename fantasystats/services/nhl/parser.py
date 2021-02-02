@@ -13,7 +13,19 @@ def process_data(data, update=False):
         if 'broadcasters' in data:
             game_data['broadcasters'] = data['broadcasters']
         else:
-            g = game.get_game_by_nhl_id(game_data['game']['pk'])
+
+            start_time = datetime.strptime(
+                game_data['datetime']['dateTime'],
+                '%Y-%m-%dT%H:%M:%SZ'
+            )
+            start_time = start_time - timedelta(hours=5)
+            game_date = datetime(
+                start_time.year, start_time.month, start_time.day
+            )
+
+            g = game.get_game_by_nhl_id(
+                game_data['game']['pk'], game_date
+            )
             if g:
                 game_data['broadcasters'] = g.broadcasters
 

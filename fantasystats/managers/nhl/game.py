@@ -1,5 +1,5 @@
 from fantasystats.models.nhl import game
-from mongoengine import DoesNotExist, Q
+from mongoengine import DoesNotExist, Q, MultipleObjectsReturned
 from fantasystats.services import search
 from datetime import datetime
 
@@ -117,10 +117,15 @@ def get_team_names(season):
     ).distinct('home_team')
 
 
-def get_game_by_nhl_id(nhl_id):
+def get_game_by_nhl_id(nhl_id, game_date):
     try:
-        g = game.nhl_game.objects.get(nhl_id=nhl_id)
+        g = game.nhl_game.objects.get(nhl_id=nhl_id, game_date=game_date)
 
         return g
     except DoesNotExist:
+        return None
+    except MultipleObjectsReturned:
+
+        print('*' * 100)
+        print('Multiple Objects returned: %s' % nhl_id)
         return None

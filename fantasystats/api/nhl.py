@@ -9,7 +9,7 @@ nhl = Blueprint('nhl', __name__)
 
 class GetGameById(BaseView):
 
-    cache_time = 60
+    cache_time = 86400
 
     @memorize
     def dispatch_request(self, game_id):
@@ -25,7 +25,7 @@ class GetGameById(BaseView):
 
 class GetGamesByDate(BaseView):
 
-    cache_time = 60 * 5
+    cache_time = 86400
 
     @memorize
     def dispatch_request(self, date):
@@ -39,7 +39,7 @@ class GetGamesByDate(BaseView):
 
 class GetStandings(BaseView):
 
-    cache_time = 60 * 60
+    cache_time = 86400
 
     @memorize
     def dispatch_request(self, season):
