@@ -1,0 +1,3 @@
+*/5 * * * * root /opt/fantasystats/fantasystats/scripts/interval.sh >> /opt/logs/mlbinterval.$(date +\%Y\%m\%d).log 2>&1
+0 * * * * root /opt/fantasystats/fantasystats/scripts/daily.sh  >> /opt/logs/daily.$(date +\%Y\%m\%d).log 2>&1
+*/30 4-23 * * * root  /opt/fantasystats//fantasystats/scripts/odds.sh >> /opt/logs/odds.$(date +\%Y\%m\%d).log 2>&1

@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve myproject
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/opt/fantasystats
+Environment="PYTHONPATH=/opt/fantasystats"
+ExecStart=/usr/bin/uwsgi --ini /etc/uwsgi/fantasystats.ini
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,19 @@
+    server {
+        listen              80;
+        listen              443 ssl;
+        access_log          /var/log/nginx/fantasy_access.log;
+        types_hash_max_size 2048;
+
+        server_name         api.bettingnews.com;
+
+        location / {
+            include uwsgi_params;
+            proxy_pass_header Server;
+            proxy_set_header Host $http_host;
+            proxy_redirect off;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Scheme $scheme;
+
+            uwsgi_pass 127.0.0.1:8000;
+        }
+    }
