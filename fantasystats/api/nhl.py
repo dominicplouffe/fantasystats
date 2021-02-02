@@ -1,4 +1,5 @@
 from flask import Blueprint, request
+import pytz
 from datetime import datetime
 from fantasystats.api.base_view import BaseView
 from fantasystats.services.nhl import game
@@ -18,7 +19,11 @@ class GetGameById(BaseView):
             game_id,
             include_odds=True,
             include_predictions=True,
-            include_injuries=True)
+            include_injuries=True,
+            force_query=request.args.get(
+                'force_query', 'false'
+            ).lower() == 'true'
+        )
 
         return self.write_json(game_info, 200)
 
@@ -45,7 +50,13 @@ class GetStandings(BaseView):
     def dispatch_request(self, season):
 
         by = request.args.get('by', 'nhl')
-        standings = game.get_standings(season, by=by)
+        standings = game.get_standings(
+            season,
+            by=by,
+            force_query=request.args.get(
+                'force_query', 'false'
+            ).lower() == 'true'
+        )
 
         return self.write_json(
             standings
@@ -63,7 +74,14 @@ class GetTeam(BaseView):
         if date:
             date = datetime.strptime(date, "%Y-%m-%d")
 
-        team = game.get_team_details(season, team_id, to_date=date)
+        team = game.get_team_details(
+            season,
+            team_id,
+            to_date=date,
+            force_query=request.args.get(
+                'force_query', 'false'
+            ).lower() == 'true'
+        )
 
         return self.write_json(team)
 
@@ -76,7 +94,12 @@ class GetTeams(BaseView):
     def dispatch_request(self, season):
 
         return self.write_json(
-            game.get_all_teams(season)
+            game.get_all_teams(
+                season,
+                force_query=request.args.get(
+                    'force_query', 'false'
+                ).lower() == 'true'
+            )
         )
 
 

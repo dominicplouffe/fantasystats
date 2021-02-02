@@ -38,3 +38,16 @@ def insert_rollup(
         rollup.save()
 
     return rollup
+
+
+def get_odds_rollup(team_name, to_date):
+
+    team_id = search.get_search_value(team_name)
+    rollup_id = search.create_odds_rollup_key(team_id, to_date)
+
+    try:
+        rollup = nhl_oddsrollup.objects.get(rollup_id=rollup_id)
+
+        return rollup
+    except DoesNotExist:
+        return None

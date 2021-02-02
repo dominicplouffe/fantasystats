@@ -316,5 +316,5 @@ if __name__ == '__main__':
     date = datetime.now(pytz.UTC)
     today = datetime(date.year, date.month, date.day)
 
-    # rollup_team_odds_results('20202021', today, nhl_svc, nhl_mgr, 'goals')
+    rollup_team_odds_results('20202021', today, nhl_svc, nhl_mgr, 'goals')
     rollup_team_odds_results('2020-2021', today, nba_svc, nba_mgr, 'score')

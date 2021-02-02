@@ -1,9 +1,12 @@
 import pytz
-from datetime import datetime, timedelta
+import pickle
 from fantasystats import context
+from fantasystats.context import REDIS
+from datetime import datetime, timedelta
 from fantasystats.services import consensus
 from fantasystats.managers.nhl import (
-    game, team, venue, player, gameplayer, fantasy, season, prediction
+    game, team, venue, player, gameplayer, fantasy, season, prediction,
+    odds_rollup
 )
 
 
@@ -47,7 +50,8 @@ def get_game_by_key(
     include_predictions=False,
     include_injuries=False,
     to_date=None,
-    standings=True
+    standings=True,
+    force_query=False
 ):
 
     if not game_info:
@@ -59,17 +63,22 @@ def get_game_by_key(
     home_team_name = game_info.home_team
     away_team_name = game_info.away_team
 
+    if not to_date:
+        to_date = game_info.game_date
+
     game_info.home_team = get_team(
         game_info.home_team,
         standings=standings,
         season=game_info.season if standings else None,
-        to_date=to_date
+        to_date=to_date,
+        force_query=force_query
     )
     game_info.away_team = get_team(
         game_info.away_team,
         standings=standings,
         season=game_info.season if standings else None,
-        to_date=to_date
+        to_date=to_date,
+        force_query=force_query
     )
     game_info.venue = get_venue(game_info.venue)
     game_info.id = None
@@ -141,7 +150,9 @@ def get_game_by_key(
     return game_info
 
 
-def get_team(team_name, standings=False, season=None, to_date=None):
+def get_team(
+    team_name, standings=False, season=None, to_date=None, force_query=False
+):
 
     if standings and not season:
         raise ValueError(
@@ -151,6 +162,15 @@ def get_team(team_name, standings=False, season=None, to_date=None):
         raise ValueError(
             'standings must be added as an argument is season is passed')
 
+    key = 'a%s-%s-%s-%s' % (
+        team_name, standings, season, to_date
+    )
+
+    data = REDIS.get(key)
+
+    if data and not force_query:
+        return pickle.loads(data)
+
     standings_res = None
     team_info = team.get_team_by_name(team_name)
 
@@ -159,7 +179,22 @@ def get_team(team_name, standings=False, season=None, to_date=None):
             season, team_name=team_info.name_search, to_date=to_date)
         standings_res.pop('team')
 
-    return {
+    record = None
+    if to_date and standings:
+        rollup_stats = odds_rollup.get_odds_rollup(
+            team_info.name_search, to_date
+        )
+
+        if rollup_stats:
+
+            record = {
+                'noline': rollup_stats.noline,
+                'spread': rollup_stats.spread,
+                'over_under': rollup_stats.over_under,
+                'points': rollup_stats.points
+            }
+
+    data = {
         'full_name': team_info.full_name,
         'name': team_info.name,
         'location_name': team_info.location_name,
@@ -177,6 +212,13 @@ def get_team(team_name, standings=False, season=None, to_date=None):
         ),
         'standings': standings_res
     }
+
+    if record:
+        data['record'] = record
+
+    REDIS.set(key, pickle.dumps(data), 3600)
+
+    return data
 
 
 def get_versus(season, away_team, home_team):
@@ -291,7 +333,9 @@ def get_game_players(game_key, home_team, away_team):
     return all_players
 
 
-def get_standings(season, team_name=None, by='nhl', to_date=None):
+def get_standings(
+    season, team_name=None, by='nhl', to_date=None, force_query=False
+):
 
     if by not in ['conference', 'nhl', 'division']:
         raise ValueError
@@ -308,8 +352,8 @@ def get_standings(season, team_name=None, by='nhl', to_date=None):
         if season == '20192020' and g.game_date > datetime(2020, 3, 10):
             continue
 
-        home = get_team(g.home_team)
-        away = get_team(g.away_team)
+        home = get_team(g.home_team, force_query=force_query)
+        away = get_team(g.away_team, force_query=force_query)
 
         if home['division'] == 'n/a':
             continue
@@ -464,9 +508,9 @@ def get_standings(season, team_name=None, by='nhl', to_date=None):
         return divisions
 
 
-def get_team_details(season, team_name, to_date=None):
+def get_team_details(season, team_name, to_date=None, force_query=False):
 
-    team_info = get_team(team_name)
+    team_info = get_team(team_name, force_query=force_query)
     standings = get_standings(season, team_name=team_name, to_date=to_date)
 
     gameplayers = gameplayer.get_gameplayers_by_team(
@@ -646,7 +690,7 @@ def get_player(player_name):
     return player_info
 
 
-def get_all_teams(season):
+def get_all_teams(season, force_query=False):
 
     all_teams = game.get_team_names(season)
     all_teams = sorted(all_teams)
@@ -654,7 +698,7 @@ def get_all_teams(season):
     teams = []
 
     for t in all_teams:
-        t = get_team(t)
+        t = get_team(t, force_query=force_query)
         teams.append(t)
 
     return teams
