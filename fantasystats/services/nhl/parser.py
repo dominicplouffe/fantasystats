@@ -157,6 +157,8 @@ def process_game(
     broadcasters = game_data.get('broadcasters', [])
     attendance = 0
 
+    status = game_data['status']['detailedState']
+
     game_info = game.insert_game(
         game_data['game']['pk'],
         game_data['venue']['name'],
@@ -166,7 +168,7 @@ def process_game(
         game_data['teams']['home']['name'],
         game_data['teams']['away']['name'],
         game_data['game']['season'],
-        game_data['status']['abstractGameState'],
+        status,
         winner_side=winner_side,
         winner_name=winner_name,
         team_scoring=team_scoring,

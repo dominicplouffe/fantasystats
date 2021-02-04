@@ -49,6 +49,8 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
         game_url = card.xpath('.//thead[1]/tr[1]/td[1]/span/a/@href')[0]
         game_url = 'https://www.oddsshark.com%s' % game_url
 
+        context.logger.info(game_url)
+
         away_team = league_mgr.get_team_by_abbr(
             mappings.get(away_abbr, away_abbr)
         )[0]

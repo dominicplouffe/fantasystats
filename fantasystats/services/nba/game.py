@@ -276,7 +276,7 @@ def get_standings(
             }
         if to_date and to_date <= g.game_date:
             break
-        if g.game_status not in ['Final', 'Preview']:
+        if g.game_status not in ['Final', 'Preview', 'Scheduled']:
             continue
 
         games[g.home_team]['games'] += 1
@@ -375,7 +375,7 @@ def get_games_by_date(game_date):
     else:
         all_games = [
             g for g in game.get_by_game_date(game_date)
-            if g.game_status != "Preview"
+            if g.game_status not in ['Preview', 'Scheduled']
         ]
 
     return [
@@ -386,7 +386,8 @@ def get_games_by_date(game_date):
             to_date=game_date,
             include_odds=True,
             include_predictions=True,
-            include_injuries=True
+            include_injuries=True,
+            standings=True
         )
         for g in all_games
     ]

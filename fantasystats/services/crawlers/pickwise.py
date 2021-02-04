@@ -39,8 +39,6 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
     content = requests.get(url, headers=HEADERS).content.decode('utf-8')
     doc = html.fromstring(content)
 
-    print(url)
-
     if league == 'nba':
         team_names = doc.xpath(
             '//div[@class="FixtureTeams__team-name FixtureTeams__team-name'
@@ -82,10 +80,17 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
     home_per = 0.50
 
     for s in stats:
+
+        data_away = s['MatchData']['AwayTeam']['Abv']
+        data_home = s['MatchData']['HomeTeam']['Abv']
+
+        data_away = mappings.get(data_away, data_away)
+        data_home = mappings.get(data_home, data_away)
+
         if (
-            s['MatchData']['AwayTeam']['Abv'] == away_abbr
+            data_away == away_abbr
         ) and (
-            s['MatchData']['HomeTeam']['Abv'] == home_abbr
+            data_home == home_abbr
         ):
             away_score = round(s['PreData']['PredAwayScore'], 1)
             home_score = round(s['PreData']['PredHomeScore'], 1)
@@ -151,14 +156,15 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
 
 def _get_stats(week, league):
 
-    global STATS
+    # global STATS
 
-    if week in STATS:
-        diff = datetime.now(pytz.UTC) - STATS[week]['date']
+    # if week in STATS:
+    #     diff = datetime.now(pytz.UTC) - STATS[week]['date']
 
-        if diff.total_seconds() < 3600:
-            return STATS[week]['data']
+    #     if diff.total_seconds() < 3600:
+    #         return STATS[week]['data']
 
+    print(STATSINSIDER_URL % (league.upper(), week))
     data = requests.get(STATSINSIDER_URL % (league.upper(), week)).json()
 
     STATS[week] = {
@@ -171,5 +177,5 @@ def _get_stats(week, league):
 
 if __name__ == '__main__':
 
-    get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
+    # get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)

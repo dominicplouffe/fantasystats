@@ -21,11 +21,12 @@ def get_games_by_date(game_date):
     now_date = datetime(now_date.year, now_date.month, now_date.day)
 
     if game_date >= now_date:
-        all_games = game.get_by_game_date(game_date)
-    else:
         all_games = [
             g for g in game.get_by_game_date(game_date)
+            if g.game_status != 'Postponed'
         ]
+    else:
+        all_games = game.get_by_game_date(game_date)
 
     return [
         get_game_by_key(
@@ -567,7 +568,8 @@ def get_team_details(season, team_name, to_date=None, force_query=False):
         'penalty_minutes',
         'takeaways',
         'giveaways',
-        'blocked'
+        'blocked',
+        'shots'
     ]
 
     for k in skater_per_game_keys:
@@ -587,7 +589,6 @@ def get_team_details(season, team_name, to_date=None, force_query=False):
             stats['skater']['goals'] / stats['skater']['shots'],
             4
         )
-
     stats['goalie']['goals_against'] = (
         stats['goalie']['shots'] - stats['goalie']['saves']
     )
