@@ -17,7 +17,9 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
 
         games = [
             g for g in svc.get_game_by_team(season, team['team_id'])
-            if g['game_status'] == 'Final'
+            if g['game_status'] == 'Final' and g['game_type'] in [
+                '2', 'R'
+            ]
         ]
 
         result = {

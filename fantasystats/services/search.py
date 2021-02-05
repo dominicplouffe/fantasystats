@@ -8,6 +8,7 @@ def get_search_value(value):
     value = value.replace("`", '')
     value = value.replace(" ", '_')
     value = value.replace(".", '')
+    value = value.replace("-", '_')
 
     return value
 

@@ -115,6 +115,9 @@ def get_game_by_key(
         if odds:
             odds.pop('_id')
             odds.pop('game_key')
+
+            odds = consensus.find_best_odds(odds)
+
             game_info['odds'] = {
                 'sites': odds,
                 'consensus': consensus.get_odds_consensus(odds)

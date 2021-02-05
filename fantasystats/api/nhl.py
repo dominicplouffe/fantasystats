@@ -37,9 +37,10 @@ class GetGamesByDate(BaseView):
 
         game_date = datetime.strptime(date, "%Y-%m-%d")
 
-        return self.write_json(
-            game.get_games_by_date(game_date)
-        )
+        games = game.get_games_by_date(game_date)
+        ames = sorted(games, key=lambda x: x['start_time'])
+
+        return self.write_json(games)
 
 
 class GetStandings(BaseView):
