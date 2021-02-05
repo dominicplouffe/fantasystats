@@ -28,6 +28,7 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                     'games': 0,
                     'wins': 0,
                     'losses': 0,
+                    'otl': 0,
                     'per': 0.00,
                     'pos': 0
                 },
@@ -35,12 +36,14 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                     'games': 0,
                     'wins': 0,
                     'losses': 0,
+                    'otl': 0,
                     'per': 0.00,
                     'pos': 0
                 },
                 'away': {
                     'games': 0,
                     'wins': 0,
+                    'otl': 0,
                     'losses': 0,
                     'per': 0.00,
                     'pos': 0
@@ -216,8 +219,15 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                     result['noline']['overall']['wins'] += 1
                     result['noline']['home']['wins'] += 1
                 else:
-                    result['noline']['overall']['losses'] += 1
-                    result['noline']['home']['losses'] += 1
+                    if pts_key == 'score':
+                        result['noline']['overall']['losses'] += 1
+                        result['noline']['home']['losses'] += 1
+                    else:
+                        loss_key = 'losses'
+                        if g['current_period'] >= 4:
+                            loss_key = 'otl'
+                        result['noline']['overall'][loss_key] += 1
+                        result['noline']['home'][loss_key] += 1
 
             else:
                 result['noline']['away']['games'] += 1
@@ -242,8 +252,15 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                     result['noline']['overall']['wins'] += 1
                     result['noline']['away']['wins'] += 1
                 else:
-                    result['noline']['overall']['losses'] += 1
-                    result['noline']['away']['losses'] += 1
+                    if pts_key == 'score':
+                        result['noline']['overall']['losses'] += 1
+                        result['noline']['away']['losses'] += 1
+                    else:
+                        loss_key = 'losses'
+                        if g['current_period'] >= 4:
+                            loss_key = 'otl'
+                        result['noline']['overall'][loss_key] += 1
+                        result['noline']['away'][loss_key] += 1
 
             odds_rollup[team['team_id']] = result
 

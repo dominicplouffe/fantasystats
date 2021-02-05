@@ -8,6 +8,7 @@ from fantasystats.managers.nhl import (
     game, team, venue, player, gameplayer, fantasy, season, prediction,
     odds_rollup
 )
+from fantasystats.services.picks import PROVIDERS
 
 
 def get_seasons():
@@ -135,8 +136,9 @@ def get_game_by_key(
         for p in preds:
             con_data['picks'].get(p.provider, {})['winner'] = p.winner
             pred_sites.append({
-                'provider': p.provider,
+                'provider': PROVIDERS.get(p.provider, p.provider),
                 'game_url': p.game_url,
+                'icon': 'https://%s/favicon.ico' % p.game_url.split('/')[2],
                 'predictions': p.payload,
                 'picks': con_data['picks'].get(p.provider, {})
             })
