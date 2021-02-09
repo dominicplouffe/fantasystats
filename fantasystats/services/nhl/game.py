@@ -148,6 +148,12 @@ def get_game_by_key(
             'consensus': con_data['predictions']
         }
 
+        if 'odds' in game_info:
+            game_info['best_bets'] = consensus.get_best_bets(
+                game_info['predictions']['sites'],
+                game_info['odds']['sites']
+            )
+
     game_info['attendance'] = 0
     game_info['broadcasters'] = game_info.get('broadcasters', [])
 

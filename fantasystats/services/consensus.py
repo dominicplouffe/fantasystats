@@ -1,4 +1,5 @@
 from collections import defaultdict
+import copy
 
 
 def find_best_odds(odds):
@@ -179,7 +180,7 @@ def get_odds_consensus(odds):
             }
         }
 
-    return {
+    data = {
         'money_line': {
             'away': {
                 'odds': sorted(
@@ -240,9 +241,12 @@ def get_odds_consensus(odds):
         }
     }
 
+    return data
+
 
 def get_prediction_consensus(predictions, odd_consensus):
 
+    # odd_consensus = copy.deepcopy(odd_consensus)
     pred_con = defaultdict(int)
     picks = {}
 
@@ -263,7 +267,8 @@ def get_prediction_consensus(predictions, odd_consensus):
 
             try:
                 ou_points = float(
-                    odd_consensus['over_under']['over']['points'])
+                    odd_consensus['over_under']['over']['points']
+                )
                 if total > ou_points:
                     over_under = odd_consensus['over_under']['over']
                     over_under['pick'] = 'over'
@@ -310,3 +315,91 @@ def get_prediction_consensus(predictions, odd_consensus):
         'predictions': pred_con,
         'picks': picks
     }
+
+
+def get_best_bets(pred_sites, odds_sites):
+
+    over_under_cnt = defaultdict(int)
+    over_under_choice = 'over'
+
+    spread_cnt = defaultdict(int)
+    spread_choice = 'home'
+
+    money_line_cnt = defaultdict(int)
+    money_line_choice = 'home'
+
+    for site in pred_sites:
+        over_under_cnt[site['picks']['over_under']['pick']] += 1
+        spread_cnt[site['picks']['spread']['pick']] += 1
+        money_line_cnt[site['picks']['money_line']['pick']] += 1
+
+    if over_under_cnt.get('under', 0) > over_under_cnt.get('over', 0):
+        over_under_choice = 'under'
+
+    if spread_cnt.get('away', 0) > spread_cnt.get('home', 0):
+        spread_choice = 'away'
+
+    if money_line_cnt.get('away', 0) > money_line_cnt.get('home', 0):
+        money_line_choice = 'away'
+
+    best_bets = {
+        'money_line': {
+            'odds': None,
+            'winner': money_line_choice,
+            'site': None
+        },
+        'spread': {
+            'odds': None,
+            'spread': None,
+            'winner': spread_choice,
+            'site': None
+        },
+        'over_under': {
+            'odds': None,
+            'points': None,
+            'winner': over_under_choice,
+            'site': None
+        }
+    }
+
+    for site, odds in odds_sites.items():
+
+        money_line = odds['money_line'][money_line_choice]
+        over_under = odds['over_under'][over_under_choice]
+        spread = odds['spread'][spread_choice]
+
+        if money_line['odds'] != 'n/a':
+            if best_bets['money_line']['odds'] is None:
+                best_bets['money_line']['odds'] = money_line['odds']
+                best_bets['money_line']['site'] = site
+            elif float(money_line['odds']) > float(
+                best_bets['money_line']['odds']
+            ):
+                best_bets['money_line']['odds'] = money_line['odds']
+                best_bets['money_line']['site'] = site
+
+        if spread['odds'] != 'n/a' and float(spread['spread']) != 0.0:
+            if best_bets['spread']['odds'] is None:
+                best_bets['spread']['odds'] = spread['odds']
+                best_bets['spread']['spread'] = spread['spread']
+                best_bets['spread']['site'] = site
+            elif float(spread['odds']) > float(
+                best_bets['spread']['odds']
+            ):
+                best_bets['spread']['odds'] = spread['odds']
+                best_bets['spread']['spread'] = spread['spread']
+                best_bets['spread']['site'] = site
+
+        if over_under['odds'] != 'n/a' and float(over_under['points']) > 0:
+            if best_bets['over_under']['odds'] is None:
+                best_bets['over_under']['odds'] = over_under['odds']
+                best_bets['over_under']['points'] = over_under['points']
+                best_bets['over_under']['site'] = site
+            elif float(over_under['odds']) > float(
+                best_bets['over_under']['odds']
+            ):
+                best_bets['over_under']['odds'] = over_under['odds']
+                best_bets['over_under']['points'] = over_under['points']
+                best_bets['over_under']['site'] = site
+
+    return best_bets
