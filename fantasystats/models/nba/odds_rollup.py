@@ -1,5 +1,5 @@
 from mongoengine import (
-    StringField, DictField, DateTimeField, Document
+    StringField, DictField, DateTimeField, Document, ListField
 )
 
 
@@ -12,6 +12,7 @@ class nba_oddsrollup(Document):
     points = DictField(required=True)
     team_id = StringField(required=True)
     rollup_date = DateTimeField(required=True)
+    trends = ListField(required=False)
 
 
 def create_indexes():

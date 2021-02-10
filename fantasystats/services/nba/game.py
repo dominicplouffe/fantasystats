@@ -70,7 +70,8 @@ def get_team(
                 'noline': rollup_stats.noline,
                 'spread': rollup_stats.spread,
                 'over_under': rollup_stats.over_under,
-                'points': rollup_stats.points
+                'points': rollup_stats.points,
+                'trends': rollup_stats.trends
             }
 
     data = {

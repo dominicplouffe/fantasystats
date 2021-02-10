@@ -11,6 +11,7 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
     teams = svc.get_all_teams(season)
     odds_rollup = {}
     points = {}
+    trends = {}
 
     for team in teams:
         print(team['team_id'])
@@ -130,6 +131,9 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                 }
             }
 
+        if team['team_id'] not in trends:
+            trends[team['team_id']] = []
+
         for g in games:
             if team['team_id'] == g['home_team']['team_id']:
                 points[team['team_id']
@@ -189,12 +193,37 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
             result['spread']['overall']['games'] += 1
             result['over_under']['overall']['games'] += 1
 
+            trend_game = {
+                'overall': {
+                    'result': None,
+                    'home_score': g['team_scoring']['home'][pts_key],
+                    'away_score': g['team_scoring']['away'][pts_key]
+                },
+                'spread': {
+                    'result': None,
+                    'spread': g['odds']['consensus']['spread']['home']['spread']
+                },
+                'over_under': {
+                    'result': None,
+                    'score': total,
+                    'over_under': ou_score
+                },
+                'side': 'home',
+                'home_team': g['home_team']['abbr'],
+                'away_team': g['away_team']['abbr'],
+                'game_key': g['game_key'],
+                'game_date': g['game_date']
+            }
+
             if total > ou_score:
                 result['over_under']['overall']['over'] += 1
+                trend_game['over_under']['result'] = 'over'
             elif total < ou_score:
                 result['over_under']['overall']['under'] += 1
+                trend_game['over_under']['result'] = 'under'
             else:
                 result['over_under']['overall']['push'] += 1
+                trend_game['over_under']['result'] = 'push'
 
             if team['team_id'] == g['home_team']['team_id']:
                 result['noline']['home']['games'] += 1
@@ -204,9 +233,11 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                 if home_score > away_score:
                     result['spread']['overall']['wins'] += 1
                     result['spread']['home']['wins'] += 1
+                    trend_game['spread']['result'] = 'win'
                 else:
                     result['spread']['overall']['losses'] += 1
                     result['spread']['home']['losses'] += 1
+                    trend_game['spread']['result'] = 'loss'
 
                 if total > ou_score:
                     result['over_under']['home']['over'] += 1
@@ -218,6 +249,7 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                 if g['team_scoring']['home'][pts_key] > g['team_scoring']['away'][pts_key]:
                     result['noline']['overall']['wins'] += 1
                     result['noline']['home']['wins'] += 1
+                    trend_game['overall']['result'] = 'win'
                 else:
                     if pts_key == 'score':
                         result['noline']['overall']['losses'] += 1
@@ -228,8 +260,12 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                             loss_key = 'otl'
                         result['noline']['overall'][loss_key] += 1
                         result['noline']['home'][loss_key] += 1
+                    trend_game['overall']['result'] = 'loss'
 
             else:
+                trend_game['side'] = 'away'
+                trend_game['spread']['spread'] = g['odds']['consensus']['spread']['away']['spread']
+
                 result['noline']['away']['games'] += 1
                 result['spread']['away']['games'] += 1
                 result['over_under']['away']['games'] += 1
@@ -237,9 +273,11 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                 if away_score > home_score:
                     result['spread']['overall']['wins'] += 1
                     result['spread']['away']['wins'] += 1
+                    trend_game['spread']['result'] = 'win'
                 else:
                     result['spread']['overall']['losses'] += 1
                     result['spread']['away']['losses'] += 1
+                    trend_game['spread']['result'] = 'loss'
 
                 if total > ou_score:
                     result['over_under']['away']['over'] += 1
@@ -251,6 +289,7 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                 if g['team_scoring']['away'][pts_key] > g['team_scoring']['home'][pts_key]:
                     result['noline']['overall']['wins'] += 1
                     result['noline']['away']['wins'] += 1
+                    trend_game['overall']['result'] = 'win'
                 else:
                     if pts_key == 'score':
                         result['noline']['overall']['losses'] += 1
@@ -261,8 +300,10 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                             loss_key = 'otl'
                         result['noline']['overall'][loss_key] += 1
                         result['noline']['away'][loss_key] += 1
+                    trend_game['overall']['result'] = 'loss'
 
             odds_rollup[team['team_id']] = result
+            trends[team['team_id']].append(trend_game)
 
     odds_rollup = odds_rollup.items()
     for o in odds_rollup:
@@ -320,6 +361,10 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
 
     for o in odds_rollup:
         rec = o[1]
+        tre = trends[o[0]]
+
+        if len(tre) > 5:
+            tre = tre[-5:]
 
         mgr(
             rec['noline'],
@@ -328,6 +373,7 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
             rec['points'],
             o[0],
             to_date,
+            tre
         )
 
 

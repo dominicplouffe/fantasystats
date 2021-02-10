@@ -9,7 +9,8 @@ def insert_rollup(
     over_under,
     points,
     team_name,
-    rollup_date
+    rollup_date,
+    trends
 ):
 
     team_id = search.get_search_value(team_name)
@@ -22,6 +23,7 @@ def insert_rollup(
         rollup.spread = spread
         rollup.over_under = over_under
         rollup.points = points
+        rollup.trends = trends
 
         rollup.save()
 
@@ -33,7 +35,8 @@ def insert_rollup(
             over_under=over_under,
             points=points,
             team_id=team_id,
-            rollup_date=rollup_date
+            rollup_date=rollup_date,
+            trends=trends
         )
         rollup.save()
 
