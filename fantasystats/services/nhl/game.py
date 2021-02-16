@@ -198,7 +198,8 @@ def get_team(
         )
 
         if rollup_stats:
-
+            if rollup_stats.trends:
+                rollup_stats.trends.reverse()
             record = {
                 'noline': rollup_stats.noline,
                 'spread': rollup_stats.spread,
