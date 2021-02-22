@@ -5,14 +5,16 @@ from datetime import datetime
 from fantasystats import context
 from fantasystats.managers.nba import team as nba_team
 from fantasystats.managers.nhl import team as nhl_team
-from fantasystats.services.crawlers.mappings import create_game_key
+from fantasystats.managers.mlb import team as mlb_team
 from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
+from fantasystats.managers.mlb import prediction as mlb_prediction
 
 
 URLS = {
     'nba': 'https://www.scoresandstats.com/previews/basketball/nba/',
-    'nhl': 'https://www.scoresandstats.com/previews/hockey/nhl/'
+    'nhl': 'https://www.scoresandstats.com/previews/hockey/nhl/',
+    'mlb': 'https://www.scoresandstats.com/previews/hockey/mlb/'
 }
 
 PROVIDER = 'scoresandstats'
@@ -94,3 +96,4 @@ if __name__ == '__main__':
 
     nba_games = get_predictions('NBA', nba_team, nba_prediction)
     nhl_games = get_predictions('NHL', nhl_team, nhl_prediction)
+    mlb_games = get_predictions('MLB', mlb_team, mlb_prediction)

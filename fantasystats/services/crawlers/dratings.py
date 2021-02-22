@@ -6,17 +6,21 @@ from fantasystats import context
 from fantasystats.services import search
 from fantasystats.managers.nba import team as nba_team
 from fantasystats.managers.nhl import team as nhl_team
+from fantasystats.managers.mlb import team as mlb_team
 from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
+from fantasystats.managers.mlb import prediction as mlb_prediction
 from fantasystats.services.crawlers.mappings import create_game_key
 
 NBA_URL = 'https://www.dratings.com/predictor/nba-basketball-predictions/'
 NHL_URL = 'https://www.dratings.com/predictor/nhl-hockey-predictions/'
+MLB_URL = 'https://www.dratings.com/predictor/nhl-hockey-predictions/'
 
 NBA_MAPPING = {
     'Los Angeles Clippers': 'LA Clippers'
 }
 NHL_MAPPING = {}
+MLB_MAPPING = {}
 
 SCORES_IDX = {
     'nba': 5,
@@ -119,3 +123,4 @@ if __name__ == '__main__':
 
     nba_games = get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     nhl_games = get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
+    get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)

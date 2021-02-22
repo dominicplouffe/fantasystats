@@ -6,8 +6,10 @@ from fantasystats import context
 from fantasystats.services import search
 from fantasystats.managers.nba import team as nba_team
 from fantasystats.managers.nhl import team as nhl_team
+from fantasystats.managers.mlb import team as mlb_team
 from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
+from fantasystats.managers.mlb import prediction as mlb_prediction
 from fantasystats.services.crawlers.mappings import (
     NBA_MAPPING, NHL_MAPPING, create_game_key
 )
@@ -15,6 +17,7 @@ from fantasystats.services.crawlers.mappings import (
 URLS = {
     'nba': 'https://www.sportsbettingdime.com/nba/odds/',
     'nhl': 'https://www.sportsbettingdime.com/nhl/odds/',
+    'mlb': 'https://www.sportsbettingdime.com/mlb/odds/',
 }
 
 PROVIDER = 'sportsbettingdime'
@@ -103,3 +106,4 @@ if __name__ == '__main__':
 
     get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
+    get_predictions('mlb', mlb_team, mlb_prediction, {})

@@ -7,8 +7,10 @@ from fantasystats import context
 from fantasystats.services import search
 from fantasystats.managers.nba import team as nba_team
 from fantasystats.managers.nhl import team as nhl_team
+from fantasystats.managers.mlb import team as mlb_team
 from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
+from fantasystats.managers.mlb import prediction as mlb_prediction
 from fantasystats.services.crawlers.mappings import (
     NBA_MAPPING, NHL_MAPPING, create_game_key, HEADERS
 )
@@ -18,6 +20,7 @@ from pprint import pprint
 URLS = {
     'nba': 'https://www.pickswise.com/sports/nba/',
     'nhl': 'https://www.pickswise.com/sports/nhl/',
+    'mlb': 'https://www.pickswise.com/sports/nhl/'
 }
 
 STATSINSIDER_URL = 'https://levy.statsinsider.com.au/round/matches?Sport=%s' \
@@ -177,5 +180,6 @@ def _get_stats(week, league):
 
 if __name__ == '__main__':
 
-    # get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
+    get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
+    get_predictions('mlb', mlb_team, mlb_prediction, {})

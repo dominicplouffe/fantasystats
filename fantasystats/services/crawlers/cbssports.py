@@ -6,22 +6,26 @@ from fantasystats import context
 from fantasystats.services import search
 from fantasystats.managers.nba import team as nba_team
 from fantasystats.managers.nhl import team as nhl_team
+from fantasystats.managers.mlb import team as mlb_team
 from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
+from fantasystats.managers.mlb import prediction as mlb_prediction
 from fantasystats.services.crawlers.mappings import create_game_key, NHL_MAPPING
 
 NBA_URL = 'https://www.cbssports.com/nba/expert-picks/'
 NHL_URL = 'https://www.cbssports.com/nhl/expert-picks/'
+MLB_URL = 'https://www.cbssports.com/nhl/expert-picks/'
 
 
 URLS = {
     'nba': NBA_URL,
-    'nhl': NHL_URL
+    'nhl': NHL_URL,
+    'mlb': MLB_URL
 }
 
 PROVIDER = 'cbssports'
 
-NBA_MAPPING = {}
+MLB_MAPPING = {}
 
 
 def get_predictions(league, league_mgr, pred_mgr, mapping):
@@ -238,3 +242,4 @@ def get_score(
 if __name__ == '__main__':
     get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
+    get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)
