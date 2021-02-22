@@ -32,9 +32,14 @@ if __name__ == '__main__':
         else:
             logger.info('start_time,%s' % game_info['start_time'])
             try:
-                start_time = datetime.strptime(
-                    game_info['start_time'], '%Y-%m-%d %H:%M'
-                ) - timedelta(hours=10)
+                try:
+                    start_time = datetime.strptime(
+                        game_info['start_time'], '%Y-%m-%d %H:%M'
+                    ) - timedelta(hours=10)
+                except ValueError:
+                    start_time = datetime.strptime(
+                        game_info['start_time'], '%Y-%m-%d'
+                    ) - timedelta(hours=10)
 
                 if datetime.utcnow() >= start_time:
                     crawl_game = True

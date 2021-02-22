@@ -510,7 +510,7 @@ def get_game_by_key(
     if 'broadcasters' not in game_info:
         game_info['broadcasters'] = []
 
-    game_info['start_time'] += timedelta(hours=10)
+    game_info['start_time'] += timedelta(hours=5)
 
     return game_info
 
