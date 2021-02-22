@@ -26,7 +26,8 @@ def insert_game(
     innings=0,
     current_inning=0,
     is_top=False,
-    update=False
+    update=False,
+    broadcasters=[]
 ):
 
     game_key = search.create_game_key(
@@ -59,6 +60,7 @@ def insert_game(
             g.innings = innings
             g.current_inning = current_inning
             g.is_top = is_top
+            g.broadcasters = broadcasters
             g.save()
     except DoesNotExist:
 
@@ -84,7 +86,8 @@ def insert_game(
             team_scoring=team_scoring,
             innings=innings,
             current_inning=current_inning,
-            is_top=is_top
+            is_top=is_top,
+            broadcasters=broadcasters
         )
         g.save()
 

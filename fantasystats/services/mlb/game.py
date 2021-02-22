@@ -1,7 +1,9 @@
 from fantasystats import context
 from fantasystats.managers.mlb import (
-    game, team, venue, player, gameplayer, fantasy
+    game, team, venue, player, gameplayer, fantasy, season, prediction,
+    odds_rollup
 )
+from fantasystats.services.picks import PROVIDERS
 
 
 def get_games_by_date(game_date):
@@ -63,14 +65,55 @@ def get_game_by_key(
         )
 
     if include_odds:
-        odds = context.db.mlb_odds.find_one({
+        odds = context.db.nba_odds.find_one({
             '_id': game_key
         })
 
         if odds:
             odds.pop('_id')
             odds.pop('game_key')
-            game_info['odds'] = odds
+
+            odds = consensus.find_best_odds(odds)
+
+            game_info['odds'] = {
+                'sites': odds,
+                'consensus': consensus.get_odds_consensus(odds)
+            }
+
+    if include_predictions and include_odds:
+        preds = prediction.get_prediction_by_game_key(game_key)
+
+        con_data = consensus.get_prediction_consensus(
+            preds,
+            game_info.get('odds', {}).get('consensus', [])
+        )
+
+        pred_sites = []
+        for p in preds:
+            con_data['picks'].get(p.provider, {})['winner'] = p.winner
+            pred_sites.append({
+                'provider': PROVIDERS.get(p.provider, p.provider),
+                'game_url': p.game_url,
+                'icon': 'https://%s/favicon.ico' % p.game_url.split('/')[2],
+                'predictions': p.payload,
+                'picks': con_data['picks'].get(p.provider, {})
+            })
+
+        game_info['predictions'] = {
+            'sites': pred_sites,
+            'consensus': con_data['predictions']
+        }
+
+        if 'odds' in game_info:
+            game_info['best_bets'] = consensus.get_best_bets(
+                game_info['predictions']['sites'],
+                game_info['odds']['sites']
+            )
+
+    if 'broadcasters' not in game_info:
+        game_info['broadcasters'] = []
+
+    game_info['start_time'] += timedelta(hours=5)
 
     return game_info
 

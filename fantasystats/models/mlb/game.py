@@ -27,6 +27,7 @@ class mlb_game(Document):
     innings = ListField(required=False)
     current_inning = IntField(required=True)
     is_top = BooleanField(required=True)
+    broadcasters = ListField(required=False)
 
 
 def create_indexes():

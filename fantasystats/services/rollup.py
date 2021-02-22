@@ -1,8 +1,10 @@
 import pytz
 from fantasystats.services.nhl import game as nhl_svc
 from fantasystats.services.nba import game as nba_svc
+from fantasystats.services.mlb import game as mlb_svc
 from fantasystats.managers.nhl.odds_rollup import insert_rollup as nhl_mgr
 from fantasystats.managers.nba.odds_rollup import insert_rollup as nba_mgr
+from fantasystats.managers.mlb.odds_rollup import insert_rollup as mlb_mgr
 from datetime import datetime, timedelta
 
 
@@ -386,4 +388,5 @@ if __name__ == '__main__':
     for i in range(0, 3):
         rollup_team_odds_results('20202021', date, nhl_svc, nhl_mgr, 'goals')
         rollup_team_odds_results('2020-2021', date, nba_svc, nba_mgr, 'score')
+        rollup_team_odds_results('2021', date, mlb_svc, mlb_mgr, 'runs')
         date += timedelta(days=1)
