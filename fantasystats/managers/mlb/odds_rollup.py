@@ -1,6 +1,6 @@
 from mongoengine import DoesNotExist
 from fantasystats.services import search
-from fantasystats.models.nba.odds_rollup import mlb_oddsrollup
+from fantasystats.models.mlb.odds_rollup import mlb_oddsrollup
 
 
 def insert_rollup(

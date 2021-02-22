@@ -1,4 +1,8 @@
+import pickle
 from fantasystats import context
+from datetime import datetime, timedelta
+from fantasystats.services import consensus
+from fantasystats.context import REDIS
 from fantasystats.managers.mlb import (
     game, team, venue, player, gameplayer, fantasy, season, prediction,
     odds_rollup
@@ -8,7 +12,16 @@ from fantasystats.services.picks import PROVIDERS
 
 def get_games_by_date(game_date):
 
-    all_games = game.get_by_game_date(game_date)
+    now_date = datetime.utcnow()
+    now_date = datetime(now_date.year, now_date.month, now_date.day)
+
+    if game_date >= now_date:
+        all_games = game.get_by_game_date(game_date)
+    else:
+        all_games = [
+            g for g in game.get_by_game_date(game_date)
+            if g.game_status not in ['Preview', 'Scheduled']
+        ]
 
     return [
         get_game_by_key(
@@ -16,7 +29,10 @@ def get_games_by_date(game_date):
             game_info=g,
             include_players=False,
             to_date=game_date,
-            include_odds=True
+            include_odds=True,
+            include_predictions=True,
+            include_injuries=True,
+            standings=True
         )
         for g in all_games
     ]
@@ -27,7 +43,11 @@ def get_game_by_key(
     game_info=None,
     include_players=True,
     include_odds=False,
-    to_date=None
+    include_predictions=False,
+    include_injuries=False,
+    to_date=None,
+    standings=False,
+    force_query=False
 ):
 
     if not game_info:
@@ -42,13 +62,13 @@ def get_game_by_key(
     game_info.home_team = get_team(
         game_info.home_team,
         standings=True,
-        season=game_info.season,
+        season=game_info.season if standings else None,
         to_date=to_date
     )
     game_info.away_team = get_team(
         game_info.away_team,
         standings=True,
-        season=game_info.season,
+        season=game_info.season if standings else None,
         to_date=to_date
     )
     game_info.home_pitcher = get_player_bio(game_info.home_pitcher)
@@ -118,7 +138,9 @@ def get_game_by_key(
     return game_info
 
 
-def get_team(team_name, standings=False, season=None, to_date=None):
+def get_team(
+    team_name, standings=False, season=None, to_date=None, force_query=False
+):
 
     if standings and not season:
         raise ValueError(
@@ -128,6 +150,15 @@ def get_team(team_name, standings=False, season=None, to_date=None):
         raise ValueError(
             'standings must be added as an argument is season is passed')
 
+    key = 'a%s-%s-%s-%s' % (
+        team_name, standings, season, to_date
+    )
+
+    data = REDIS.get(key)
+
+    if data and not force_query:
+        return pickle.loads(data)
+
     standings_res = None
     team_info = team.get_team_by_name(team_name)
 
@@ -136,7 +167,25 @@ def get_team(team_name, standings=False, season=None, to_date=None):
             season, team_name=team_info.name_search, to_date=to_date)
         standings_res.pop('team')
 
-    return {
+    record = None
+    if to_date and standings:
+        rollup_stats = odds_rollup.get_odds_rollup(
+            team_info.name_search, to_date
+        )
+
+        if rollup_stats:
+            if rollup_stats.trends:
+                rollup_stats.trends.reverse()
+
+            record = {
+                'noline': rollup_stats.noline,
+                'spread': rollup_stats.spread,
+                'over_under': rollup_stats.over_under,
+                'points': rollup_stats.points,
+                'trends': rollup_stats.trends
+            }
+
+    data = {
         'full_name': team_info.full_name,
         'name': team_info.name,
         'location_name': team_info.location_name,
@@ -155,6 +204,13 @@ def get_team(team_name, standings=False, season=None, to_date=None):
         'standings': standings_res
     }
 
+    if record:
+        data['record'] = record
+
+    REDIS.set(key, pickle.dumps(data), 3600)
+
+    return data
+
 
 def get_versus(season, away_team, home_team):
 
@@ -167,6 +223,11 @@ def get_versus(season, away_team, home_team):
 def get_venue(venue_name):
 
     venue_info = venue.get_venue_by_name(venue_name)
+
+    if not venue_info:
+        return {
+            'venue_name': 'n/a'
+        }
 
     return {
         'venue_name': venue_info['name']

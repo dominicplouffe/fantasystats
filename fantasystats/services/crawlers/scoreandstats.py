@@ -9,6 +9,7 @@ from fantasystats.managers.mlb import team as mlb_team
 from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
 from fantasystats.managers.mlb import prediction as mlb_prediction
+from fantasystats.services.crawlers.mappings import create_game_key
 
 
 URLS = {

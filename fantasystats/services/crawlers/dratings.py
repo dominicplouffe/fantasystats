@@ -123,4 +123,4 @@ if __name__ == '__main__':
 
     nba_games = get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     nhl_games = get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
-    get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)
+    # get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)

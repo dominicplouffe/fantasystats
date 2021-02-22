@@ -14,7 +14,16 @@ class GetGameById(BaseView):
     @memorize
     def dispatch_request(self, game_id):
 
-        game_info = game.get_game_by_key(game_id, include_odds=True)
+        game_info = game.get_game_by_key(
+            game_id,
+            include_odds=True,
+            include_predictions=True,
+            include_injuries=True,
+            standings=True,
+            force_query=request.args.get(
+                'force_query', 'false'
+            ).lower() == 'true'
+        )
 
         return self.write_json(game_info, 200)
 
@@ -28,9 +37,10 @@ class GetGamesByDate(BaseView):
 
         game_date = datetime.strptime(date, "%Y-%m-%d")
 
-        return self.write_json(
-            game.get_games_by_date(game_date)
-        )
+        games = game.get_games_by_date(game_date)
+        games = sorted(games, key=lambda x: x['start_time'])
+
+        return self.write_json(games)
 
 
 class GetStandings(BaseView):
@@ -40,12 +50,16 @@ class GetStandings(BaseView):
     @memorize
     def dispatch_request(self, season):
 
-        by = request.args.get('by', 'mlb')
-        standings = game.get_standings(season, by=by)
-
-        return self.write_json(
-            standings
+        by = request.args.get('by', 'nba')
+        standings = game.get_standings(
+            season,
+            by=by,
+            force_query=request.args.get(
+                'force_query', 'false'
+            ).lower() == 'true'
         )
+
+        return self.write_json(standings)
 
 
 class GetTeam(BaseView):
@@ -55,7 +69,18 @@ class GetTeam(BaseView):
     @memorize
     def dispatch_request(self, season, team_id):
 
-        team = game.get_team_details(season, team_id)
+        date = request.args.get('date', None)
+        if date:
+            date = datetime.strptime(date, "%Y-%m-%d")
+
+        team = game.get_team_details(
+            season,
+            team_id,
+            to_date=date,
+            force_query=request.args.get(
+                'force_query', 'false'
+            ).lower() == 'true'
+        )
 
         return self.write_json(team)
 
@@ -68,7 +93,12 @@ class GetTeams(BaseView):
     def dispatch_request(self, season):
 
         return self.write_json(
-            game.get_all_teams(season)
+            game.get_all_teams(
+                season,
+                force_query=request.args.get(
+                    'force_query', 'false'
+                ).lower() == 'true'
+            )
         )
 
 
@@ -79,9 +109,7 @@ class GetPlayer(BaseView):
     @memorize
     def dispatch_request(self, player_id):
 
-        return self.write_json(
-            game.get_player(player_id)
-        )
+        return self.write_json(game.get_player(player_id, team=True))
 
 
 class GetTeamVS(BaseView):
@@ -94,6 +122,16 @@ class GetTeamVS(BaseView):
         return self.write_json(
             game.get_versus(season, away_team, home_team)
         )
+
+
+class GetSeasons(BaseView):
+
+    cache_time = 86400
+
+    @memorize
+    def dispatch_request(self):
+
+        return self.write_json(game.get_seasons())
 
 
 mlb.add_url_rule(
@@ -136,5 +174,11 @@ mlb.add_url_rule(
     '/mlb/teams/<string:season>/<string:away_team>/<string:home_team>',
     view_func=GetTeamVS.as_view(
         '/mlb/teams/<string:season>/<string:away_team>/<string:home_team>'),
+    methods=['GET']
+)
+
+mlb.add_url_rule(
+    '/mlb/seasons',
+    view_func=GetSeasons.as_view('/mlb/seasons'),
     methods=['GET']
 )

@@ -1,4 +1,4 @@
-from fantasystats.models.nba import prediction
+from fantasystats.models.mlb import prediction
 from mongoengine import DoesNotExist
 
 
