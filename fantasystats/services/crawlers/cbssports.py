@@ -11,10 +11,11 @@ from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
 from fantasystats.managers.mlb import prediction as mlb_prediction
 from fantasystats.services.crawlers.mappings import create_game_key, NHL_MAPPING
+from fantasystats.services.score import get_score
 
 NBA_URL = 'https://www.cbssports.com/nba/expert-picks/'
 NHL_URL = 'https://www.cbssports.com/nhl/expert-picks/'
-MLB_URL = 'https://www.cbssports.com/nhl/expert-picks/'
+MLB_URL = 'https://www.cbssports.com/mlb/expert-picks/'
 
 
 URLS = {
@@ -164,8 +165,8 @@ def get_predictions(league, league_mgr, pred_mgr, mapping):
         home_score, away_score = get_score(
             over_under_points,
             over_under_side,
-            home_team,
-            away_team,
+            home_team.abbr,
+            away_team.abbr,
             points_to,
             points_to_give
         )
@@ -201,42 +202,6 @@ def get_predictions(league, league_mgr, pred_mgr, mapping):
         )
 
     return games
-
-
-def get_score(
-    over_under_points,
-    over_under_side,
-    home_team,
-    away_team,
-    points_to,
-    points_to_give
-):
-    home_score = 0
-    away_score = 0
-
-    total_score = over_under_points
-    if over_under_side == "U":
-        total_score = total_score - 1.0
-    else:
-        total_score = total_score + 1.0
-
-    if points_to.abbr == home_team.abbr:
-        home_score += points_to_give
-        total_score -= points_to_give
-    else:
-        away_score += points_to_give
-        total_score -= points_to_give
-
-    remaining_points = total_score / 2.0
-    home_score += remaining_points
-    away_score += remaining_points
-
-    if home_score < 1:
-        home_score = 1.0
-    if away_score < 1:
-        away_score = 1.0
-
-    return home_score, away_score
 
 
 if __name__ == '__main__':
