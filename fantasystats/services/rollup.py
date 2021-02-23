@@ -6,6 +6,7 @@ from fantasystats.managers.nhl.odds_rollup import insert_rollup as nhl_mgr
 from fantasystats.managers.nba.odds_rollup import insert_rollup as nba_mgr
 from fantasystats.managers.mlb.odds_rollup import insert_rollup as mlb_mgr
 from datetime import datetime, timedelta
+from fantasystats.services.rollup_diff import NBA_DIFF
 
 
 def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
@@ -58,21 +59,24 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                     'wins': 0,
                     'losses': 0,
                     'per': 0.00,
-                    'pos': 0
+                    'pos': 0,
+                    'push': 0
                 },
                 'home': {
                     'games': 0,
                     'wins': 0,
                     'losses': 0,
                     'per': 0.00,
-                    'pos': 0
+                    'pos': 0,
+                    'push': 0
                 },
                 'away': {
                     'games': 0,
                     'wins': 0,
                     'losses': 0,
                     'per': 0.00,
-                    'pos': 0
+                    'pos': 0,
+                    'push': 0
                 }
             },
             'over_under': {
@@ -236,6 +240,10 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                     result['spread']['overall']['wins'] += 1
                     result['spread']['home']['wins'] += 1
                     trend_game['spread']['result'] = 'win'
+                elif away_score == home_score:
+                    result['spread']['overall']['push'] += 1
+                    result['spread']['home']['push'] += 1
+                    trend_game['spread']['result'] = 'push'
                 else:
                     result['spread']['overall']['losses'] += 1
                     result['spread']['home']['losses'] += 1
@@ -276,6 +284,10 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                     result['spread']['overall']['wins'] += 1
                     result['spread']['away']['wins'] += 1
                     trend_game['spread']['result'] = 'win'
+                elif away_score == home_score:
+                    result['spread']['overall']['push'] += 1
+                    result['spread']['away']['push'] += 1
+                    trend_game['spread']['result'] = 'push'
                 else:
                     result['spread']['overall']['losses'] += 1
                     result['spread']['away']['losses'] += 1
@@ -304,8 +316,47 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                         result['noline']['away'][loss_key] += 1
                     trend_game['overall']['result'] = 'loss'
 
-            odds_rollup[team['team_id']] = result
-            trends[team['team_id']].append(trend_game)
+        if pts_key == 'score' and to_date >= datetime(2021, 2, 23):
+            result['spread']['overall']['wins'] += NBA_DIFF[team['abbr']
+                                                            ]['spread']['overall']['wins']
+            result['spread']['overall']['losses'] += NBA_DIFF[team['abbr']
+                                                              ]['spread']['overall']['losses']
+            result['spread']['overall']['push'] += NBA_DIFF[team['abbr']
+                                                            ]['spread']['overall']['push']
+            result['spread']['home']['wins'] += NBA_DIFF[team['abbr']
+                                                         ]['spread']['home']['wins']
+            result['spread']['home']['losses'] += NBA_DIFF[team['abbr']
+                                                           ]['spread']['home']['losses']
+            result['spread']['home']['push'] += NBA_DIFF[team['abbr']
+                                                         ]['spread']['home']['push']
+            result['spread']['away']['wins'] += NBA_DIFF[team['abbr']
+                                                         ]['spread']['away']['wins']
+            result['spread']['away']['losses'] += NBA_DIFF[team['abbr']
+                                                           ]['spread']['away']['losses']
+            result['spread']['away']['push'] += NBA_DIFF[team['abbr']
+                                                         ]['spread']['away']['push']
+
+            result['over_under']['overall']['over'] += NBA_DIFF[team['abbr']
+                                                                ]['over_under']['overall']['over']
+            result['over_under']['overall']['under'] += NBA_DIFF[team['abbr']
+                                                                 ]['over_under']['overall']['under']
+            result['over_under']['overall']['push'] += NBA_DIFF[team['abbr']
+                                                                ]['over_under']['overall']['push']
+            result['over_under']['home']['over'] += NBA_DIFF[team['abbr']
+                                                             ]['over_under']['home']['over']
+            result['over_under']['home']['under'] += NBA_DIFF[team['abbr']
+                                                              ]['over_under']['home']['under']
+            result['over_under']['home']['push'] += NBA_DIFF[team['abbr']
+                                                             ]['over_under']['home']['push']
+            result['over_under']['away']['over'] += NBA_DIFF[team['abbr']
+                                                             ]['over_under']['away']['over']
+            result['over_under']['away']['under'] += NBA_DIFF[team['abbr']
+                                                              ]['over_under']['away']['under']
+            result['over_under']['away']['push'] += NBA_DIFF[team['abbr']
+                                                             ]['over_under']['away']['push']
+
+        odds_rollup[team['team_id']] = result
+        trends[team['team_id']].append(trend_game)
 
     odds_rollup = odds_rollup.items()
     for o in odds_rollup:
@@ -388,5 +439,5 @@ if __name__ == '__main__':
     for i in range(0, 3):
         rollup_team_odds_results('20202021', date, nhl_svc, nhl_mgr, 'goals')
         rollup_team_odds_results('2020-2021', date, nba_svc, nba_mgr, 'score')
-        rollup_team_odds_results('2021', date, mlb_svc, mlb_mgr, 'runs')
+        # rollup_team_odds_results('2021', date, mlb_svc, mlb_mgr, 'runs')
         date += timedelta(days=1)
