@@ -29,11 +29,9 @@ STATS = {}
 
 PROVIDER = 'pickwise'
 
-NHL_START_SEASON = datetime(2021, 1, 14)
-
-
-MAPPINGS = {
-    'Los Angeles Clippers': 'la_clippers'
+START_DATE = {
+    'nba': datetime(2020, 12, 21),
+    'nhl': datetime(2021, 1, 12)
 }
 
 
@@ -41,7 +39,6 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
 
     content = requests.get(url, headers=HEADERS).content.decode('utf-8')
     doc = html.fromstring(content)
-
     if league == 'nba':
         team_names = doc.xpath(
             '//div[@class="FixtureTeams__team-name FixtureTeams__team-name'
@@ -57,7 +54,7 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
         away_abbr = away_team.abbr
         home_abbr = home_team.abbr
 
-        diff = datetime.utcnow() - NHL_START_SEASON
+        diff = datetime.utcnow() - START_DATE[league]
         week = diff.days
 
     elif league == 'nhl':
@@ -72,7 +69,7 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
         away_abbr = away_team.abbr
         home_abbr = home_team.abbr
 
-        diff = datetime.utcnow() - NHL_START_SEASON
+        diff = datetime.utcnow() - START_DATE[league]
         week = diff.days
 
     stats = _get_stats(week, league)
@@ -88,7 +85,7 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
         data_home = s['MatchData']['HomeTeam']['Abv']
 
         data_away = mappings.get(data_away, data_away)
-        data_home = mappings.get(data_home, data_away)
+        data_home = mappings.get(data_home, data_home)
 
         if (
             data_away == away_abbr
@@ -136,6 +133,7 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
     doc = html.fromstring(content)
 
     for game_url in doc.xpath('//a[@class="CondensedPreview__start"]/@href'):
+        print(game_url)
         games.append(
             get_game_prediction(
                 game_url, league, league_mgr, pred_mgr, mappings
@@ -182,4 +180,4 @@ if __name__ == '__main__':
 
     get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
-    get_predictions('mlb', mlb_team, mlb_prediction, {})
+    # get_predictions('mlb', mlb_team, mlb_prediction, {})
