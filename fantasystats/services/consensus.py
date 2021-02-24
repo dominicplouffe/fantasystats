@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import copy
 
 
@@ -126,7 +126,22 @@ def find_best_odds(odds):
             else:
                 v['over_under'][side]['best'] = False
 
-    return odds
+    order = OrderedDict()
+    order['Unibet'] = odds['Unibet']
+    order['BetMGM'] = odds['BetMGM']
+    order['Sugarhouse'] = odds['Sugarhouse']
+    order['FanDuel'] = odds['FanDuel']
+    order['PointsBet'] = odds['PointsBet']
+    order['DraftKings'] = odds['DraftKings']
+
+    order['Unibet']['link'] = 'https://www.bettingnews.com/register/ubet/'
+    order['BetMGM']['link'] = 'https://www.bettingnews.com/register/bmgm/'
+    order['Sugarhouse']['link'] = 'https://www.bettingnews.com/register/sugho/'
+    order['FanDuel']['link'] = 'https://www.bettingnews.com/register/fd/'
+    order['PointsBet']['link'] = 'https://www.bettingnews.com/register/pb/'
+    order['DraftKings']['link'] = 'https://www.bettingnews.com/register/dk/'
+
+    return order
 
 
 def get_odds_consensus(odds):

@@ -35,6 +35,11 @@ START_DATE = {
 }
 
 
+MAPPINGS = {
+    'Los Angeles Clippers': 'la_clippers'
+}
+
+
 def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
 
     content = requests.get(url, headers=HEADERS).content.decode('utf-8')
