@@ -134,12 +134,12 @@ def find_best_odds(odds):
     order['PointsBet'] = odds['PointsBet']
     order['DraftKings'] = odds['DraftKings']
 
-    order['Unibet']['link'] = 'https://www.bettingnews.com/register/ubet/'
-    order['BetMGM']['link'] = 'https://www.bettingnews.com/register/bmgm/'
-    order['Sugarhouse']['link'] = 'https://www.bettingnews.com/register/sugho/'
-    order['FanDuel']['link'] = 'https://www.bettingnews.com/register/fd/'
-    order['PointsBet']['link'] = 'https://www.bettingnews.com/register/pb/'
-    order['DraftKings']['link'] = 'https://www.bettingnews.com/register/dk/'
+    order['Unibet']['link'] = 'https://affiliates.bettingnews.com/register/ubet/'
+    order['BetMGM']['link'] = 'https://affiliates.bettingnews.com/register/bmgm/'
+    order['Sugarhouse']['link'] = 'https://affiliates.bettingnews.com/register/sugho/'
+    order['FanDuel']['link'] = 'https://affiliates.bettingnews.com/register/fd/'
+    order['PointsBet']['link'] = 'https://affiliates.bettingnews.com/register/pb/'
+    order['DraftKings']['link'] = 'https://affiliates.bettingnews.com/register/dk/'
 
     return order
 
