@@ -77,6 +77,25 @@ def get_team(
                 'trends': rollup_stats.trends
             }
 
+            # Replace noline stats for NBA since we're missing some data in 2021
+            record['noline']['overall']['games'] = standings_res['games']
+            record['noline']['overall']['wins'] = standings_res['wins']
+            record['noline']['overall']['losses'] = standings_res['losses']
+            record['noline']['overall']['per'] = standings_res['wins'] / \
+                standings_res['games']
+
+            record['noline']['home']['games'] = standings_res['home']['games']
+            record['noline']['home']['wins'] = standings_res['home']['wins']
+            record['noline']['home']['losses'] = standings_res['home']['losses']
+            record['noline']['home']['per'] = standings_res['home']['wins'] / \
+                standings_res['home']['games']
+
+            record['noline']['away']['games'] = standings_res['away']['games']
+            record['noline']['away']['wins'] = standings_res['away']['wins']
+            record['noline']['away']['losses'] = standings_res['away']['losses']
+            record['noline']['away']['per'] = standings_res['away']['wins'] / \
+                standings_res['away']['games']
+
     data = {
         'full_name': team_info.full_name,
         'name': team_info.name,
@@ -464,8 +483,7 @@ def get_game_by_key(
 
     if include_odds:
         odds = context.db.nba_odds.find_one({
-            '_id': game_key
-        })
+            '_id': game_key})
 
         if odds:
             odds.pop('_id')
