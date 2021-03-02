@@ -14,6 +14,9 @@ class GetGameById(BaseView):
     @memorize
     def dispatch_request(self, game_id):
 
+        game_id = game_id.lower()
+        game_id = game_id.replace('-n-1', '-N-1')
+
         game_info = game.get_game_by_key(
             game_id,
             include_odds=True,

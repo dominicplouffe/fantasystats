@@ -205,7 +205,7 @@ if __name__ == '__main__':
     res = requests.get(
         'https://api.connexion.me/api/pongme/start/027467-324813-480532-013469'
     )
-    get_odds('mlb')
+    # get_odds('mlb')
     get_odds('nhl')
     get_odds('nba')
 
