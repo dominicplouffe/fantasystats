@@ -1,5 +1,4 @@
 from flask import Blueprint, request
-import pytz
 from datetime import datetime
 from fantasystats.api.base_view import BaseView
 from fantasystats.services.nhl import game
@@ -23,6 +22,7 @@ class GetGameById(BaseView):
             include_odds=True,
             include_predictions=True,
             include_injuries=True,
+            standings=True,
             force_query=request.args.get(
                 'force_query', 'false'
             ).lower() == 'true'
@@ -41,7 +41,7 @@ class GetGamesByDate(BaseView):
         game_date = datetime.strptime(date, "%Y-%m-%d")
 
         games = game.get_games_by_date(game_date)
-        ames = sorted(games, key=lambda x: x['start_time'])
+        games = sorted(games, key=lambda x: x['start_time'])
 
         return self.write_json(games)
 

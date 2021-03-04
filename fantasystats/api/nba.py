@@ -9,7 +9,7 @@ nba = Blueprint('nba', __name__)
 
 class GetGameById(BaseView):
 
-    cache_time = 60
+    cache_time = 86400
 
     @memorize
     def dispatch_request(self, game_id):
@@ -33,7 +33,7 @@ class GetGameById(BaseView):
 
 class GetGamesByDate(BaseView):
 
-    cache_time = 60 * 5
+    cache_time = 86400
 
     @memorize
     def dispatch_request(self, date):
@@ -48,7 +48,7 @@ class GetGamesByDate(BaseView):
 
 class GetStandings(BaseView):
 
-    cache_time = 60 * 60
+    cache_time = 86400
 
     @memorize
     def dispatch_request(self, season):
@@ -62,7 +62,9 @@ class GetStandings(BaseView):
             ).lower() == 'true'
         )
 
-        return self.write_json(standings)
+        return self.write_json(
+            standings
+        )
 
 
 class GetTeam(BaseView):
@@ -94,6 +96,7 @@ class GetTeams(BaseView):
 
     @memorize
     def dispatch_request(self, season):
+
         return self.write_json(
             game.get_all_teams(
                 season,
@@ -111,7 +114,9 @@ class GetPlayer(BaseView):
     @memorize
     def dispatch_request(self, player_id):
 
-        return self.write_json(game.get_player(player_id, team=True))
+        return self.write_json(
+            game.get_player(player_id, team=True)
+        )
 
 
 class GetTeamVS(BaseView):
