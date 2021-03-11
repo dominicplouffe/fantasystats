@@ -37,7 +37,9 @@ def get_games_by_date(game_date):
             to_date=game_date,
             include_odds=True,
             include_predictions=True,
-            include_injuries=True
+            include_injuries=False,
+            standings=False,
+            team_scoring=False
         )
         for g in all_games
 
@@ -53,6 +55,7 @@ def get_game_by_key(
     include_injuries=False,
     to_date=None,
     standings=True,
+    team_scoring=True,
     force_query=False
 ):
 
@@ -156,6 +159,9 @@ def get_game_by_key(
 
     game_info['attendance'] = 0
     game_info['broadcasters'] = game_info.get('broadcasters', [])
+
+    if not team_scoring and 'team_scoring' in game_info:
+        game_info.pop('team_scoring')
 
     # game_info['start_time'] += timedelta(hours=5)
 

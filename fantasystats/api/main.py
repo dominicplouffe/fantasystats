@@ -7,6 +7,7 @@ from fantasystats.api.base_view import BaseView
 from fantasystats.api.mlb import mlb
 from fantasystats.api.nhl import nhl
 from fantasystats.api.nba import nba
+from fantasystats.api.league import league
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 CORS(app)
@@ -14,6 +15,7 @@ app.url_map.converters['ObjectID'] = ObjectIDConverter
 app.register_blueprint(mlb)
 app.register_blueprint(nhl)
 app.register_blueprint(nba)
+app.register_blueprint(league)
 app.secret_key = '1qaz2wsx!'
 
 
