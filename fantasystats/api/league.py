@@ -35,6 +35,7 @@ class GetGamesByDate(BaseView):
             )
 
         games = []
+        has_more = False
 
         if league is None or league == 'nba':
             nba_games = game_nba.get_games_by_date(game_date)
@@ -48,15 +49,16 @@ class GetGamesByDate(BaseView):
 
         games = [g for g in games if g['start_time'] >= game_date]
         games = sorted(games, key=lambda x: x['start_time'])
+
+        if len(games[max_recs:]) > 0:
+            has_more = True
+
         games = games[offset:max_recs]
 
         res = {
             'games': games,
-            'has_more': False
+            'has_more': has_more
         }
-
-        if len(games[max_recs:]) > 0:
-            res['has_more'] = True
 
         return self.write_json(res)
 
