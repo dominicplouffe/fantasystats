@@ -148,6 +148,12 @@ nba.add_url_rule(
 )
 
 nba.add_url_rule(
+    '/nba/game/id/<string:game_id>/',
+    view_func=GetGameById.as_view('/nba/game/id/<string:game_id>/'),
+    methods=['GET']
+)
+
+nba.add_url_rule(
     '/nba/games/date/<string:date>',
     view_func=GetGamesByDate.as_view('/nba/games/date/<string:date>'),
     methods=['GET']

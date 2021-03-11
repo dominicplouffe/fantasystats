@@ -150,6 +150,12 @@ nhl.add_url_rule(
 )
 
 nhl.add_url_rule(
+    '/nhl/game/id/<string:game_id>/',
+    view_func=GetGameById.as_view('/nhl/game/id/<string:game_id>/'),
+    methods=['GET']
+)
+
+nhl.add_url_rule(
     '/nhl/games/date/<string:date>',
     view_func=GetGamesByDate.as_view('/nhl/games/date/<string:date>'),
     methods=['GET']

@@ -144,6 +144,12 @@ mlb.add_url_rule(
 )
 
 mlb.add_url_rule(
+    '/mlb/game/id/<string:game_id>/',
+    view_func=GetGameById.as_view('/mlb/game/id/<string:game_id>/'),
+    methods=['GET']
+)
+
+mlb.add_url_rule(
     '/mlb/games/date/<string:date>',
     view_func=GetGamesByDate.as_view('/mlb/games/date/<string:date>'),
     methods=['GET']

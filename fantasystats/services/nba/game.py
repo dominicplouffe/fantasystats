@@ -402,6 +402,9 @@ def get_games_by_date(game_date):
             if g.game_status not in ['Preview', 'Scheduled']
         ]
 
+    if all_games and all_games[0].away_team == 'team_lebron':
+        return []
+
     return [
         get_game_by_key(
             g.game_key,
@@ -632,7 +635,8 @@ def _increment_stats(stats, gameplayer_info):
     for k, v in gameplayer_info['stats'].items():
         if v is None:
             continue
-        stats[k] += v
+        if k in stats:
+            stats[k] += v
 
     if stats['fga'] > 0:
         stats['fgpct'] = stats['fgm'] / stats['fga']
@@ -681,6 +685,7 @@ def _init_player_stats():
         'tpm': 0,
         'tppct': 0,
         'turnovers': 0,
+        'technical_fouls': 0,
 
         'points_per_game': 0,
         'assists_per_game': 0,
