@@ -42,7 +42,49 @@ def cache(league_name, league_mgr):
         date += timedelta(days=1)
 
 
+def cache_league_data():
+
+    league_date = ceil_dt(
+        datetime.utcnow() - timedelta(hours=5),
+        timedelta(minutes=30)
+    )
+
+    league_date = league_date - timedelta(hours=1)
+
+    for i in range(0, 3):
+        dt = league_date.strftime('%Y-%m-%d-%H:%M')
+
+        for l in ['league', 'nhl', 'nba']:
+            offset = 0
+            has_more = True
+            while has_more:
+                url = '%s%s/games/date/%s?force_query=true&offset=%s' % (
+                    API_URL,
+                    'league',
+                    dt,
+                    offset
+                )
+
+                if l != 'league':
+                    url = '%s&league=%s' % (url, l)
+                try:
+                    res = requests.get(url, timeout=10)
+                    logger.info('%s:%s' % (url, res.status_code))
+                    if res.json()['data']['has_more']:
+                        offset += 20
+                    else:
+                        break
+                except requests.exceptions.Timeout:
+                    pass
+        league_date += timedelta(minutes=30)
+
+
+def ceil_dt(dt, delta):
+    return dt + (datetime.min - dt) % delta
+
+
 if __name__ == '__main__':
 
     cache('nhl', nhl_mgr)
     cache('nba', nba_mgr)
+    cache_league_data()

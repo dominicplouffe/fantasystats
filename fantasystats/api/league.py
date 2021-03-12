@@ -17,6 +17,7 @@ class GetGamesByDate(BaseView):
     def dispatch_request(self, date):
 
         offset = request.args.get('offset', 0)
+        limit = request.args.get('limit', 5)
         league = request.args.get('league', None)
 
         if offset:
@@ -25,7 +26,7 @@ class GetGamesByDate(BaseView):
             except ValueError:
                 offset = 0
 
-        max_recs = offset + 5
+        max_recs = offset + limit
         try:
             game_date = datetime.strptime(date, "%Y-%m-%d-%H:%M")
         except:
