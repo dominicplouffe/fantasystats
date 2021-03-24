@@ -1,5 +1,6 @@
-from flask import Flask
+from flask import Flask, redirect, Response
 from flask_cors import CORS
+import json
 import sys
 
 from fantasystats.tools.converters import ObjectIDConverter
@@ -25,10 +26,36 @@ class StatusView(BaseView):
         return self.write_json({'status': 'ok'})
 
 
+class HomeView(BaseView):
+
+    def dispatch_request(self):
+        return redirect('api/status')
+
+
 app.add_url_rule(
     '/api/status',
     view_func=StatusView.as_view('/api/status')
 )
+
+app.add_url_rule(
+    '/',
+    view_func=StatusView.as_view('/')
+)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    result = {
+        'data': 'API Enpoint not found',
+        'status': 404
+    }
+    return Response(
+        json.dumps(result),
+        mimetype="text/json",
+        headers={'Access-Control-Allow-Origin': '*'},
+        status=404
+    )
+
 
 if __name__ == "__main__":
 

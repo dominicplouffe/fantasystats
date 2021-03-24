@@ -61,11 +61,17 @@ def process_game(
     away_pitcher = ""
     if 'home' in game_data['probablePitchers']:
         t = game_data['probablePitchers']['home']['fullName'].split(',')
-        home_pitcher = '%s %s' % (t[1].strip(), t[0].strip())
+        if len(t) == 2:
+            home_pitcher = '%s %s' % (t[1].strip(), t[0].strip())
+        else:
+            home_pitcher = game_data['probablePitchers']['home']['fullName']
 
     if 'away' in game_data['probablePitchers']:
         t = game_data['probablePitchers']['away']['fullName'].split(',')
-        away_pitcher = '%s %s' % (t[1].strip(), t[0].strip())
+        if len(t) == 2:
+            away_pitcher = '%s %s' % (t[1].strip(), t[0].strip())
+        else:
+            away_pitcher = game_data['probablePitchers']['away']['fullName']
 
     winner_side = None
     winner_name = None

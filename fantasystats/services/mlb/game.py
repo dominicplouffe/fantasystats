@@ -33,7 +33,7 @@ def get_games_by_date(game_date):
             include_predictions=True,
             include_injuries=False,
             standings=False,
-            team_scoring=False,
+            team_scoring=True,
         )
         for g in all_games
     ]
@@ -42,7 +42,7 @@ def get_games_by_date(game_date):
 def get_game_by_key(
     game_key,
     game_info=None,
-    include_players=True,
+    include_players=False,
     include_odds=False,
     include_predictions=False,
     include_injuries=False,
@@ -58,6 +58,9 @@ def get_game_by_key(
     if game_info is None:
         return {}
 
+    if not to_date:
+        to_date = game_info.game_date
+
     home_team_name = game_info.home_team
     away_team_name = game_info.away_team
 
@@ -65,14 +68,20 @@ def get_game_by_key(
         game_info.home_team,
         standings=True,
         season=game_info.season if standings else None,
-        to_date=to_date
+        to_date=to_date,
+        force_query=force_query
     )
     game_info.away_team = get_team(
         game_info.away_team,
         standings=True,
         season=game_info.season if standings else None,
-        to_date=to_date
+        to_date=to_date,
+        force_query=force_query
     )
+
+    if not game_info.home_team or not game_info.away_team:
+        return None
+
     game_info.home_pitcher = get_player_bio(game_info.home_pitcher)
     game_info.away_pitcher = get_player_bio(game_info.away_pitcher)
     game_info.venue = get_venue(game_info.venue)
@@ -87,7 +96,7 @@ def get_game_by_key(
         )
 
     if include_odds:
-        odds = context.db.nba_odds.find_one({
+        odds = context.db.mlb_odds.find_one({
             '_id': game_key
         })
 
@@ -97,10 +106,11 @@ def get_game_by_key(
 
             odds = consensus.find_best_odds(odds)
 
-            game_info['odds'] = {
-                'sites': odds,
-                'consensus': consensus.get_odds_consensus(odds)
-            }
+            if odds:
+                game_info['odds'] = {
+                    'sites': odds,
+                    'consensus': consensus.get_odds_consensus(odds)
+                }
 
     if include_predictions and include_odds:
         preds = prediction.get_prediction_by_game_key(game_key)
@@ -136,6 +146,7 @@ def get_game_by_key(
         game_info['broadcasters'] = []
 
     game_info['start_time'] += timedelta(hours=5)
+    game_info['league'] = 'mlb'
 
     if not team_scoring and 'team_scoring' in game_info:
         game_info.pop('team_scoring')
@@ -146,7 +157,6 @@ def get_game_by_key(
 def get_team(
     team_name, standings=False, season=None, to_date=None, force_query=False
 ):
-
     if standings and not season:
         raise ValueError(
             'season must be added as an argument is standings is passed')
@@ -167,10 +177,16 @@ def get_team(
     standings_res = None
     team_info = team.get_team_by_name(team_name)
 
+    if not team_info:
+        return team_info
+
     if standings:
         standings_res = get_standings(
             season, team_name=team_info.name_search, to_date=to_date)
-        standings_res.pop('team')
+        try:
+            standings_res.pop('team')
+        except TypeError:
+            return None
 
     record = None
     if to_date and standings:
@@ -655,6 +671,14 @@ def get_all_teams(season):
     teams = []
 
     for t in all_teams:
+        if '_winner' in t:
+            continue
+        if '_runner' in t:
+            continue
+        if '/' in t:
+            continue
+        if 'wild_card' in t:
+            continue
         t = get_team(t)
         if t['league'] not in [
             'American League',
@@ -663,9 +687,30 @@ def get_all_teams(season):
             continue
         if t['division'] == 'n/a':
             continue
+
         teams.append(t)
 
     return teams
+
+
+def get_game_by_team(season, team_name):
+
+    all_games = game.get_games_by_season(season, team_name=team_name)
+
+    all_games = [
+        get_game_by_key(
+            g.game_key,
+            game_info=g,
+            include_players=False,
+            standings=True,
+            include_odds=True,
+            include_predictions=True,
+            include_injuries=False
+        )
+        for g in all_games
+    ]
+
+    return [g for g in all_games if g]
 
 
 def _increment_stats(stats, gameplayer_info):

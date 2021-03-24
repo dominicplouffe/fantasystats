@@ -543,6 +543,7 @@ def get_game_by_key(
         game_info.pop('team_scoring')
 
     game_info['start_time'] += timedelta(hours=5)
+    game_info['league'] = 'nba'
 
     return game_info
 

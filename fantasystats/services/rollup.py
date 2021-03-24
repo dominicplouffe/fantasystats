@@ -17,7 +17,9 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
     trends = {}
 
     for team in teams:
+        print('*'*25)
         print(team['team_id'])
+        print('*'*25)
 
         if team['abbr'] == 'DRT':
             continue
@@ -444,3 +446,6 @@ if __name__ == '__main__':
         rollup_team_odds_results('2020-2021', date, nba_svc, nba_mgr, 'score')
         # rollup_team_odds_results('2021', date, mlb_svc, mlb_mgr, 'runs')
         date += timedelta(days=1)
+
+    # dt = datetime(2020, 8, 5)
+    # rollup_team_odds_results('2020', dt, mlb_svc, mlb_mgr, 'runs_for')

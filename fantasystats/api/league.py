@@ -26,6 +26,12 @@ class GetGamesByDate(BaseView):
             except ValueError:
                 offset = 0
 
+        if limit:
+            try:
+                limit = int(limit)
+            except ValueError:
+                limit = 5
+
         max_recs = offset + limit
         try:
             game_date = datetime.strptime(date, "%Y-%m-%d-%H:%M")

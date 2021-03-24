@@ -159,11 +159,12 @@ def get_game_by_key(
 
     game_info['attendance'] = 0
     game_info['broadcasters'] = game_info.get('broadcasters', [])
+    game_info['league'] = 'nhl'
 
     if not team_scoring and 'team_scoring' in game_info:
         game_info.pop('team_scoring')
 
-    # game_info['start_time'] += timedelta(hours=5)
+    game_info['start_time'] += timedelta(hours=1)
 
     return game_info
 

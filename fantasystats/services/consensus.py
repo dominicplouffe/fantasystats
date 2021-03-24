@@ -126,13 +126,15 @@ def find_best_odds(odds):
             else:
                 v['over_under'][side]['best'] = False
 
+    if 'FanDuel' not in odds:
+        return None
     order = OrderedDict()
-    order['Unibet'] = odds['Unibet']
-    order['BetMGM'] = odds['BetMGM']
-    order['Sugarhouse'] = odds['Sugarhouse']
+    order['Unibet'] = odds.get('Unibet', odds['FanDuel'])
+    order['BetMGM'] = odds.get('BetMGM', odds['FanDuel'])  # TODO - Fix
+    order['Sugarhouse'] = odds.get('Sugarhouse', odds['FanDuel'])
     order['FanDuel'] = odds['FanDuel']
-    order['PointsBet'] = odds['PointsBet']
-    order['DraftKings'] = odds['DraftKings']
+    order['PointsBet'] = odds.get('PointsBet', odds['FanDuel'])
+    order['DraftKings'] = odds.get('DraftKings', odds['FanDuel'])
 
     order['Unibet']['link'] = 'https://affiliates.bettingnews.com/register/ubet/'
     order['BetMGM']['link'] = 'https://affiliates.bettingnews.com/register/bmgm/'
@@ -381,6 +383,9 @@ def get_best_bets(pred_sites, odds_sites):
     }
 
     for site, odds in odds_sites.items():
+
+        if 'money_line' not in odds:
+            continue
 
         money_line = odds['money_line'][money_line_choice]
         over_under = odds['over_under'][over_under_choice]

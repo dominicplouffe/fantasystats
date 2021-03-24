@@ -56,9 +56,8 @@ def cache_league_data():
 
         for l in ['league', 'nhl', 'nba']:
             offset = 0
-            has_more = True
-            while has_more:
-                url = '%s%s/games/date/%s?force_query=true&offset=%s' % (
+            for j in range(0, 3):
+                url = '%s%s/games/date/%s?force_query=true&limit=20&offset=%s' % (
                     API_URL,
                     'league',
                     dt,
@@ -70,10 +69,7 @@ def cache_league_data():
                 try:
                     res = requests.get(url, timeout=10)
                     logger.info('%s:%s' % (url, res.status_code))
-                    if res.json()['data']['has_more']:
-                        offset += 20
-                    else:
-                        break
+                    offset += 20
                 except requests.exceptions.Timeout:
                     pass
         league_date += timedelta(minutes=30)
