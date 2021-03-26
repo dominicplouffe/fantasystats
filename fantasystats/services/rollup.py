@@ -444,7 +444,7 @@ if __name__ == '__main__':
     for i in range(0, 3):
         rollup_team_odds_results('20202021', date, nhl_svc, nhl_mgr, 'goals')
         rollup_team_odds_results('2020-2021', date, nba_svc, nba_mgr, 'score')
-        # rollup_team_odds_results('2021', date, mlb_svc, mlb_mgr, 'runs')
+        rollup_team_odds_results('2021', date, mlb_svc, mlb_mgr, 'runs')
         date += timedelta(days=1)
 
     # dt = datetime(2020, 8, 5)

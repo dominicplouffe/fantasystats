@@ -3,6 +3,7 @@ import requests
 from datetime import datetime, timedelta
 from fantasystats.managers.nhl import game as nhl_mgr
 from fantasystats.managers.nba import game as nba_mgr
+from fantasystats.managers.mlb import game as mlb_mgr
 from fantasystats.context import API_URL, logger
 
 
@@ -54,7 +55,7 @@ def cache_league_data():
     for i in range(0, 3):
         dt = league_date.strftime('%Y-%m-%d-%H:%M')
 
-        for l in ['league', 'nhl', 'nba']:
+        for l in ['league', 'nhl', 'nba', 'mlb']:
             offset = 0
             for j in range(0, 3):
                 url = '%s%s/games/date/%s?force_query=true&limit=20&offset=%s' % (
@@ -81,6 +82,7 @@ def ceil_dt(dt, delta):
 
 if __name__ == '__main__':
 
+    cache('mlb', mlb_mgr)
     cache('nhl', nhl_mgr)
     cache('nba', nba_mgr)
     cache_league_data()

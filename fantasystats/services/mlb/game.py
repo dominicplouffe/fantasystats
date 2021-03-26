@@ -20,7 +20,7 @@ def get_games_by_date(game_date):
     else:
         all_games = [
             g for g in game.get_by_game_date(game_date)
-            if g.game_status not in ['Preview', 'Scheduled']
+            # if g.game_status not in ['Preview', 'Scheduled']
         ]
 
     return [
@@ -47,7 +47,7 @@ def get_game_by_key(
     include_predictions=False,
     include_injuries=False,
     to_date=None,
-    standings=False,
+    standings=True,
     team_scoring=True,
     force_query=False
 ):
@@ -66,14 +66,14 @@ def get_game_by_key(
 
     game_info.home_team = get_team(
         game_info.home_team,
-        standings=True,
+        standings=standings,
         season=game_info.season if standings else None,
         to_date=to_date,
         force_query=force_query
     )
     game_info.away_team = get_team(
         game_info.away_team,
-        standings=True,
+        standings=standings,
         season=game_info.season if standings else None,
         to_date=to_date,
         force_query=force_query

@@ -65,7 +65,7 @@ def get_team_by_abbr(abbr):
 
         for mlb_team in t:
             if mlb_team.league in ['National League', 'American League']:
-                return mlb_team
+                return [mlb_team]
 
         return None
     except DoesNotExist:

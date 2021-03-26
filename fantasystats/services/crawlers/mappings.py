@@ -38,6 +38,10 @@ NHL_MAPPING = {
     'MON': 'MTL'
 }
 
+MLB_MAPPING = {
+    'CHW': 'CWS'
+}
+
 
 def create_game_key(away_team, home_team):
 

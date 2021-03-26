@@ -108,9 +108,11 @@ def get_by_game_date(game_date):
 
     start_date = datetime(game_date.year, game_date.month, game_date.day, 0, 0)
     end_date = datetime(game_date.year, game_date.month, game_date.day, 23, 59)
-    return game.mlb_game.objects.filter(
+    games = game.mlb_game.objects.filter(
         Q(game_date__gte=start_date) & Q(game_date__lte=end_date)
     ).order_by('game_date')
+
+    return games
 
 
 def get_games_by_season(season, team_name=None):
