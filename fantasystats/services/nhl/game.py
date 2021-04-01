@@ -13,7 +13,7 @@ from fantasystats.services.picks import PROVIDERS
 
 def get_seasons():
 
-    return [s.season_name for s in season.get_seasons()]
+    return [s for s in season.get_seasons()]
 
 
 def get_games_by_date(game_date):

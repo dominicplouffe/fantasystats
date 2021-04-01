@@ -13,7 +13,7 @@ from fantasystats.services.picks import PROVIDERS
 
 def get_seasons():
 
-    return [s.season_name for s in season.get_seasons()]
+    return [s for s in season.get_seasons()]
 
 
 def get_all_teams(season, force_query=False):
@@ -371,12 +371,12 @@ def get_standings(
                 return g
     if by == 'nba':
         return games
-    elif by == 'league':
+    elif by == 'conference':
         leagues = {}
         for g in games:
-            if g['team']['league'] not in leagues:
-                leagues[g['team']['league']] = []
-            leagues[g['team']['league']].append(g)
+            if g['team']['conference'] not in leagues:
+                leagues[g['team']['conference']] = []
+            leagues[g['team']['conference']].append(g)
 
         return leagues
     elif by == 'division':
