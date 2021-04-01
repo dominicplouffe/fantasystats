@@ -5,15 +5,18 @@ from datetime import datetime
 from fantasystats import context
 from fantasystats.managers.nba import team as nba_team
 from fantasystats.managers.nhl import team as nhl_team
+from fantasystats.managers.mlb import team as mlb_team
 from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
+from fantasystats.managers.mlb import prediction as mlb_prediction
 from fantasystats.services.crawlers.mappings import (
-    NBA_MAPPING, NHL_MAPPING, create_game_key
+    NBA_MAPPING, NHL_MAPPING, create_game_key, MLB_MAPPING
 )
 
 URLS = {
     'nba': 'https://www.oddsshark.com/nba/computer-picks',
-    'nhl': 'https://www.oddsshark.com/nhl/computer-picks'
+    'nhl': 'https://www.oddsshark.com/nhl/computer-picks',
+    'mlb': 'https://www.oddsshark.com/mlb/computer-picks'
 }
 
 PROVIDER = 'oddsshark'
@@ -51,9 +54,11 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
 
         context.logger.info(game_url)
 
+        context.logger.info('away_abbr: %s' % away_abbr)
         away_team = league_mgr.get_team_by_abbr(
             mappings.get(away_abbr, away_abbr)
         )[0]
+        context.logger.info('home_abbr: %s' % home_abbr)
         home_team = league_mgr.get_team_by_abbr(
             mappings.get(home_abbr, home_abbr)
         )[0]
@@ -96,5 +101,6 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
 
 if __name__ == '__main__':
 
-    nba_games = get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
-    nhl_games = get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
+    # nba_games = get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
+    # nhl_games = get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
+    mlb_games = get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)

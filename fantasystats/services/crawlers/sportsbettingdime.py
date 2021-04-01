@@ -11,7 +11,7 @@ from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
 from fantasystats.managers.mlb import prediction as mlb_prediction
 from fantasystats.services.crawlers.mappings import (
-    NBA_MAPPING, NHL_MAPPING, create_game_key
+    NBA_MAPPING, NHL_MAPPING, create_game_key, MLB_MAPPING
 )
 
 URLS = {
@@ -25,12 +25,16 @@ PROVIDER = 'sportsbettingdime'
 
 def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
 
+    print(url)
     content = requests.get(url).content.decode('utf-8')
     doc = html.fromstring(content)
 
     data = doc.xpath(
         '//h3[contains(text(), "PREDICTED")]/../../div[2]/div/div/div/text()'
     )
+
+    if data[0] == 'N/A':
+        return None
 
     away_score = float(data[0])
     away_abbr = data[1]
@@ -81,11 +85,14 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
                               '//a[contains(@href, "/'
                               'odds/")]/@href'
                               ):
-        games.append(
-            get_game_prediction(
-                game_url, league, league_mgr, pred_mgr, mappings
-            )
+        game = get_game_prediction(
+            game_url, league, league_mgr, pred_mgr, mappings
         )
+
+        if not game:
+            continue
+
+        games.append(game)
 
     for g in games:
         pred_mgr.save_prediction(
@@ -104,6 +111,6 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
 
 if __name__ == '__main__':
 
-    get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
-    get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
-    get_predictions('mlb', mlb_team, mlb_prediction, {})
+    # get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
+    # get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
+    get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)

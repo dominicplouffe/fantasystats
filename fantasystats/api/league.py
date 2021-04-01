@@ -47,9 +47,9 @@ class GetGamesByDate(BaseView):
         if league is None or league == 'nba':
             nba_games = game_nba.get_games_by_date(game_date)
             games.extend(nba_games)
-        # if league is None or league == 'mlb':
-        #     mlb_games = game_mlb.get_games_by_date(game_date)
-        #     games.extend(mlb_games)
+        if league is None or league == 'mlb':
+            mlb_games = game_mlb.get_games_by_date(game_date)
+            games.extend(mlb_games)
         if league is None or league == 'nhl':
             nhl_games = game_nhl.get_games_by_date(game_date)
             games.extend(nhl_games)

@@ -60,12 +60,34 @@ def get_teams():
 
 
 def get_team_by_abbr(abbr):
+
     try:
         t = team.mlb_team.objects.filter(abbr=abbr)
 
         for mlb_team in t:
             if mlb_team.league in ['National League', 'American League']:
                 return [mlb_team]
+
+        return None
+    except DoesNotExist:
+        return None
+
+
+def get_team_by_shortname(short_name):
+
+    if short_name == 'Diamondbacks':
+        short_name = 'D-backs'
+    try:
+        t = team.mlb_team.objects.filter(
+            name=short_name
+        )
+
+        if len(t) == 1:
+            return t[0]
+
+        for tm in t:
+            if tm['league'] in ['National League', 'Americal League']:
+                return tm
 
         return None
     except DoesNotExist:

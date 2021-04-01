@@ -44,6 +44,9 @@ def insert_team(
 
 
 def get_team_by_name(team_name):
+    if team_name == 'los-angeles-clippers':
+        team_name = 'la-clippers'
+
     name_search = search.get_search_value(team_name)
 
     try:

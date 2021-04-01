@@ -12,7 +12,7 @@ from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
 from fantasystats.managers.mlb import prediction as mlb_prediction
 from fantasystats.services.crawlers.mappings import (
-    NBA_MAPPING, NHL_MAPPING, create_game_key, HEADERS
+    NBA_MAPPING, NHL_MAPPING, create_game_key, HEADERS, MLB_MAPPING
 )
 
 from pprint import pprint
@@ -20,18 +20,25 @@ from pprint import pprint
 URLS = {
     'nba': 'https://www.pickswise.com/sports/nba/',
     'nhl': 'https://www.pickswise.com/sports/nhl/',
-    'mlb': 'https://www.pickswise.com/sports/nhl/'
+    'mlb': 'https://www.pickswise.com/sports/mlb/'
 }
 
 STATSINSIDER_URL = 'https://levy.statsinsider.com.au/round/matches?Sport=%s' \
-    '&Round=%s&Season=2020'
+    '&Round=%s&Season=%s'
 STATS = {}
 
 PROVIDER = 'pickwise'
 
 START_DATE = {
     'nba': datetime(2020, 12, 21),
-    'nhl': datetime(2021, 1, 12)
+    'nhl': datetime(2021, 1, 12),
+    'mlb': datetime(2021, 3, 31)
+}
+
+YEAR = {
+    'nba': '2020',
+    'nhl': '2020',
+    'mlb': '2021',
 }
 
 
@@ -50,10 +57,10 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
             '--desktop"]/text()'
         )
         away_team = league_mgr.get_team_by_name(
-            MAPPINGS.get(team_names[0], team_names[0])
+            MAPPINGS.get(team_names[0].strip(), team_names[0].strip())
         )
         home_team = league_mgr.get_team_by_name(
-            MAPPINGS.get(team_names[1], team_names[1])
+            MAPPINGS.get(team_names[1].strip(), team_names[1].strip())
         )
 
         away_abbr = away_team.abbr
@@ -64,12 +71,25 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
 
     elif league == 'nhl':
         team_names = doc.xpath(
+            '//div[@class="FixtureTeams__team-name FixtureTeams__team-name--desktop"]/text()')
+
+        away_team = league_mgr.get_team_by_name(team_names[0].strip())
+        home_team = league_mgr.get_team_by_name(team_names[1].strip())
+
+        away_abbr = away_team.abbr
+        home_abbr = home_team.abbr
+
+        diff = datetime.utcnow() - START_DATE[league]
+        week = diff.days
+
+    elif league == 'mlb':
+        team_names = doc.xpath(
             '//div[@class="FixtureTeams__team-name FixtureTeams__team-name'
             '--desktop"]/text()'
         )
 
-        away_team = league_mgr.get_team_by_name(team_names[0])
-        home_team = league_mgr.get_team_by_name(team_names[1])
+        away_team = league_mgr.get_team_by_name(team_names[0].strip())
+        home_team = league_mgr.get_team_by_name(team_names[1].strip())
 
         away_abbr = away_team.abbr
         home_abbr = home_team.abbr
@@ -97,11 +117,16 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
         ) and (
             data_home == home_abbr
         ):
-            away_score = round(s['PreData']['PredAwayScore'], 1)
-            home_score = round(s['PreData']['PredHomeScore'], 1)
+            away_score = round(s['PreData'].get('PredAwayScore', 0), 1)
+            home_score = round(s['PreData'].get('PredHomeScore', 0), 1)
 
             away_per = round(s['PreData']['PythagAway'], 2)
             home_per = round(1.0 - away_per, 2)
+
+            if away_score == 0:
+                away_score = away_per * 10
+            if home_score == 0:
+                home_score = home_per * 10
 
     winner = away_team.name_search
     if home_score > away_score:
@@ -134,11 +159,15 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
     games = []
     url = URLS[league]
 
+    context.logger.info(url)
+
     content = requests.get(url).content.decode('utf-8')
     doc = html.fromstring(content)
 
-    for game_url in doc.xpath('//a[@class="CondensedPreview__start"]/@href'):
-        print(game_url)
+    for game_url in doc.xpath(
+        '//a[@data-analytics-event-category="Pick Prediction Header"]/@href'
+    ):
+        context.logger.info(game_url)
         games.append(
             get_game_prediction(
                 game_url, league, league_mgr, pred_mgr, mappings
@@ -170,8 +199,10 @@ def _get_stats(week, league):
     #     if diff.total_seconds() < 3600:
     #         return STATS[week]['data']
 
-    print(STATSINSIDER_URL % (league.upper(), week))
-    data = requests.get(STATSINSIDER_URL % (league.upper(), week)).json()
+    context.logger.info(STATSINSIDER_URL %
+                        (league.upper(), week, YEAR[league]))
+    data = requests.get(STATSINSIDER_URL %
+                        (league.upper(), week, YEAR[league])).json()
 
     STATS[week] = {
         'date': datetime.now(pytz.UTC),
@@ -185,4 +216,4 @@ if __name__ == '__main__':
 
     get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
-    # get_predictions('mlb', mlb_team, mlb_prediction, {})
+    get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)

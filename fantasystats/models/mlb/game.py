@@ -36,3 +36,5 @@ def create_indexes():
     mlb_game.create_index([('home_team', 1)])
     mlb_game.create_index([('away_pitcher', 1)])
     mlb_game.create_index([('season', 1)])
+    mlb_game.create_index([('game_date', 1)])
+    mlb_game.create_index([('game_time', 1)])

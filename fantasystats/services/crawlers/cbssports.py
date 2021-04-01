@@ -10,7 +10,7 @@ from fantasystats.managers.mlb import team as mlb_team
 from fantasystats.managers.nba import prediction as nba_prediction
 from fantasystats.managers.nhl import prediction as nhl_prediction
 from fantasystats.managers.mlb import prediction as mlb_prediction
-from fantasystats.services.crawlers.mappings import create_game_key, NHL_MAPPING
+from fantasystats.services.crawlers.mappings import create_game_key, NHL_MAPPING, MLB_MAPPING, NBA_MAPPING
 from fantasystats.services.score import get_score
 
 NBA_URL = 'https://www.cbssports.com/nba/expert-picks/'
@@ -25,8 +25,6 @@ URLS = {
 }
 
 PROVIDER = 'cbssports'
-
-MLB_MAPPING = {}
 
 
 def get_predictions(league, league_mgr, pred_mgr, mapping):
@@ -59,7 +57,9 @@ def get_predictions(league, league_mgr, pred_mgr, mapping):
         home_team = league_mgr.get_team_by_name(home_team_name)
 
         if away_team is None or home_team is None:
-            context.logger.info('CBS cannot find team: %s' % league)
+            context.logger.info('CBS cannot find team: %s - (%s:%s)' % (
+                league, away_team_name, home_team_name
+            ))
             continue
 
         spread = row.xpath('.//div[contains(@class, "expert-spread")]/text()')
@@ -67,7 +67,7 @@ def get_predictions(league, league_mgr, pred_mgr, mapping):
             context.logger.info('CBS cannot find spread: %s' % league)
             continue
 
-        if league == 'nhl':
+        if league == 'nhl' or league == 'mlb':
             try:
                 spread_team = mapping.get(
                     spread[1].split('\n')[1].strip().upper(),
@@ -205,6 +205,6 @@ def get_predictions(league, league_mgr, pred_mgr, mapping):
 
 
 if __name__ == '__main__':
-    get_predictions('nba', nba_team, nba_prediction, {})
+    get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
     get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)

@@ -14,7 +14,7 @@ from fantasystats.services.crawlers.mappings import create_game_key
 
 NBA_URL = 'https://www.dratings.com/predictor/nba-basketball-predictions/'
 NHL_URL = 'https://www.dratings.com/predictor/nhl-hockey-predictions/'
-MLB_URL = 'https://www.dratings.com/predictor/nhl-hockey-predictions/'
+MLB_URL = 'https://www.dratings.com/predictor/mlb-baseball-predictions/'
 
 NBA_MAPPING = {
     'Los Angeles Clippers': 'LA Clippers'
@@ -24,12 +24,20 @@ MLB_MAPPING = {}
 
 SCORES_IDX = {
     'nba': 5,
-    'nhl': 6
+    'nhl': 6,
+    'mlb': 6,
+}
+
+PERS_IDX = {
+    'nba': 3,
+    'nhl': 3,
+    'mlb': 4
 }
 
 URLS = {
     'nba': NBA_URL,
-    'nhl': NHL_URL
+    'nhl': NHL_URL,
+    'mlb': MLB_URL
 }
 
 PROVIDER = 'dratings'
@@ -54,8 +62,7 @@ def get_predictions(league, league_mgr, pred_mgr, mapping):
         away_name = names[0]
         home_name = names[1]
 
-        pers = row.xpath('./td[3]/span/text()')
-
+        pers = row.xpath('./td[%s]/span/text()' % PERS_IDX[league])
         try:
             away_per = float(pers[0].replace('%', ''))
         except ValueError:
@@ -123,4 +130,4 @@ if __name__ == '__main__':
 
     nba_games = get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     nhl_games = get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
-    # get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)
+    mlb_games = get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)
