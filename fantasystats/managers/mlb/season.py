@@ -14,3 +14,11 @@ def insert_season(season_name):
         s.save()
 
     return s
+
+
+def get_seasons():
+
+    seasons = [int(s.season_name) for s in season.mlb_season.objects.all()]
+    seasons = sorted(seasons)
+
+    return [str(s) for s in seasons]

@@ -36,11 +36,34 @@ def cache(league_name, league_mgr):
 
         try:
             res = requests.get(url, timeout=10)
-            logger.info('%s:%s' % (url, res.status_code))
         except requests.exceptions.Timeout:
             pass
+        finally:
+            logger.info('%s:%s' % (url, res.status_code))
 
         date += timedelta(days=1)
+
+    # Get Seasons
+    url = '%s%s/seasons' % (
+        API_URL,
+        league_name
+    )
+    res = requests.get(url, timeout=10)
+    season = res.json()['data'][-1]
+
+    # Cache Standings
+    url = '%s%s/standings/%s?force_query=true' % (
+        API_URL,
+        league_name,
+        season
+    )
+
+    try:
+        res = requests.get(url, timeout=10)
+    except requests.exceptions.Timeout:
+        pass
+    finally:
+        logger.info('%s:%s' % (url, res.status_code))
 
 
 def cache_league_data():

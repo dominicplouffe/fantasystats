@@ -53,7 +53,7 @@ class GetStandings(BaseView):
     @memorize
     def dispatch_request(self, season):
 
-        by = request.args.get('by', 'nba')
+        by = request.args.get('by', 'mlb')
         standings = game.get_standings(
             season,
             by=by,

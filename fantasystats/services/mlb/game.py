@@ -367,7 +367,9 @@ def get_game_players(game_key, home_team, away_team):
     return all_players
 
 
-def get_standings(season, team_name=None, by='mlb', to_date=None):
+def get_standings(
+    season, team_name=None, by='mlb', to_date=None, force_query=False
+):
 
     if by not in ['league', 'mlb', 'division']:
         raise ValueError
@@ -506,9 +508,9 @@ def get_standings(season, team_name=None, by='mlb', to_date=None):
     elif by == 'league':
         leagues = {}
         for g in games:
-            if g['team']['league'] not in leagues:
-                leagues[g['team']['league']] = []
-            leagues[g['team']['league']].append(g)
+            if g['team']['conference'] not in leagues:
+                leagues[g['team']['conference']] = []
+            leagues[g['team']['conference']].append(g)
 
         return leagues
     elif by == 'division':
@@ -926,3 +928,8 @@ def _init_player_stats():
         'fielding': fielding_stats,
         'pitching': pitching_stats
     }
+
+
+def get_seasons():
+
+    return [s for s in season.get_seasons()]
