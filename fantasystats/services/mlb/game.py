@@ -584,21 +584,27 @@ def get_team_details(season, team_name, to_date=None):
         stats['fielding']['errors'] / num_games,
         2
     )
-    stats['pitching']['avg_against'] = round(
-        stats['pitching']['hits'] / stats['pitching']['at_bats'],
-        3
-    )
-    stats['pitching']['obp_against'] = round(
-        (
-            stats['pitching']['hits'] + stats['pitching'][
-                'base_on_balls'
-            ] + stats['pitching']['hit_batsmen']
-        ) / (
-            stats['pitching']['hits'] + stats['pitching']['base_on_balls'] +
-            stats['pitching']['hit_batsmen'] + stats['pitching']['sac_flies']
-        ),
-        3
-    )
+    stats['pitching']['avg_against'] = 0.00
+    stats['pitching']['obp_against'] = 0.00
+
+    if stats['pitching']['at_bats'] > 0:
+        round(
+            stats['pitching']['hits'] / stats['pitching']['at_bats'],
+            3
+        )
+
+    obp_val = stats['pitching']['hits'] + stats['pitching']['base_on_balls'] + \
+        stats['pitching']['hit_batsmen'] + stats['pitching']['sac_flies']
+
+    if obp_val > 0:
+        stats['pitching']['obp_against'] = round(
+            (
+                stats['pitching']['hits'] + stats['pitching'][
+                    'base_on_balls'
+                ] + stats['pitching']['hit_batsmen']
+            ) / obp_val,
+            3
+        )
 
     stats['batting']['stolen_bases_per_game'] = round(
         stats['batting']['stolen_bases'] / num_games,
@@ -881,7 +887,9 @@ def _init_player_stats():
         'inherited_runners_scored': 0,
         'catchers_interference': 0,
         'sac_bunts': 0,
-        'sac_flies': 0
+        'sac_flies': 0,
+        'obp': 0,
+        'slug': 0
     }
 
     fielding_stats = {
@@ -921,6 +929,8 @@ def _init_player_stats():
         'sac_flies': 0,
         'catchers_interference': 0,
         'pickoffs': 0,
+        'obp': 0,
+        'slug': 0
     }
 
     return {

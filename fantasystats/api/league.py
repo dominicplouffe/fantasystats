@@ -19,6 +19,7 @@ class GetGamesByDate(BaseView):
         offset = request.args.get('offset', 0)
         limit = request.args.get('limit', 5)
         league = request.args.get('league', None)
+        mlb = request.args.get('mlb', None)
 
         if offset:
             try:
@@ -47,7 +48,7 @@ class GetGamesByDate(BaseView):
         if league is None or league == 'nba':
             nba_games = game_nba.get_games_by_date(game_date)
             games.extend(nba_games)
-        if league is None or league == 'mlb':
+        if mlb == 'true' or league == 'mlb':
             mlb_games = game_mlb.get_games_by_date(game_date)
             games.extend(mlb_games)
         if league is None or league == 'nhl':
