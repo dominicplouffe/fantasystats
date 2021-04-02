@@ -24,12 +24,16 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
         if team['abbr'] == 'DRT':
             continue
 
+        # for g in svc.get_game_by_team(season, team['team_id']):
+        #     print(g['game_status'], g['game_date'], g['game_type'])
         games = [
             g for g in svc.get_game_by_team(season, team['team_id'])
-            if g['game_status'] == 'Final' and g['game_type'] in [
+            if g['game_status'] in ['Final', 'F'] and g['game_type'] in [
                 '2', 'R'
             ]
         ]
+
+        print(len(games))
 
         result = {
             'noline': {
@@ -266,7 +270,7 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                     result['noline']['home']['wins'] += 1
                     trend_game['overall']['result'] = 'win'
                 else:
-                    if pts_key == 'score':
+                    if pts_key in ['score', 'runs']:
                         result['noline']['overall']['losses'] += 1
                         result['noline']['home']['losses'] += 1
                     else:
@@ -310,7 +314,7 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                     result['noline']['away']['wins'] += 1
                     trend_game['overall']['result'] = 'win'
                 else:
-                    if pts_key == 'score':
+                    if pts_key in ['score', 'runs']:
                         result['noline']['overall']['losses'] += 1
                         result['noline']['away']['losses'] += 1
                     else:
@@ -322,7 +326,7 @@ def rollup_team_odds_results(season, to_date, svc, mgr, pts_key):
                     trend_game['overall']['result'] = 'loss'
             trends[team['team_id']].append(trend_game)
 
-        if pts_key == 'score' and to_date >= datetime(2021, 2, 23):
+        if pts_key in ['score'] and to_date >= datetime(2021, 2, 23):
             result['spread']['overall']['wins'] += NBA_DIFF[team['abbr']
                                                             ]['spread']['overall']['wins']
             result['spread']['overall']['losses'] += NBA_DIFF[team['abbr']
@@ -446,6 +450,3 @@ if __name__ == '__main__':
         rollup_team_odds_results('2020-2021', date, nba_svc, nba_mgr, 'score')
         rollup_team_odds_results('2021', date, mlb_svc, mlb_mgr, 'runs')
         date += timedelta(days=1)
-
-    # dt = datetime(2020, 8, 5)
-    # rollup_team_odds_results('2020', dt, mlb_svc, mlb_mgr, 'runs_for')
