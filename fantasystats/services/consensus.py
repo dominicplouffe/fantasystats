@@ -23,6 +23,9 @@ def find_best_odds(odds):
         if 'money_line' not in v:
             continue
 
+        if k == "WilliamHill":
+            continue
+
         # SPREAD
         for side in ['home', 'away']:
             try:

@@ -7,6 +7,7 @@ from fantasystats.managers.mlb import (
     game, team, venue, player, gameplayer, fantasy, season, prediction,
     odds_rollup
 )
+from fantasystats.services.score import get_score_from_odds
 from fantasystats.services.picks import PROVIDERS
 
 
@@ -106,11 +107,15 @@ def get_game_by_key(
 
             odds = consensus.find_best_odds(odds)
 
-            if odds:
-                game_info['odds'] = {
-                    'sites': odds,
-                    'consensus': consensus.get_odds_consensus(odds)
-                }
+            game_info['odds'] = {
+                'sites': odds,
+                'consensus': consensus.get_odds_consensus(odds),
+                'scores': get_score_from_odds(
+                    odds,
+                    game_info['home_team']['abbr'],
+                    game_info['away_team']['abbr']
+                )
+            }
 
     if include_predictions and include_odds:
         preds = prediction.get_prediction_by_game_key(game_key)
@@ -251,7 +256,8 @@ def get_venue(venue_name):
         }
 
     return {
-        'venue_name': venue_info['name']
+        'venue_name': venue_info['name'],
+        'venue_location': venue_info['city']
     }
 
 
@@ -497,6 +503,7 @@ def get_standings(
             )
 
     games = games.values()
+    games = sorted(games, key=lambda x: -x['games'])
     games = sorted(games, key=lambda x: -x['win_per'])
 
     if team_name:
