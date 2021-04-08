@@ -36,6 +36,9 @@ def get_score(
 
 def get_score_from_odds(odds, home_team, away_team):
 
+    if not odds:
+        return {}
+
     scores = {}
 
     for book, odd in odds.items():

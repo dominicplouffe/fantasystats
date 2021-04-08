@@ -62,6 +62,8 @@ def get_odds(league):
     sportsbooks = _get_odds(doc, league)
     book_names = sportsbooks.keys()
 
+    print(sportsbooks.keys())
+
     games = [
         {'game_key': g.game_key, '_id': g.game_key} for g in found_games
     ]

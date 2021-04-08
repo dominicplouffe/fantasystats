@@ -111,6 +111,6 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
 
 if __name__ == '__main__':
 
-    # get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
-    # get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
+    get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
+    get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
     get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)

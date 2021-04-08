@@ -23,9 +23,6 @@ def find_best_odds(odds):
         if 'money_line' not in v:
             continue
 
-        if k == "WilliamHill":
-            continue
-
         # SPREAD
         for side in ['home', 'away']:
             try:
@@ -138,6 +135,7 @@ def find_best_odds(odds):
     order['FanDuel'] = odds['FanDuel']
     order['PointsBet'] = odds.get('PointsBet', odds['FanDuel'])
     order['DraftKings'] = odds.get('DraftKings', odds['FanDuel'])
+    order['WilliamHill'] = odds.get('WilliamHill', odds['FanDuel'])
 
     order['Unibet']['link'] = 'https://affiliates.bettingnews.com/register/ubet/'
     order['BetMGM']['link'] = 'https://affiliates.bettingnews.com/register/bmgm/'
@@ -145,6 +143,7 @@ def find_best_odds(odds):
     order['FanDuel']['link'] = 'https://affiliates.bettingnews.com/register/fd/'
     order['PointsBet']['link'] = 'https://affiliates.bettingnews.com/register/pb/'
     order['DraftKings']['link'] = 'https://affiliates.bettingnews.com/register/dk/'
+    order['WilliamHill']['link'] = 'https://affiliates.bettingnews.com/register/williamhill/'
 
     return order
 
@@ -166,23 +165,24 @@ def get_odds_consensus(odds):
         }
     }
 
-    for k, v in odds.items():
-        if 'money_line' not in v:
-            continue
-        ml = v['money_line']
-        sp = v['spread']
-        ou = v['over_under']
+    if odds:
+        for k, v in odds.items():
+            if 'money_line' not in v:
+                continue
+            ml = v['money_line']
+            sp = v['spread']
+            ou = v['over_under']
 
-        for kk, vv in ml.items():
-            odds_con_stats['money_line'][kk]['odds'][vv['odds']] += 1
+            for kk, vv in ml.items():
+                odds_con_stats['money_line'][kk]['odds'][vv['odds']] += 1
 
-        for kk, vv in sp.items():
-            odds_con_stats['spread'][kk]['odds'][vv['odds']] += 1
-            odds_con_stats['spread'][kk]['spread'][vv['spread']] += 1
+            for kk, vv in sp.items():
+                odds_con_stats['spread'][kk]['odds'][vv['odds']] += 1
+                odds_con_stats['spread'][kk]['spread'][vv['spread']] += 1
 
-        for kk, vv in ou.items():
-            odds_con_stats['over_under'][kk]['odds'][vv['odds']] += 1
-            odds_con_stats['over_under'][kk]['points'][vv['points']] += 1
+            for kk, vv in ou.items():
+                odds_con_stats['over_under'][kk]['odds'][vv['odds']] += 1
+                odds_con_stats['over_under'][kk]['points'][vv['points']] += 1
 
     if len(odds_con_stats['money_line']['away']['odds']) == 0:
         return {
@@ -385,7 +385,13 @@ def get_best_bets(pred_sites, odds_sites):
         }
     }
 
+    if odds_sites is None:
+        return best_bets
+
     for site, odds in odds_sites.items():
+
+        if not odds:
+            continue
 
         if 'money_line' not in odds:
             continue
