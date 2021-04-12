@@ -81,7 +81,7 @@ def cache_league_data():
         for l in ['league', 'nhl', 'nba', 'mlb']:
             offset = 0
             for j in range(0, 3):
-                url = '%s%s/games/date/%s?force_query=true&limit=20&offset=%s' % (
+                url = '%s%s/games/date/%s?force_query=true&limit=20&offset=%s&mlb=true' % (
                     API_URL,
                     'league',
                     dt,

@@ -365,6 +365,26 @@ def get_standings(
     games = games.values()
     games = sorted(games, key=lambda x: -x['win_per'])
 
+    if to_date is None:
+        to_date = datetime.utcnow()
+        to_date = datetime(to_date.year, to_date.month, to_date.day)
+
+    for g in games:
+        ru = odds_rollup.get_odds_rollup(g['team']['team_id'], to_date)
+
+        if ru:
+            g['spread'] = ru['spread']['overall']
+            g['points'] = ru['points']['overall']
+            g['over_under'] = ru['over_under']['overall']
+
+            g['home']['spread'] = ru['spread']['home']
+            g['home']['points'] = ru['points']['home']
+            g['home']['over_under'] = ru['over_under']['home']
+
+            g['away']['spread'] = ru['spread']['away']
+            g['away']['points'] = ru['points']['away']
+            g['away']['over_under'] = ru['over_under']['away']
+
     if team_name:
         for g in games:
             if g['team']['team_id'] == team_name:
