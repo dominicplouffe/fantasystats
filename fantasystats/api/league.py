@@ -73,6 +73,9 @@ class GetGamesByDate(BaseView):
 
 class Matchup(BaseView):
 
+    cache_time = 86400
+
+    @memorize
     def dispatch_request(self, teama, teamb):
 
         date = datetime.utcnow() - timedelta(hours=5)
