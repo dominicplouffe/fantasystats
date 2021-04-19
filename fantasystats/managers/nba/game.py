@@ -86,6 +86,24 @@ def get_game_by_key(game_key):
         return None
 
 
+def get_next_game(teama, teamb, game_date):
+
+    games = game.nba_game.objects.filter(
+        (Q(game_date__gte=game_date) & Q(
+            home_team=search.get_search_value(teama)
+        ) & Q(away_team=search.get_search_value(teamb))) | (
+            Q(game_date__gte=game_date) & Q(
+                home_team=search.get_search_value(teamb)
+            ) & Q(away_team=search.get_search_value(teama))
+        )
+    ).order_by('game_date')
+
+    if len(games) > 0:
+        return games[0]
+
+    return None
+
+
 def get_by_game_date(game_date):
 
     start_date = datetime(game_date.year, game_date.month, game_date.day, 0, 0)

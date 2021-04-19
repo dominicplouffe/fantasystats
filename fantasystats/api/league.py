@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from datetime import datetime
+from datetime import datetime, timedelta
 from fantasystats.api.base_view import BaseView
 from fantasystats.services.nhl import game as game_nhl
 from fantasystats.services.nba import game as game_nba
@@ -71,8 +71,41 @@ class GetGamesByDate(BaseView):
         return self.write_json(res)
 
 
+class Matchup(BaseView):
+
+    def dispatch_request(self, teama, teamb):
+
+        date = datetime.utcnow() - timedelta(hours=5)
+        date = datetime(date.year, date.month, date.day)
+
+        mlb_matchup = game_mlb.get_matchup(teama, teamb, date)
+
+        if mlb_matchup:
+            return self.write_json(mlb_matchup)
+
+        nba_matchup = game_nba.get_matchup(teama, teamb, date)
+
+        if nba_matchup:
+            return self.write_json(nba_matchup)
+
+        nhl_matchup = game_nhl.get_matchup(teama, teamb, date)
+
+        if nhl_matchup:
+            return self.write_json(nhl_matchup)
+
+        return self.write_json({})
+
+
 league.add_url_rule(
     '/league/games/date/<string:date>',
     view_func=GetGamesByDate.as_view('/league/games/date/<string:date>'),
+    methods=['GET']
+)
+
+league.add_url_rule(
+    '/league/games/matchup/<string:teama>/<string:teamb>',
+    view_func=Matchup.as_view(
+        '/league/games/matchup/<string:teama>/<string:teamb>'
+    ),
     methods=['GET']
 )

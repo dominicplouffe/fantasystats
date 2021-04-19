@@ -115,6 +115,24 @@ def get_by_game_date(game_date):
     return games
 
 
+def get_next_game(teama, teamb, game_date):
+
+    games = game.mlb_game.objects.filter(
+        (Q(game_date__gte=game_date) & Q(
+            home_team=search.get_search_value(teama)
+        ) & Q(away_team=search.get_search_value(teamb))) | (
+            Q(game_date__gte=game_date) & Q(
+                home_team=search.get_search_value(teamb)
+            ) & Q(away_team=search.get_search_value(teama))
+        )
+    ).order_by('game_date')
+
+    if len(games) > 0:
+        return games[0]
+
+    return None
+
+
 def get_games_by_season(season, team_name=None):
 
     if team_name:

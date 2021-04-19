@@ -441,6 +441,25 @@ def get_games_by_date(game_date):
     ]
 
 
+def get_matchup(teama, teamb, game_date):
+
+    g = game.get_next_game(teama, teamb, game_date)
+
+    if g:
+        return get_game_by_key(
+            g.game_key,
+            game_info=g,
+            include_players=False,
+            to_date=game_date,
+            include_odds=True,
+            include_predictions=True,
+            include_injuries=False,
+            standings=False,
+            team_scoring=True,
+        )
+
+    return None
+
 def get_game_by_key(
     game_key,
     game_info=None,
