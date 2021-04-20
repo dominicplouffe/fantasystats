@@ -46,7 +46,7 @@ def get_games_by_date(game_date):
     ]
 
 
-def get_matchup(teama, teamb, game_date):
+def get_matchup(teama, teamb, game_date, force_query=False):
 
     g = game.get_next_game(teama, teamb, game_date)
 
@@ -59,8 +59,9 @@ def get_matchup(teama, teamb, game_date):
             include_odds=True,
             include_predictions=True,
             include_injuries=False,
-            standings=False,
+            standings=True,
             team_scoring=True,
+            force_query=force_query
         )
 
     return None

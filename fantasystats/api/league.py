@@ -81,17 +81,41 @@ class Matchup(BaseView):
         date = datetime.utcnow() - timedelta(hours=5)
         date = datetime(date.year, date.month, date.day)
 
-        mlb_matchup = game_mlb.get_matchup(teama, teamb, date)
+        mlb_matchup = game_mlb.get_matchup(
+            teama,
+            teamb,
+            date,
+            force_query=request.args.get(
+                'force_query',
+                'false'
+            ).lower() == 'true'
+        )
 
         if mlb_matchup:
             return self.write_json(mlb_matchup)
 
-        nba_matchup = game_nba.get_matchup(teama, teamb, date)
+        nba_matchup = game_nba.get_matchup(
+            teama,
+            teamb,
+            date,
+            force_query=request.args.get(
+                'force_query',
+                'false'
+            ).lower() == 'true'
+        )
 
         if nba_matchup:
             return self.write_json(nba_matchup)
 
-        nhl_matchup = game_nhl.get_matchup(teama, teamb, date)
+        nhl_matchup = game_nhl.get_matchup(
+            teama,
+            teamb,
+            date,
+            force_query=request.args.get(
+                'force_query',
+                'false'
+            ).lower() == 'true'
+        )
 
         if nhl_matchup:
             return self.write_json(nhl_matchup)
