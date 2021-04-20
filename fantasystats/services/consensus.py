@@ -400,59 +400,22 @@ def get_best_bets(pred_sites, odds_sites):
         over_under = odds['over_under'][over_under_choice]
         spread = odds['spread'][spread_choice]
 
-        if money_line['odds'] != 'n/a':
+        if money_line['best'] == True:
             if best_bets['money_line']['odds'] is None:
                 best_bets['money_line']['odds'] = money_line['odds']
                 best_bets['money_line']['site'] = site
                 best_bets['money_line']['link'] = odds['link']
-            elif float(money_line['odds']) > float(
-                best_bets['money_line']['odds']
-            ):
-                best_bets['money_line']['odds'] = money_line['odds']
-                best_bets['money_line']['site'] = site
-                best_bets['money_line']['link'] = odds['link']
-
-        if spread['odds'] != 'n/a' and float(spread['spread']) != 0.0:
-            if best_bets['spread']['odds'] is None:
-                best_bets['spread']['odds'] = spread['odds']
-                best_bets['spread']['spread'] = spread['spread']
-                best_bets['spread']['site'] = site
-                best_bets['spread']['link'] = odds['link']
-            elif float(spread['spread']) > float(
-                best_bets['spread']['spread']
-            ):
-                best_bets['spread']['odds'] = spread['odds']
-                best_bets['spread']['spread'] = spread['spread']
-                best_bets['spread']['site'] = site
-                best_bets['spread']['link'] = odds['link']
-            elif float(spread['odds']) > float(
-                best_bets['spread']['odds']
-            ):
-                best_bets['spread']['odds'] = spread['odds']
-                best_bets['spread']['spread'] = spread['spread']
-                best_bets['spread']['site'] = site
-                best_bets['spread']['link'] = odds['link']
-
-        if over_under['odds'] != 'n/a' and float(over_under['points']) > 0:
+        if over_under['best'] == True:
             if best_bets['over_under']['odds'] is None:
                 best_bets['over_under']['odds'] = over_under['odds']
                 best_bets['over_under']['points'] = over_under['points']
                 best_bets['over_under']['site'] = site
                 best_bets['over_under']['link'] = odds['link']
-            elif float(over_under['points']) > float(
-                best_bets['over_under']['points']
-            ):
-                best_bets['over_under']['odds'] = over_under['odds']
-                best_bets['over_under']['points'] = over_under['points']
-                best_bets['over_under']['site'] = site
-                best_bets['over_under']['link'] = odds['link']
-
-            elif float(over_under['odds']) > float(
-                best_bets['over_under']['odds']
-            ):
-                best_bets['over_under']['odds'] = over_under['odds']
-                best_bets['over_under']['points'] = over_under['points']
-                best_bets['over_under']['site'] = site
-                best_bets['over_under']['link'] = odds['link']
+        if spread['best'] == True:
+            if best_bets['spread']['odds'] is None:
+                best_bets['spread']['odds'] = spread['odds']
+                best_bets['spread']['spread'] = spread['spread']
+                best_bets['spread']['site'] = site
+                best_bets['spread']['link'] = odds['link']
 
     return best_bets
