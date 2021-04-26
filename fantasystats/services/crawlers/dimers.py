@@ -13,13 +13,38 @@ from fantasystats.services.crawlers.mappings import (
     NBA_MAPPING, NHL_MAPPING, create_game_key, MLB_MAPPING
 )
 
-URLS = {
-    'nba': 'https://www.oddsshark.com/nba/computer-picks',
-    'nhl': 'https://www.oddsshark.com/nhl/computer-picks',
-    'mlb': 'https://www.oddsshark.com/mlb/computer-picks'
+START_DATE = {
+    'nba': datetime(2020, 12, 21),
+    'nhl': datetime(2021, 1, 12),
+    'mlb': datetime(2021, 3, 31)
 }
 
-PROVIDER = 'oddsshark'
+YEAR = {
+    'nba': '2020',
+    'nhl': '2020',
+    'mlb': '2021',
+}
+
+STATSINSIDER_URL = 'https://levy.statsinsider.com.au/round/matches?Sport=%s' \
+    '&Round=%s&Season=%s'
+STATS = {}
+
+PROVIDER = 'dimers'
+
+
+def _get_stats(week, league):
+
+    context.logger.info(STATSINSIDER_URL %
+                        (league.upper(), week, YEAR[league]))
+    data = requests.get(STATSINSIDER_URL %
+                        (league.upper(), week, YEAR[league])).json()
+
+    STATS[week] = {
+        'date': datetime.now(pytz.UTC),
+        'data': data
+    }
+
+    return data
 
 
 def get_predictions(league, league_mgr, pred_mgr, mappings):
@@ -29,32 +54,40 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
 
     games = []
 
-    content = requests.get(URLS[league]).content.decode('utf-8')
-    doc = html.fromstring(content)
+    if league == 'nba':
+        diff = datetime.utcnow() - START_DATE[league]
+        week = diff.days
 
-    for card in doc.xpath('//div[@class="picks-card-container"]'):
+    elif league == 'nhl':
+        diff = datetime.utcnow() - START_DATE[league]
+        week = diff.days
 
-        abbrs = card.xpath('.//thead/tr/td/span/text()')
+    elif league == 'mlb':
+        diff = datetime.utcnow() - START_DATE[league]
+        week = diff.days
 
-        away_abbr = abbrs[2].strip()
-        home_abbr = abbrs[4].strip()
+    stats = _get_stats(week, league)
 
-        try:
-            away_score = float(card.xpath('.//tbody[1]/tr[1]/td[2]/text()')[0])
-        except ValueError:
-            away_score = 0.00
+    for game in stats:
+        match = game['MatchData']
+        pre_data = game['PreData']
 
-        try:
-            home_score = float(card.xpath('.//tbody[1]/tr[1]/td[3]/text()')[0])
-        except ValueError:
-            home_score = 0.00
+        away_abbr = match['AwayTeam']['Abv']
+        home_abbr = match['HomeTeam']['Abv']
 
-        game_url = card.xpath('.//thead[1]/tr[1]/td[1]/span/a/@href')[0]
-        game_url = 'https://www.oddsshark.com%s' % game_url
+        away_score = pre_data['PredAwayScore']
+        home_score = pre_data['PredHomeScore']
 
-        context.logger.info(game_url)
+        game_url = 'https://www.dimers.com/bet-hub/%s/schedule/%s_%s_%s_%s' % (
+            league,
+            YEAR[league],
+            week,
+            home_abbr.lower(),
+            away_abbr.lower()
+        )
 
-        context.logger.info('away_abbr: %s' % away_abbr)
+        print(game_url)
+
         away_team = league_mgr.get_team_by_abbr(
             mappings.get(away_abbr, away_abbr)
         )[0]
@@ -103,4 +136,3 @@ if __name__ == '__main__':
 
     nba_games = get_predictions('nba', nba_team, nba_prediction, NBA_MAPPING)
     nhl_games = get_predictions('nhl', nhl_team, nhl_prediction, NHL_MAPPING)
-    mlb_games = get_predictions('mlb', mlb_team, mlb_prediction, MLB_MAPPING)

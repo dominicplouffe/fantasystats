@@ -400,18 +400,18 @@ def get_best_bets(pred_sites, odds_sites):
         over_under = odds['over_under'][over_under_choice]
         spread = odds['spread'][spread_choice]
 
-        if money_line['best'] == True:
+        if money_line.get('best', False) == True:
             if best_bets['money_line']['odds'] is None:
                 best_bets['money_line']['odds'] = money_line['odds']
                 best_bets['money_line']['site'] = site
                 best_bets['money_line']['link'] = odds['link']
-        if over_under['best'] == True:
+        if over_under.get('best', False) == True:
             if best_bets['over_under']['odds'] is None:
                 best_bets['over_under']['odds'] = over_under['odds']
                 best_bets['over_under']['points'] = over_under['points']
                 best_bets['over_under']['site'] = site
                 best_bets['over_under']['link'] = odds['link']
-        if spread['best'] == True:
+        if spread.get('best', False) == True:
             if best_bets['spread']['odds'] is None:
                 best_bets['spread']['odds'] = spread['odds']
                 best_bets['spread']['spread'] = spread['spread']

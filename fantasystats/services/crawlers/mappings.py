@@ -1,5 +1,5 @@
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 from fantasystats.services import search
 
 HEADERS = {
@@ -47,7 +47,6 @@ MLB_MAPPING = {
 def create_game_key(away_team, home_team):
 
     d = datetime.now(pytz.UTC)
-
     return search.create_game_key(
         d,
         away_team,

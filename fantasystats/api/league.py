@@ -73,7 +73,7 @@ class GetGamesByDate(BaseView):
 
 class Matchup(BaseView):
 
-    cache_time = 86400
+    cache_time = 3600
 
     @memorize
     def dispatch_request(self, teama, teamb):
