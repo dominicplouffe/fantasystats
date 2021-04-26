@@ -45,11 +45,11 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
             home_diff = spread * (home_per / 100)
 
             if home_per > away_per:
-                away_score = round(total - away_diff, 0)
-                home_score = round(total + home_diff, 0)
+                away_score = round((total / 2) - (spread / 2), 2)
+                home_score = round((total / 2) + (spread / 2), 2)
             else:
-                away_score = round(total + away_diff, 0)
-                home_score = round(total - home_diff, 0)
+                away_score = round((total / 2) + (spread / 2), 2)
+                home_score = round((total / 2) - (spread / 2), 2)
         except TypeError:
             continue
 
