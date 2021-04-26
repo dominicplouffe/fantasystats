@@ -6,5 +6,9 @@ PROVIDERS = {
     'scoresandstats': 'Scores and Stats',
     'sportsbettingdime': 'Sports Betting Dime',
     'thesportsgeek': 'The Sports Geek',
-    'wunderdog': 'Wunderdog'
+    'wunderdog': 'Wunderdog',
+    'dunkelindex': 'DunkelIndex',
+    'dimers': 'Dimers',
+    'sportsgrid': 'SportGrid',
+    'nbagamesim': 'GameSim',
 }
