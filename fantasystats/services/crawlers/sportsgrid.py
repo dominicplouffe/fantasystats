@@ -23,9 +23,7 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
 
     games = []
 
-    games = requests.get(URLS[league]).json()
-
-    for game in games:
+    for game in requests.get(URLS[league]).json():
 
         if 'model' not in game:
             continue
@@ -86,6 +84,7 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
         )
 
     for g in games:
+        print(g['game_key'])
         pred_mgr.save_prediction(
             g['game_key'],
             game_date,

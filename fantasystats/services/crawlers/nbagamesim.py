@@ -18,6 +18,10 @@ URLS = {
 
 PROVIDER = 'nbagamesim'
 
+MAPPINGS = {
+    'Los Angeles Clippers': 'la_clippers'
+}
+
 
 def get_predictions(league, league_mgr, pred_mgr, mappings):
 
@@ -29,21 +33,23 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
     content = requests.get(URLS[league]).content.decode('utf-8')
     doc = html.fromstring(content)
 
-    print()
-
     for card in doc.xpath('//div[@class="table-responsive"]/table/tr'):
         names = card.xpath('.//td[2]/a/text()')
 
         away_name = names[0]
         home_name = names[1]
 
-        away_team = league_mgr.get_team_by_name(away_name)
-        home_team = league_mgr.get_team_by_name(home_name)
+        away_team = league_mgr.get_team_by_name(
+            MAPPINGS.get(away_name, away_name)
+        )
+        home_team = league_mgr.get_team_by_name(
+            MAPPINGS.get(home_name, home_name)
+        )
 
         pred_text = card.xpath('.//td[3]/text()')[0]
 
-        win_team = pred_text.split('win')[0].strip()
-        scores = pred_text.split('win')[1].split('-')
+        win_team = pred_text.split(' win ')[0].strip()
+        scores = pred_text.split(' win ')[1].split('-')
         if win_team == away_name:
             away_score = float(scores[0].strip())
             home_score = float(scores[1].strip())
@@ -74,6 +80,7 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
         )
 
     for g in games:
+        print(g['game_key'])
         pred_mgr.save_prediction(
             g['game_key'],
             game_date,

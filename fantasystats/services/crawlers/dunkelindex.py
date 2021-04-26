@@ -21,6 +21,10 @@ URLS = {
 
 PROVIDER = 'dunkelindex'
 
+MAPPINGS = {
+    'Los Angeles Clippers': 'la_clippers'
+}
+
 
 def get_predictions(league, league_mgr, pred_mgr, mappings):
 
@@ -66,8 +70,10 @@ def get_predictions(league, league_mgr, pred_mgr, mappings):
             if away_score == home_score:
                 home_score += 1
 
-        away_team = league_mgr.get_team_by_name(away_name)
-        home_team = league_mgr.get_team_by_name(home_name)
+        away_team = league_mgr.get_team_by_name(
+            MAPPINGS.get(away_name, away_name))
+        home_team = league_mgr.get_team_by_name(
+            MAPPINGS.get(home_name, home_name))
 
         winner = away_team.name_search
         if home_score > away_score:
