@@ -31,6 +31,7 @@ def get_predictions(league, league_mgr, pred_mgr, mapping):
 
     game_date = datetime.now(pytz.UTC)
     game_date = datetime(game_date.year, game_date.month, game_date.day)
+    print(game_date)
 
     games = []
 
@@ -49,12 +50,14 @@ def get_predictions(league, league_mgr, pred_mgr, mapping):
             matchup_url = 'https://www.wunderdog.com%s' % (
                 row.xpath('./td[3]/a/@href')[0]
             )
+            print(matchup_url)
             game = get_matchup(league, league_mgr, mapping, matchup_url)
+            print(game)
             games.append(game)
         else:
             day_count += 1
 
-            if day_count == 2:
+            if day_count == 3:
                 break
 
     for g in games:

@@ -44,6 +44,7 @@ def get_game_prediction(url, league, league_mgr, pred_mgr, mappings):
     away_team = league_mgr.get_team_by_abbr(
         mappings.get(away_abbr, away_abbr)
     )[0]
+    print(home_abbr)
     home_team = league_mgr.get_team_by_abbr(
         mappings.get(home_abbr, home_abbr)
     )[0]

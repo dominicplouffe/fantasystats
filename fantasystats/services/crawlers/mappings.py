@@ -40,7 +40,8 @@ NHL_MAPPING = {
 
 MLB_MAPPING = {
     'CHW': 'CWS',
-    'LA': 'LAD'
+    'LA': 'LAD',
+    'WAS': 'WSH',
 }
 
 

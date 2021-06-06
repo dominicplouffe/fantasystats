@@ -136,6 +136,7 @@ def find_best_odds(odds):
     order['PointsBet'] = odds.get('PointsBet', odds['FanDuel'])
     order['DraftKings'] = odds.get('DraftKings', odds['FanDuel'])
     order['WilliamHill'] = odds.get('WilliamHill', odds['FanDuel'])
+    order['Bet365'] = odds.get('Bet365', odds['FanDuel'])
 
     order['Unibet']['link'] = 'https://affiliates.bettingnews.com/register/ubet/'
     order['BetMGM']['link'] = 'https://affiliates.bettingnews.com/register/bmgm/'
@@ -144,6 +145,7 @@ def find_best_odds(odds):
     order['PointsBet']['link'] = 'https://affiliates.bettingnews.com/register/pb/'
     order['DraftKings']['link'] = 'https://affiliates.bettingnews.com/register/dk/'
     order['WilliamHill']['link'] = 'https://affiliates.bettingnews.com/register/williamhill/'
+    order['Bet365']['link'] = ''
 
     return order
 
