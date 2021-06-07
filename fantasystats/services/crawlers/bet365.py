@@ -98,11 +98,18 @@ def get_odds(league, db_map):
         team_row = {}
         for mkt in ev['Market']:
             if mkt['@Name'] == 'Money Line':
+                if mkt['Participant'][0]['@OddsAmerican'] == 'OFF':
+                    team_row = {}
+                    break
                 team_row['money_line'] = {
                     'away': {'odds': mkt['Participant'][0]['@OddsAmerican']},
                     'home': {'odds': mkt['Participant'][1]['@OddsAmerican']}
                 }
-            elif mkt['@Name'] == 'Run Line':
+            elif mkt['@Name'] in ['Run Line', 'Point Spread']:
+                if mkt['Participant'][0]['@OddsAmerican'] == 'OFF':
+                    team_row = {}
+                    break
+
                 team_row['spread'] = {
                     'away': {
                         'spread': mkt['Participant'][0]['@Handicap'],
@@ -114,6 +121,10 @@ def get_odds(league, db_map):
                     },
                 }
             elif mkt['@Name'] == 'Game Totals':
+                if mkt['Participant'][0]['@OddsAmerican'] == 'OFF':
+                    team_row = {}
+                    break
+
                 team_row['over_under'] = {
                     'over': {
                         'points': mkt['Participant'][0]['@Handicap'],
@@ -127,16 +138,22 @@ def get_odds(league, db_map):
             else:
                 continue
 
+        if not team_row:
+            continue
         print(found_game)
         odds = context.db[DB_MAP[league]['odds']].find_one({
             '_id': found_game['game_key']
         })
 
         if odds:
+            for bet_type in ['over_under', 'spread', 'money_line']:
+                for k, v in team_row[bet_type].items():
+                    if team_row[bet_type][k]['odds'][0] != '-':
+                        team_row[bet_type][k]['odds'] = '+%s' % team_row[bet_type][k]['odds']
             odds['Bet365'] = team_row
-            # context.db[DB_MAP[league]['odds']].replace_one(
-            #     {'_id': odds['_id']}, odds, upsert=False
-            # )
+            context.db[DB_MAP[league]['odds']].replace_one(
+                {'_id': odds['_id']}, odds, upsert=False
+            )
 
 
 def translante(home, away, name):
@@ -182,7 +199,7 @@ def translante(home, away, name):
         away = 'LAL'
     if home == 'LA' and 'Clippers' in name:
         home = 'LAC'
-    if away == 'LA' and 'AnClippersgels' in name:
+    if away == 'LA' and 'Clippers' in name:
         away = 'LAC'
 
     return home, away

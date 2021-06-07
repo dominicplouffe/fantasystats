@@ -129,14 +129,26 @@ def find_best_odds(odds):
     if 'FanDuel' not in odds:
         return None
     order = OrderedDict()
-    order['Unibet'] = odds.get('Unibet', odds['FanDuel'])
-    order['BetMGM'] = odds.get('BetMGM', odds['FanDuel'])  # TODO - Fix
-    order['Sugarhouse'] = odds.get('Sugarhouse', odds['FanDuel'])
-    order['FanDuel'] = odds['FanDuel']
-    order['PointsBet'] = odds.get('PointsBet', odds['FanDuel'])
-    order['DraftKings'] = odds.get('DraftKings', odds['FanDuel'])
-    order['WilliamHill'] = odds.get('WilliamHill', odds['FanDuel'])
-    order['Bet365'] = odds.get('Bet365', odds['FanDuel'])
+    order['Unibet'] = copy.deepcopy(odds.get('Unibet', odds['FanDuel']))
+    order['BetMGM'] = copy.deepcopy(
+        odds.get('BetMGM', odds['FanDuel'])
+    )  # TODO - Fix
+    order['Sugarhouse'] = copy.deepcopy(
+        odds.get('Sugarhouse', odds['FanDuel'])
+    )
+    order['FanDuel'] = copy.deepcopy(odds['FanDuel'])
+    order['PointsBet'] = copy.deepcopy(
+        odds.get('PointsBet', odds['FanDuel'])
+    )
+    order['DraftKings'] = copy.deepcopy(
+        odds.get('DraftKings', odds['FanDuel'])
+    )
+    order['WilliamHill'] = copy.deepcopy(
+        odds.get('WilliamHill', odds['FanDuel'])
+    )
+    order['Bet365'] = copy.deepcopy(
+        odds.get('Bet365', odds['FanDuel'])
+    )
 
     order['Unibet']['link'] = 'https://affiliates.bettingnews.com/register/ubet/'
     order['BetMGM']['link'] = 'https://affiliates.bettingnews.com/register/bmgm/'
@@ -145,7 +157,7 @@ def find_best_odds(odds):
     order['PointsBet']['link'] = 'https://affiliates.bettingnews.com/register/pb/'
     order['DraftKings']['link'] = 'https://affiliates.bettingnews.com/register/dk/'
     order['WilliamHill']['link'] = 'https://affiliates.bettingnews.com/register/williamhill/'
-    order['Bet365']['link'] = ''
+    order['Bet365']['link'] = 'https://affiliates.bettingnews.com/register/bet365'
 
     return order
 
