@@ -66,3 +66,20 @@ def create_odds_rollup_key(team_name, date):
         get_search_value(team_name),
         date.strftime('%Y-%m-%d')
     )
+
+
+def create_eports_game_key(
+    event_id,
+    match_id
+):
+    game_key = '%s-%s' % (
+        event_id.replace(' ', '-').replace('.', '-').lower(),
+        match_id.replace(' ', '-').replace('.', '-').lower()
+    )
+
+    return str(game_key)
+
+
+def get_esport_team_key(team_name):
+
+    return team_name.replace(' ', '-').replace('.', '-').lower()

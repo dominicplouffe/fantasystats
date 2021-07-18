@@ -9,6 +9,7 @@ from fantasystats.api.mlb import mlb
 from fantasystats.api.nhl import nhl
 from fantasystats.api.nba import nba
 from fantasystats.api.league import league
+from fantasystats.api.esports import esports
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 CORS(app)
@@ -17,6 +18,7 @@ app.register_blueprint(mlb)
 app.register_blueprint(nhl)
 app.register_blueprint(nba)
 app.register_blueprint(league)
+app.register_blueprint(esports)
 app.secret_key = '1qaz2wsx!'
 
 
