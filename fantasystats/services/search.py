@@ -70,11 +70,13 @@ def create_odds_rollup_key(team_name, date):
 
 def create_eports_game_key(
     event_id,
-    match_id
+    match_id,
+    game_date
 ):
-    game_key = '%s-%s' % (
+    game_key = '%s-%s-%s' % (
         event_id.replace(' ', '-').replace('.', '-').lower(),
-        match_id.replace(' ', '-').replace('.', '-').lower()
+        match_id.replace(' ', '-').replace('.', '-').lower(),
+        game_date.strftime('%Y-%m-%d')
     )
 
     return str(game_key)

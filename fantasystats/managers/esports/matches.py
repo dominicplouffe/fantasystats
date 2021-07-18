@@ -18,7 +18,8 @@ def insert_match(
 
     game_key = search.create_eports_game_key(
         event_name,
-        match_name
+        match_name,
+        game_date
     )
 
     print(game_key)
@@ -62,3 +63,10 @@ def get_match_by_game_key(game_key):
         return t
     except DoesNotExist:
         return None
+
+
+def get_matches_by_date(game_date):
+
+    return matches.match.objects.filter(
+        game_date=game_date
+    )

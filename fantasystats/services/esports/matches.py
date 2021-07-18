@@ -2,8 +2,28 @@ from fantasystats.managers.esports import matches
 from fantasystats.services import search
 
 
-def get_match(game_id):
-    match = matches.get_match_by_game_key(game_id)
+def get_matches_by_date(game_date, category=None, event_id=None):
+
+    all_matches = []
+
+    for m in matches.get_matches_by_date(game_date):
+
+        if category:
+            if m.category != category:
+                continue
+
+        if event_id:
+            if m.event_id != event_id:
+                continue
+
+        all_matches.append(get_match(m['game_key'], match=m))
+
+    return all_matches
+
+
+def get_match(game_id, match=None):
+    if not match:
+        match = matches.get_match_by_game_key(game_id)
 
     if not match:
         return {}
@@ -27,10 +47,11 @@ def get_match(game_id):
 
     winner_bet = {}
     handicap_bet = {}
+    over_under = {}
     other_bets = {}
 
     for b in match.bets:
-        if b['Name'] == 'Winner':
+        if b['Name'] in ['Winner', '1x2']:
             for t in b['Odds']:
                 team_name = search.get_esport_team_key(t['Name'])
                 winner_bet[team_name] = {
@@ -38,6 +59,19 @@ def get_match(game_id):
                     'odds': float(t['Value']),
                     'team_key': team_name
                 }
+        elif b['Name'] == 'Total':
+            for t in b['Odds']:
+                if t['Name'].startswith('over'):
+                    over_under['over'] = {
+                        'spread': t['Name'].split(' ')[-1],
+                        'odds': float(t['Value'])
+                    }
+                else:
+                    over_under['under'] = {
+                        'spread': t['Name'].split(' ')[-1],
+                        'odds': float(t['Value'])
+                    }
+
         elif b['Name'].lower().endswith('handicap'):
             for t in b['Odds']:
                 name = t['Name'].split('(')[0].strip()
@@ -67,13 +101,10 @@ def get_match(game_id):
             b['bet_name'] = b['Name']
             other_bets[b['Name']] = odds
 
-        print(b['Name'])
-        print(b['Odds'])
-        print('')
-
     match_info['odds'] = {
         'moneyline': winner_bet,
         'spread': handicap_bet,
+        'total': over_under,
         'other': other_bets,
     }
 
